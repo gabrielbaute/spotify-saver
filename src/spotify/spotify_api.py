@@ -6,6 +6,7 @@ from typing import Dict, List, Optional
 from src.config import Config
 from src.spotify.models.album import Album
 from src.spotify.models.track import Track
+from src.spotify.models.artist import Artist
 from src.spotlog.logger import get_logger
 
 logger = get_logger("SpotifyAPI")
@@ -86,7 +87,7 @@ class SpotifyAPI:
             raise ValueError("Track not found")
         
         return Track(
-            number=1,  # Los singles suelen ser track 1
+            number=raw_data["track"],
             name=raw_data["name"],
             duration=raw_data["duration_ms"] // 1000,
             uri=raw_data["uri"],
@@ -101,11 +102,11 @@ class SpotifyAPI:
             logger.error(f"Artist not found: {artist_url}")
             raise ValueError("Artist not found")
         
-        return {
-            "name": raw_data["name"],
-            "genres": raw_data.get("genres", []),
-            "followers": raw_data["followers"]["total"],
-            "popularity": raw_data["popularity"],
-            "uri": raw_data["uri"],
-            "image_url": raw_data["images"][0]["url"] if raw_data["images"] else None
-        }
+        return Artist(
+            name=raw_data["name"],
+            uri=raw_data["uri"],
+            genres=raw_data.get("genres", []),
+            popularity=raw_data["popularity"],
+            followers=raw_data["followers"]["total"],
+            image_url=raw_data["images"][0]["url"] if raw_data["images"] else None
+        )
