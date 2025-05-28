@@ -63,6 +63,7 @@ class SpotifyAPI:
                 duration=track["duration_ms"] // 1000,
                 uri=track["uri"],
                 artists=[a["name"] for a in track["artists"]],
+                genres=raw_data.get("genres", []),
                 album_name=raw_data["name"],
                 release_date=raw_data["release_date"],
                 cover_url=raw_data["images"][0]["url"] if raw_data["images"] else None

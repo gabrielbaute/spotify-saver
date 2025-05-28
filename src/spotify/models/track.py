@@ -10,6 +10,7 @@ class Track:
     uri: str
     artists: List[str]
     release_date: str
+    genres: List[str] = None
     album_name: str = None
     cover_url: str = None
 
