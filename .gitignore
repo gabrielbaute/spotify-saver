@@ -102,3 +102,7 @@ ENV/
 todo.txt
 build.sh
 publish.sh
+
+# Descargas
+downloads/
+Music/
