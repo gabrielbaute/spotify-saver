@@ -59,6 +59,7 @@ class SpotifyAPI:
         tracks = [
             Track(
                 number=track["track_number"],
+                total_tracks=raw_data["total_tracks"],
                 name=track["name"],
                 duration=track["duration_ms"] // 1000,
                 uri=track["uri"],
