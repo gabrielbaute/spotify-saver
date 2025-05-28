@@ -64,6 +64,7 @@ class SpotifyAPI:
                 uri=track["uri"],
                 artists=[a["name"] for a in track["artists"]],
                 album_name=raw_data["name"],
+                release_date=raw_data["release_date"],
                 cover_url=raw_data["images"][0]["url"] if raw_data["images"] else None
             )
             for track in raw_data["tracks"]["items"]
@@ -93,6 +94,7 @@ class SpotifyAPI:
             uri=raw_data["uri"],
             artists=[a["name"] for a in raw_data["artists"]],
             album_name=raw_data["album"]["name"] if raw_data["album"] else None,
+            release_date=raw_data["album"]["release_date"] if raw_data["album"] else "NA",
             cover_url=raw_data["album"]["images"][0]["url"] if raw_data["album"]["images"] else None
         )
     

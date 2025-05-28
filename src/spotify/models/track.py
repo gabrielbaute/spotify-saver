@@ -6,9 +6,10 @@ class Track:
     """Representa un track individual con su metadata."""
     number: int
     name: str
-    duration: int  # en segundos
+    duration: int
     uri: str
     artists: List[str]
+    release_date: str
     album_name: str = None
     cover_url: str = None
 
@@ -20,5 +21,6 @@ class Track:
             "duration": self.duration,
             "artists": self.artists,
             "album": self.album_name,
+            "release_date": self.release_date,
             "cover_url": self.cover_url
         }
