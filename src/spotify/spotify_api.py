@@ -87,11 +87,12 @@ class SpotifyAPI:
             raise ValueError("Track not found")
         
         return Track(
-            number=raw_data["track"],
+            number=raw_data["track_number"],
             name=raw_data["name"],
             duration=raw_data["duration_ms"] // 1000,
             uri=raw_data["uri"],
             artists=[a["name"] for a in raw_data["artists"]],
+            album_name=raw_data["album"]["name"] if raw_data["album"] else None,
             cover_url=raw_data["album"]["images"][0]["url"] if raw_data["album"]["images"] else None
         )
     
