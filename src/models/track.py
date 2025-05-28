@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 
-@dataclass
+@dataclass(frozen=True)
 class Track:
     """Representa un track individual con su metadata."""
     number: int
@@ -14,6 +14,9 @@ class Track:
     genres: List[str] = None
     album_name: str = None
     cover_url: str = None
+
+    def __hash__(self):
+        return hash((self.name, tuple(self.artists), self.duration))
 
     def to_dict(self) -> dict:
         """Convierte el objeto a un diccionario para serialización."""
