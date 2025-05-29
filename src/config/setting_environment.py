@@ -9,9 +9,12 @@ load_dotenv(env_path)
 
 class Config:
     """Configuration class for Spotify API and other settings."""
+    
     SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_DLP_CLIENT_ID")
     SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_DLP_CLIENT_SECRET")
     SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_DLP_REDIRECT_URI", "http://localhost:8888/callback")
+
+    LOG_LEVEL = os.getenv("LOG_LEVEL", "info").lower()
 
     @classmethod
     def validate(cls):

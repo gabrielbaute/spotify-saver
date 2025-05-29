@@ -1,3 +1,5 @@
+from typing import Optional
+from src.config import Config
 import logging
 import os
 
@@ -7,6 +9,19 @@ class LoggerConfig:
     LOG_DIR = "logs"
     LOG_FILE = os.path.join(LOG_DIR, "app.log")
 
+    @classmethod
+    def _get_log_level(cls) -> int:
+        """Obtiene el nivel de logging de las variables de entorno."""
+        level_map = {
+            'debug': logging.DEBUG,
+            'info': logging.INFO,
+            'warning': logging.WARNING,
+            'error': logging.ERROR,
+            'critical': logging.CRITICAL
+        }
+        level_str = Config.LOG_LEVEL
+        return level_map.get(level_str, logging.INFO)
+    
     @classmethod
     def setup(cls):
         """Inicializa el sistema de logging"""
