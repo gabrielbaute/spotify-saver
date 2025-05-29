@@ -46,6 +46,7 @@ class YouTubeDownloader:
             audio["\xa9ART"] = [", ".join(track.artists)]  # Artista
             audio["\xa9alb"] = [track.album_name]  # Álbum
             audio["\xa9day"] = [track.release_date[:4]]  # Solo el año
+            audio["\xa9gen"] = [", ".join(track.genres)] if track.genres else []  # Género
             audio["trkn"] = [(track.number, track.total_tracks)]  # Número de pista y total
             
             # Género (si existe en el track)
