@@ -38,7 +38,3 @@ class LoggerConfig:
             ]
         )
         logging.info(f"Logging configurado en nivel: {logging.getLevelName(log_level)}")
-
-
-# Ejecutar configuración al importar el módulo
-LoggerConfig.setup()

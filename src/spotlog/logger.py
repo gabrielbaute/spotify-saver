@@ -1,7 +1,3 @@
-from src.spotlog.log_config import LoggerConfig
-
-LoggerConfig.setup()
-
 import logging
 
 def get_logger(name):
