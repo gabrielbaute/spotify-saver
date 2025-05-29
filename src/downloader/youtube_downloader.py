@@ -1,5 +1,6 @@
 import yt_dlp
 import requests
+import logging
 from pathlib import Path
 from typing import Optional
 from mutagen.mp4 import MP4, MP4Cover
@@ -17,6 +18,40 @@ class YouTubeDownloader:
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(exist_ok=True)
         self.searcher = YoutubeMusicSearcher()
+
+    def _get_ydl_opts(self, output_path: Path) -> dict:
+        """Genera opciones para yt-dlp basadas en el nivel de logging."""
+        is_verbose = logger.getEffectiveLevel() <= logging.DEBUG
+        
+        return {
+            "format": "m4a/bestaudio[abr<=128]/best",
+            "outtmpl": str(output_path.with_suffix(".%(ext)s")),
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "m4a",
+            }],
+            "quiet": not is_verbose,  # Silencioso a menos que estemos en DEBUG
+            "verbose": is_verbose,   # Output detallado solo en DEBUG
+            "extract_flat": False,
+            "logger": self._get_ydl_logger()  # Logger personalizado
+        }
+
+    def _get_ydl_logger(self):
+        """Crea un logger adaptado para yt-dlp."""
+        class YDLLogger:
+            def debug(self, msg):
+                logger.debug(f"[yt-dlp] {msg}")
+
+            def info(self, msg):
+                logger.info(f"[yt-dlp] {msg}")
+
+            def warning(self, msg):
+                logger.warning(f"[yt-dlp] {msg}")
+
+            def error(self, msg):
+                logger.error(f"[yt-dlp] {msg}")
+
+        return YDLLogger()
 
     def _get_output_path(self, track: Track) -> Path:
         """Genera rutas: Music/Artist/Album (Year)/Track.m4a."""
@@ -69,21 +104,11 @@ class YouTubeDownloader:
         """Descarga un track desde YouTube Music con metadata de Spotify."""
         output_path = self._get_output_path(track)
         yt_url = self.searcher.search_track(track)
+        ydl_opts = self._get_ydl_opts(output_path)
         
         if not yt_url:
             logger.error(f"No se encontró match para: {track.name}")
             return None
-        
-        ydl_opts = {
-            "format": "m4a/bestaudio[abr<=128]/best",
-            "outtmpl": str(output_path.with_suffix(".%(ext)s")),
-            "postprocessors": [{
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "m4a",
-            }],
-            "quiet": False,
-            "extract_flat": False,
-        }
 
         try:
             # Descarga el audio
