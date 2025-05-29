@@ -1,0 +1,14 @@
+certifi==2025.4.26
+charset-normalizer==3.4.2
+docopt==0.6.2
+idna==3.10
+mutagen==1.47.0
+pipreqs==0.4.13
+python-dotenv==1.1.0
+redis==6.1.0
+requests==2.32.3
+spotipy==2.25.1
+urllib3==2.4.0
+yarg==0.1.10
+yt-dlp==2025.5.22
+ytmusicapi==1.10.3
