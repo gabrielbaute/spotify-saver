@@ -6,12 +6,12 @@ Herramienta todo-en-uno para descarga y organización de música, diseñada para
 
 ## ✨ Características principales
 - Descarga de audio desde YouTube Music con metadata de Spotify ✔️
-- Obtención de letras sincronizadas (.lrc) desde LRC Lib 🚧
+- Obtención de letras sincronizadas (.lrc) desde LRC Lib ✔️
 - Generación de archivos `.info` para Jellyfin 🚧
 - Estructura de carpetas automática (Artista/Álbum) ✔️
 - CLI 🚧
 
-La app se conecta a las API's de Spotify y de YoutubeMusic. El objetivo es hacer lo mismo con la API de lrclib, para obtener letras sincronizadas o en texto plano, y descargar también las letras de las canciones en formato .lrc, y por último completar un archivo .info en xml para completar la metadata que requiere jellyfin cuando construye las librerías de música.
+La app se conecta a las API's de Spotify y de YoutubeMusic. El objetivo es generar un archivo .info en xml para completar la metadata que requiere jellyfin cuando construye las librerías de música.
 
 ## 🛠 Instalación
 ```bash
