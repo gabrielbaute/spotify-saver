@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "spotifysaver"
+version = "0.1.0"
+description = "Download Spotify tracks via YouTube Music"
+authors = ["Gabriel Baute <gabrielbaute@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+spotipy = "^2.22.0"
+yt-dlp = "^2023.7.6"
+ytmusicapi = "^1.0.0"
+requests = "^2.31.0"
+click = "^8.1.3"
+pydantic = "^2.0"
+
+[tool.poetry.scripts]
+spotdownloader = "src.cli.cli:cli"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
