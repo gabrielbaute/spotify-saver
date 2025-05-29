@@ -10,7 +10,7 @@ class LoggerConfig:
     LOG_FILE = os.path.join(LOG_DIR, "app.log")
 
     @classmethod
-    def _get_log_level(cls) -> int:
+    def get_log_level(cls) -> int:
         """Obtiene el nivel de logging de las variables de entorno."""
         level_map = {
             'debug': logging.DEBUG,
@@ -27,7 +27,7 @@ class LoggerConfig:
         """Inicializa el sistema de logging"""
         os.makedirs(cls.LOG_DIR, exist_ok=True)
 
-        log_level = level if level is not None else cls._get_log_level()
+        log_level = level if level is not None else cls.get_log_level()
 
         logging.basicConfig(
             level=log_level,
