@@ -3,6 +3,7 @@ from pathlib import Path
 from src.apis import SpotifyAPI, YoutubeMusicSearcher
 from src.downloader import YouTubeDownloader
 from src.spotlog import LoggerConfig
+from src.config import Config
 
 LoggerConfig.setup()
 
@@ -16,13 +17,19 @@ def cli():
 @click.option('--lyrics', is_flag=True, help='Download synced lyrics (.lrc)')
 @click.option('--output', type=Path, default='Music', help='Output directory')
 @click.option('--format', type=click.Choice(['m4a', 'mp3', 'opus']), default='m4a')
-def download(spotify_url: str, lyrics: bool, output: Path, format: str):
+@click.option('--verbose', is_flag=True, help='Show debug output')
+def download(spotify_url: str, lyrics: bool, output: Path, format: str, verbose: bool):
     """Download a track or album from Spotify via YouTube Music"""
     try:
         spotify = SpotifyAPI()
         searcher = YoutubeMusicSearcher()
         downloader = YouTubeDownloader(base_dir=output)
         
+        if verbose:
+            click.secho("Modo verbose activado. Se mostrarán mensajes de depuración.", fg='yellow')
+            Config.LOG_LEVEL = 'debug'
+            LoggerConfig.get_log_level()
+
         # Detectar si es album o track individual
         if 'album' in spotify_url:
             process_album(spotify, searcher, downloader, spotify_url, lyrics, format)
