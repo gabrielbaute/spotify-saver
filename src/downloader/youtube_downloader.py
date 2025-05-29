@@ -103,47 +103,60 @@ class YouTubeDownloader:
     def _save_lyrics(self, track: 'Track', audio_path: Path) -> bool:
         """Guarda letras sincronizadas como archivo .lrc"""
         try:
-            lyrics = self.lrc_client.get_lyrics(track)
-            if not lyrics:
+            lyrics = self.lrc_client.get_lyrics_with_fallback(track)
+            if not lyrics or "[instrumental]" in lyrics.lower():
                 return False
                 
             lrc_path = audio_path.with_suffix(".lrc")
             lrc_path.write_text(lyrics, encoding="utf-8")
-            return True
+
+            if lrc_path.stat().st_size > 0:
+                logger.info(f"Letras guardadas: {lrc_path}")
+                return True
+            
+            return False
             
         except Exception as e:
-            logger.error(f"No se pudieron guardar letras: {str(e)}")
+            logger.error(f"Error guardando letras: {str(e)}", exc_info=True)
             return False
 
-    def download_track(self, track: Track, yt_url: str, download_lyrics: bool = True) -> Optional[Path]:
-        """Descarga un track desde YouTube Music con metadata de Spotify."""
+    def download_track(self, track: Track, yt_url: str, download_lyrics: bool = False) -> tuple[Optional[Path], Optional[Track]]:
+        """
+        Descarga un track desde YouTube Music con metadata de Spotify.
+        
+        Returns:
+            tuple: (Path del archivo descargado, Track actualizado) o (None, None) en caso de error
+        """
         output_path = self._get_output_path(track)
         yt_url = self.searcher.search_track(track)
         ydl_opts = self._get_ydl_opts(output_path)
         
         if not yt_url:
             logger.error(f"No se encontró match para: {track.name}")
-            return None
+            return None, None
 
         try:
-            # Descarga el audio
+            # 1. Descarga el audio
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([yt_url])
             
-            # Añade metadatos y portada
+            # 2. Añade metadatos y portada
             cover_data = self._download_cover(track)
             self._add_metadata(output_path, track, cover_data)
 
-            # Descarga letras si se solicita
+            # 3. Manejo de letras
+            updated_track = track
             if download_lyrics:
-                self._save_lyrics(track, output_path)
+                success = self._save_lyrics(track, output_path)
+                updated_track = track.with_lyrics_status(success)
 
             logger.info(f"Download completed: {output_path}")
-            return output_path
+            return output_path, updated_track
+        
         except Exception as e:
-            logger.error(f"Error downloading {track.name}: {e}")
+            logger.error(f"Error downloading {track.name}: {e}", exc_info=True)
             if output_path.exists():
                 logger.debug(f"Removing corrupt file: {output_path}")
-                output_path.unlink()  # Elimina archivo corrupto
-            return None
-
+                output_path.unlink()
+            return None, None
+        
