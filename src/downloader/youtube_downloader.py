@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional
 from mutagen.mp4 import MP4, MP4Cover
 
-from src.apis import YoutubeMusicSearcher
+from src.apis import YoutubeMusicSearcher, LrclibAPI
 from src.models import Track
 from src.spotlog import get_logger
 
@@ -18,6 +18,7 @@ class YouTubeDownloader:
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(exist_ok=True)
         self.searcher = YoutubeMusicSearcher()
+        self.lrc_client = LrclibAPI()
 
     def _get_ydl_opts(self, output_path: Path) -> dict:
         """Genera opciones para yt-dlp basadas en el nivel de logging."""
@@ -99,8 +100,22 @@ class YouTubeDownloader:
             logger.error(f"Error añadiendo metadatos: {str(e)}")
             raise  # Opcional: relanza el error si quieres manejo externo
 
+    def _save_lyrics(self, track: 'Track', audio_path: Path) -> bool:
+        """Guarda letras sincronizadas como archivo .lrc"""
+        try:
+            lyrics = self.lrc_client.get_lyrics(track)
+            if not lyrics:
+                return False
+                
+            lrc_path = audio_path.with_suffix(".lrc")
+            lrc_path.write_text(lyrics, encoding="utf-8")
+            return True
+            
+        except Exception as e:
+            logger.error(f"No se pudieron guardar letras: {str(e)}")
+            return False
 
-    def download_track(self, track: Track, yt_url: str) -> Optional[Path]:
+    def download_track(self, track: Track, yt_url: str, download_lyrics: bool = True) -> Optional[Path]:
         """Descarga un track desde YouTube Music con metadata de Spotify."""
         output_path = self._get_output_path(track)
         yt_url = self.searcher.search_track(track)
@@ -114,10 +129,14 @@ class YouTubeDownloader:
             # Descarga el audio
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([yt_url])
-
+            
             # Añade metadatos y portada
             cover_data = self._download_cover(track)
             self._add_metadata(output_path, track, cover_data)
+
+            # Descarga letras si se solicita
+            if download_lyrics:
+                self._save_lyrics(track, output_path)
 
             logger.info(f"Download completed: {output_path}")
             return output_path
