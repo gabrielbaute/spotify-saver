@@ -1,8 +1,10 @@
 from ytmusicapi import YTMusic
 from typing import List, Dict, Optional, Tuple
 from functools import lru_cache
+
 from src.models.track import Track
 from src.spotlog import get_logger
+from src.apis.errors.errors import YouTubeMatchError, AlbumNotFoundError, InvalidResultError
 
 logger = get_logger("YouTubeMusicSearcher")
 
@@ -54,24 +56,35 @@ class YoutubeMusicSearcher:
         return self._process_results(results, track, strict=True)
 
     def _search_album_context(self, track: Track) -> Optional[str]:
-        """Busca el álbum primero y luego el track dentro de él."""
-        album_results = self.ytmusic.search(
-            query=f"{track.album_name} {track.artists[0]}",
-            filter="albums",
-            limit=1
-        )
-        
-        if not album_results:
-            logger.warning(f"No album found for {track.album_name} by {track.artists[0]}")
-            return None
+        """Busca el álbum con manejo de errores detallado."""
+        try:
+            # Búsqueda del álbum
+            album_results = self.ytmusic.search(
+                query=f"{track.album_name} {track.artists[0]}",
+                filter="albums",
+                limit=1
+            )
             
-        album_tracks = self.ytmusic.get_album(album_results[0]['browseId'])['tracks']
-        if not album_tracks:
-            logger.warning(f"No tracks found in album {track.album_name}")
-            return None
-        
-        logger.info(f"Found album: {track.album_name} by {track.artists[0]}")
-        return self._process_results(album_tracks, track, strict=False)
+            if not album_results:
+                raise AlbumNotFoundError(f"Album '{track.album_name}' not found")
+            
+            # Verificación de tipo
+            if not isinstance(album_results[0], dict) or 'browseId' not in album_results[0]:
+                raise InvalidResultError("Invalid album search result format")
+            
+            # Obtención de tracks
+            album_tracks = self.ytmusic.get_album(album_results[0]['browseId']).get('tracks', [])
+            
+            if not album_tracks:
+                raise AlbumNotFoundError(f"No tracks found in album '{track.album_name}'")
+            
+            return self._process_results(album_tracks, track, strict=False)
+            
+        except YouTubeMatchError:
+            raise  # Re-lanza nuestras excepciones personalizadas
+        except Exception as e:
+            raise InvalidResultError(f"Unexpected error in album search: {str(e)}")
+
 
     def _search_fuzzy_match(self, track: Track) -> Optional[str]:
         """Búsqueda más flexible cuando las exactas fallan."""
@@ -108,44 +121,62 @@ class YoutubeMusicSearcher:
 
     def _calculate_match_score(self, yt_result: Dict, track: Track, strict: bool) -> float:
         """Sistema de puntuación mejorado."""
-        # 1. Coincidencia de duración (30% del score)
-        duration_diff = abs(yt_result.get('duration_seconds', 0) - track.duration)
-        duration_score = max(0, 1 - (duration_diff / 10))  # 1 si es exacto, 0 si >10s diff
+        try:
+            # 1. Coincidencia de duración (30% del score)
+            duration_diff = abs(yt_result.get('duration_seconds', 0) - track.duration)
+            duration_score = max(0, 1 - (duration_diff / 10))  # 1 si es exacto, 0 si >10s diff
+            
+            # 2. Coincidencia de artistas (40% del score)
+            yt_artists = {a['name'].lower() for a in yt_result.get('artists', []) if isinstance(a, dict)}
+            sp_artists = {a.lower() for a in track.artists}
+            artist_overlap = len(yt_artists & sp_artists) / len(sp_artists)
+            artist_score = artist_overlap * 0.4
+            
+            # 3. Coincidencia de título (30% del score)
+            title_similarity = self._similar(
+                str(yt_result.get('title', '')).lower(),
+                track.name.lower()
+            )
+            title_score = title_similarity * 0.3
+            
+            # 4. Bonus por álbum (manejo seguro de tipos)
+            bonus = 0
+            album_data = yt_result.get('album')
+            if album_data:
+                album_name = album_data['name'].lower() if isinstance(album_data, dict) else str(album_data).lower()
+                if track.album_name.lower() in album_name:
+                    bonus += 0.1
+            
+            total_score = duration_score + artist_score + title_score + bonus
+            return total_score if total_score >= (0.7 if strict else 0.6) else 0
         
-        # 2. Coincidencia de artistas (40% del score)
-        yt_artists = {a['name'].lower() for a in yt_result.get('artists', [])}
-        sp_artists = {a.lower() for a in track.artists}
-        artist_overlap = len(yt_artists & sp_artists) / len(sp_artists)
-        artist_score = artist_overlap * 0.4
-        
-        # 3. Coincidencia de título (30% del score)
-        title_similarity = self._similar(
-            yt_result.get('title', '').lower(),
-            track.name.lower()
-        )
-        title_score = title_similarity * 0.3
-        
-        # 4. Bonus por metadata adicional
-        bonus = 0
-        if not strict:
-            # Bonus por coincidencia de álbum en resultados no estrictos
-            if 'album' in yt_result and track.album_name.lower() in yt_result['album']['name'].lower():
-                bonus += 0.1
-        
-        total_score = duration_score + artist_score + title_score + bonus
-        logger.debug(f"Calculated score for {yt_result.get('title', 'Unknown')}: "
-                     f"Duration: {duration_score}, Artists: {artist_score}, Title: {title_score}, Bonus: {bonus}")
-        return total_score if total_score >= (0.7 if strict else 0.6) else 0
+        except Exception as e:
+            logger.error(f"Error calculating score: {str(e)}")
+            logger.debug(f"Problematic result: {yt_result}")
+            return 0
 
     @lru_cache(maxsize=100)
     def search_track(self, track: Track) -> Optional[str]:
-        """Búsqueda con múltiples estrategias y cache."""
-        for attempt in range(self.max_retries):
+        """Búsqueda con manejo elegante de errores."""
+        last_error = None
+        
+        for attempt in range(1, self.max_retries + 1):
             try:
                 return self._search_with_fallback(track)
+                
+            except AlbumNotFoundError as e:
+                logger.warning(f"Attempt {attempt}: {str(e)}")
+                last_error = e
+            except InvalidResultError as e:
+                logger.error(f"Attempt {attempt}: Invalid API response - {str(e)}")
+                last_error = e
             except Exception as e:
-                logger.error(f"Attempt {attempt + 1} failed: {str(e)}")
-                if attempt == self.max_retries - 1:
-                    raise ConnectionError(f"Failed after {self.max_retries} attempts")
+                logger.error(f"Attempt {attempt}: Unexpected error - {str(e)}")
+                last_error = e
+                
+        logger.error(f"All attempts failed for '{track.name}'")
+        if last_error:
+            logger.info(f"Last error details: {str(last_error)}")
         return None
+
 
