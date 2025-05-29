@@ -10,7 +10,7 @@ class LrclibAPI:
     BASE_URL = "https://lrclib.net/api"
     
     def __init__(self):
-        """Inicializa el cliente sin depender de un Track específico"""
+        """Inicializa el cliente de LRC Lib API."""
         self.session = requests.Session()
         self.session.timeout = 10  # 10 segundos de timeout
 
@@ -56,3 +56,10 @@ class LrclibAPI:
         except Exception as e:
             logger.error(f"Error inesperado: {str(e)}")
             raise APIError(f"Unexpected error: {str(e)}")
+
+    def get_lyrics_with_fallback(self, track: Track) -> Optional[str]:
+        """Intenta obtener letras sincronizadas, si falla usa las planas"""
+        try:
+            return self.get_lyrics(track, synced=True) or self.get_lyrics(track, synced=False)
+        except APIError:
+            return None
