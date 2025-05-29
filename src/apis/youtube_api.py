@@ -4,7 +4,7 @@ from functools import lru_cache
 
 from src.models.track import Track
 from src.spotlog import get_logger
-from src.apis.errors.errors import YouTubeMatchError, AlbumNotFoundError, InvalidResultError
+from src.apis.errors.errors import YouTubeAPIError, AlbumNotFoundError, InvalidResultError
 
 logger = get_logger("YouTubeMusicSearcher")
 
@@ -80,8 +80,8 @@ class YoutubeMusicSearcher:
             
             return self._process_results(album_tracks, track, strict=False)
             
-        except YouTubeMatchError:
-            raise  # Re-lanza nuestras excepciones personalizadas
+        except YouTubeAPIError:
+            raise
         except Exception as e:
             raise InvalidResultError(f"Unexpected error in album search: {str(e)}")
 
