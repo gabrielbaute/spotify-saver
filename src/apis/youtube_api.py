@@ -1,5 +1,5 @@
 from ytmusicapi import YTMusic
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from functools import lru_cache
 from src.models.track import Track
 from src.spotlog import get_logger
@@ -26,102 +26,119 @@ class YoutubeMusicSearcher:
                 .translate(str.maketrans('', '', '()[]-')))
         return ' '.join([w for w in text.split() if w not in {"lyrics", "audio"}])
 
-    def _is_valid_match(self, yt_result: Dict, spotify_track: Track) -> bool:
-        """Valida coincidencias con umbrales dinámicos."""
-        # Umbrales dinámicos
-        title_words = len(spotify_track.name.split())
-        title_threshold = max(0.75 - (0.03 * (title_words - 3)), 0.6)
-        artist_threshold = min(0.7 + (0.05 * len(spotify_track.artists[0].split())), 0.85)
-
-        # Preparación de datos
-        yt_title = self._normalize(yt_result.get('title', ''))
-        sp_title = self._normalize(spotify_track.name)
-        yt_artists = [self._normalize(a['name']) for a in yt_result.get('artists', [])]
-        sp_artists = [self._normalize(a) for a in spotify_track.artists]
-
-        # Validación
-        duration_ok = abs(yt_result.get('duration_seconds', 0) - spotify_track.duration) <= 3
-        title_ok = self._similar(yt_title, sp_title) >= title_threshold
-        artist_ok = any(
-            self._similar(yt_artist, sp_artist) >= artist_threshold
-            for yt_artist in yt_artists
-            for sp_artist in sp_artists
-        )
-
-        # Debug logging
-        logger.debug(f"""
-        Match evaluation for '{yt_title}':
-        - Title similarity: {self._similar(yt_title, sp_title):.2f} (threshold: {title_threshold:.2f})
-        - Artist similarity: {max(self._similar(a, b) for a in yt_artists for b in sp_artists):.2f} (threshold: {artist_threshold:.2f})
-        - Duration diff: {abs(yt_result.get('duration_seconds', 0) - spotify_track.duration)}s
-        """)
-
-        return duration_ok and title_ok and artist_ok
-
-    def _search_individual_track(self, track: Track) -> Optional[str]:
-        """Búsqueda estándar de track individual."""
-        queries = [
-            f"{track.artists[0]} {track.name} {track.album_name}",
-            f"{track.artists[0]} {track.name}",
-            f"{track.name} {track.artists[0]}",
-            track.name
+    def _search_with_fallback(self, track: Track) -> Optional[str]:
+        """Estrategia de búsqueda priorizada."""
+        search_strategies = [
+            self._search_exact_match,
+            self._search_album_context,
+            self._search_fuzzy_match
         ]
         
-        for query in queries:
-            try:
-                results = self.ytmusic.search(
-                    query=query,
-                    filter="songs",
-                    limit=10
-                )
-                
-                # Ordenar por mejor coincidencia de duración primero
-                results.sort(
-                    key=lambda x: abs(x.get('duration_seconds', 0) - track.duration)
-                )
-                
-                for result in results:
-                    if self._is_valid_match(result, track):
-                        logger.info(f"Found valid match: {result['title']}")
-                        return f"https://music.youtube.com/watch?v={result['videoId']}"
-                        
-            except Exception as e:
-                logger.error(f"Search error for '{query}': {e}")
-        
+        for strategy in search_strategies:
+            if url := strategy(track):
+                logger.info(f"Found track: {track.name} by {track.artists[0]} using {strategy.__name__}")
+                return url
         return None
 
-    def _search_via_album(self, track: Track) -> Optional[str]:
-        """Busca el track dentro del álbum completo."""
-        try:
-            # Búsqueda del álbum
-            album_results = self.ytmusic.search(
-                query=f"{track.album_name} {track.artists[0]}",
-                filter="albums",
-                limit=3
-            )
+    def _search_exact_match(self, track: Track) -> Optional[str]:
+        """Búsqueda exacta con filtro de canciones."""
+        query = f"{track.artists[0]} {track.name} {track.album_name}"
+        results = self.ytmusic.search(
+            query=query,
+            filter="songs",
+            limit=5,
+            ignore_spelling=True
+        )
+        return self._process_results(results, track, strict=True)
+
+    def _search_album_context(self, track: Track) -> Optional[str]:
+        """Busca el álbum primero y luego el track dentro de él."""
+        album_results = self.ytmusic.search(
+            query=f"{track.album_name} {track.artists[0]}",
+            filter="albums",
+            limit=1
+        )
+        
+        if not album_results:
+            logger.warning(f"No album found for {track.album_name} by {track.artists[0]}")
+            return None
             
-            if not album_results:
-                return None
+        album_tracks = self.ytmusic.get_album(album_results[0]['browseId'])['tracks']
+        if not album_tracks:
+            logger.warning(f"No tracks found in album {track.album_name}")
+            return None
+        return self._process_results(album_tracks, track, strict=False)
 
-            # Obtener tracks del álbum
-            album = self.ytmusic.get_album(album_results[0]['browseId'])
-            for yt_track in album['tracks']:
-                if self._is_valid_match(yt_track, track):
-                    logger.info(f"Found via album: {yt_track['title']}")
-                    return f"https://music.youtube.com/watch?v={yt_track['videoId']}"
-                    
-        except Exception as e:
-            logger.error(f"Album search error: {e}")
+    def _search_fuzzy_match(self, track: Track) -> Optional[str]:
+        """Búsqueda más flexible cuando las exactas fallan."""
+        results = self.ytmusic.search(
+            query=f"{track.artists[0]} {track.name}",
+            filter="songs",
+            limit=10,
+            ignore_spelling=False  # Permite correcciones
+        )
+        return self._process_results(results, track, strict=False)
+
+    def _process_results(self, results: List[Dict], track: Track, strict: bool) -> Optional[str]:
+        """Evalúa y selecciona el mejor resultado."""
+        if not results:
+            logger.warning(f"No results found for {track.name} by {track.artists[0]}")
+            return None
+
+        scored_results = []
+        for result in results:
+            score = self._calculate_match_score(result, track, strict)
+            logger.debug(f"Score for {result.get('title', 'Unknown')} is {score}")
+            if score > 0:
+                scored_results.append((score, result))
         
-        return None
+        if not scored_results:
+            logger.warning(f"No valid matches found for {track.name} by {track.artists[0]}")
+            return None
+            
+        # Ordena por puntaje descendente
+        scored_results.sort(reverse=True, key=lambda x: x[0])
+        best_match = scored_results[0][1]
+        return f"https://music.youtube.com/watch?v={best_match['videoId']}"
+
+    def _calculate_match_score(self, yt_result: Dict, track: Track, strict: bool) -> float:
+        """Sistema de puntuación mejorado."""
+        # 1. Coincidencia de duración (30% del score)
+        duration_diff = abs(yt_result.get('duration_seconds', 0) - track.duration)
+        duration_score = max(0, 1 - (duration_diff / 10))  # 1 si es exacto, 0 si >10s diff
+        
+        # 2. Coincidencia de artistas (40% del score)
+        yt_artists = {a['name'].lower() for a in yt_result.get('artists', [])}
+        sp_artists = {a.lower() for a in track.artists}
+        artist_overlap = len(yt_artists & sp_artists) / len(sp_artists)
+        artist_score = artist_overlap * 0.4
+        
+        # 3. Coincidencia de título (30% del score)
+        title_similarity = self._similar(
+            yt_result.get('title', '').lower(),
+            track.name.lower()
+        )
+        title_score = title_similarity * 0.3
+        
+        # 4. Bonus por metadata adicional
+        bonus = 0
+        if not strict:
+            # Bonus por coincidencia de álbum en resultados no estrictos
+            if 'album' in yt_result and track.album_name.lower() in yt_result['album']['name'].lower():
+                bonus += 0.1
+        
+        total_score = duration_score + artist_score + title_score + bonus
+        return total_score if total_score >= (0.7 if strict else 0.6) else 0
 
     @lru_cache(maxsize=100)
     def search_track(self, track: Track) -> Optional[str]:
-        """Búsqueda con sistema de fallback integrado."""
-        # Primero intenta búsqueda individual
-        if url := self._search_individual_track(track):
-            return url
-            
-        # Fallback a búsqueda por álbum
-        logger.info(f"Trying album fallback for: {track.name}")
-        return self._search_via_album(track)
+        """Búsqueda con múltiples estrategias y cache."""
+        for attempt in range(self.max_retries):
+            try:
+                return self._search_with_fallback(track)
+            except Exception as e:
+                logger.error(f"Attempt {attempt + 1} failed: {str(e)}")
+                if attempt == self.max_retries - 1:
+                    raise ConnectionError(f"Failed after {self.max_retries} attempts")
+        return None
+
