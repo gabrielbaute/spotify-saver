@@ -38,6 +38,7 @@ class YoutubeMusicSearcher:
             if url := strategy(track):
                 logger.info(f"Found track: {track.name} by {track.artists[0]} using {strategy.__name__}")
                 return url
+        logger.warning(f"No results found for {track.name} by {track.artists[0]}")
         return None
 
     def _search_exact_match(self, track: Track) -> Optional[str]:
@@ -49,6 +50,7 @@ class YoutubeMusicSearcher:
             limit=5,
             ignore_spelling=True
         )
+        logger.debug(f"Exact match search results: {results}")
         return self._process_results(results, track, strict=True)
 
     def _search_album_context(self, track: Track) -> Optional[str]:
@@ -67,6 +69,8 @@ class YoutubeMusicSearcher:
         if not album_tracks:
             logger.warning(f"No tracks found in album {track.album_name}")
             return None
+        
+        logger.info(f"Found album: {track.album_name} by {track.artists[0]}")
         return self._process_results(album_tracks, track, strict=False)
 
     def _search_fuzzy_match(self, track: Track) -> Optional[str]:
@@ -99,6 +103,7 @@ class YoutubeMusicSearcher:
         # Ordena por puntaje descendente
         scored_results.sort(reverse=True, key=lambda x: x[0])
         best_match = scored_results[0][1]
+        logger.info(f"Best match for {track.name} by {track.artists[0]}: {best_match.get('title', 'Unknown')} with score {scored_results[0][0]}")
         return f"https://music.youtube.com/watch?v={best_match['videoId']}"
 
     def _calculate_match_score(self, yt_result: Dict, track: Track, strict: bool) -> float:
@@ -128,6 +133,8 @@ class YoutubeMusicSearcher:
                 bonus += 0.1
         
         total_score = duration_score + artist_score + title_score + bonus
+        logger.debug(f"Calculated score for {yt_result.get('title', 'Unknown')}: "
+                     f"Duration: {duration_score}, Artists: {artist_score}, Title: {title_score}, Bonus: {bonus}")
         return total_score if total_score >= (0.7 if strict else 0.6) else 0
 
     @lru_cache(maxsize=100)
