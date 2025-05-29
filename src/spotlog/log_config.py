@@ -23,18 +23,21 @@ class LoggerConfig:
         return level_map.get(level_str, logging.INFO)
     
     @classmethod
-    def setup(cls):
+    def setup(cls, level: Optional[int] = None):
         """Inicializa el sistema de logging"""
         os.makedirs(cls.LOG_DIR, exist_ok=True)
+
+        log_level = level if level is not None else cls._get_log_level()
+
         logging.basicConfig(
-            level=logging.INFO,
+            level=log_level,
             format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
             handlers=[
                 logging.FileHandler(cls.LOG_FILE),
                 logging.StreamHandler()
             ]
         )
-        logging.info("Logging configurado correctamente.")
+        logging.info(f"Logging configurado en nivel: {logging.getLevelName(log_level)}")
 
 
 # Ejecutar configuración al importar el módulo
