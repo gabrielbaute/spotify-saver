@@ -1,5 +1,6 @@
 import click
 from pathlib import Path
+from src import __version__
 from src.apis import SpotifyAPI, YoutubeMusicSearcher
 from src.downloader import YouTubeDownloader
 from src.spotlog import LoggerConfig
@@ -12,7 +13,12 @@ def cli():
     """Spotify to YouTube Music Downloader"""
     pass
 
-@cli.command()
+@cli.command('version')
+def version():
+    """Show current version"""
+    click.echo(f"spotifysaver v{__version__}")
+
+@cli.command('download')
 @click.argument('spotify_url')
 @click.option('--lyrics', is_flag=True, help='Download synced lyrics (.lrc)')
 @click.option('--output', type=Path, default='Music', help='Output directory')
