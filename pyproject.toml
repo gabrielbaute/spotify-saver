@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "spotifysaver"
-version = "0.1.3"
+version = "0.1.4"
 description = "Download Spotify tracks via YouTube Music"
 authors = ["Gabriel Baute <gabrielbaute@gmail.com>"]
 license = "MIT"
