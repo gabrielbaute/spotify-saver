@@ -35,13 +35,12 @@ class YouTubeDownloader:
             "quiet": not is_verbose,  # Silencioso a menos que estemos en DEBUG
             "verbose": is_verbose,   # Output detallado solo en DEBUG
             "extract_flat": False,
-            "cookies": Config.YTDLP_COOKIES_PATH if Config.YTDLP_COOKIES_PATH else None,
             "logger": self._get_ydl_logger()
         }
         
-        #if Config.YTDLP_COOKIES_PATH is not None:
-        #    opts["cookiefile"] = str(Config.YTDLP_COOKIES_PATH) # Uso de cookies en caso de que existan
-        #    logger.debug(f"Usando archivo de cookies desde: {Config.YTDLP_COOKIES_PATH}")
+        if Config.YTDLP_COOKIES_PATH is not None:
+            opts["cookiefile"] = str(Config.YTDLP_COOKIES_PATH) # Uso de cookies en caso de que existan
+            logger.debug(f"Usando archivo de cookies desde: {Config.YTDLP_COOKIES_PATH}")
         
         return opts
 
