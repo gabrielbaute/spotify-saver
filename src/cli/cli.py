@@ -6,8 +6,6 @@ from src.downloader import YouTubeDownloader
 from src.spotlog import LoggerConfig
 from src.config import Config
 
-LoggerConfig.setup()
-
 @click.group()
 def cli():
     """Spotify to YouTube Music Downloader"""
@@ -26,6 +24,7 @@ def version():
 @click.option('--verbose', is_flag=True, help='Show debug output')
 def download(spotify_url: str, lyrics: bool, output: Path, format: str, verbose: bool):
     """Download a track or album from Spotify via YouTube Music"""
+    LoggerConfig.setup()
     try:
         spotify = SpotifyAPI()
         searcher = YoutubeMusicSearcher()
