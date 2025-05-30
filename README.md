@@ -43,8 +43,8 @@ pip install git+https://github.com/gabrielbaute/spotify-saver.git
 
 | Comando                | Descripción                                      | Ejemplo                                      |
 |------------------------|--------------------------------------------------|----------------------------------------------|
-| `download [URL]`       | Descarga track/álbum de Spotify                 | `spotdownloader download "URL_SPOTIFY"`     |
-| `version`              | Muestra la versión instalada                    | `spotdownloader version`                    |
+| `download [URL]`       | Descarga track/álbum de Spotify                 | `spotifysaver download "URL_SPOTIFY"`     |
+| `version`              | Muestra la versión instalada                    | `spotifysaver version`                    |
 
 ### Opciones principales
 
