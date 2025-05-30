@@ -58,17 +58,17 @@ pip install git+https://github.com/gabrielbaute/spotify-saver.git
 
 1. **Descargar un álbum completo con letras:**
    ```bash
-   spotdownloader download "https://open.spotify.com/album/..." --lyrics
+   spotifysaver download "https://open.spotify.com/album/..." --lyrics
    ```
 
 2. **Descargar un track en formato MP3 (aún en desarrollo 🚧):**
    ```bash
-   spotdownloader download "https://open.spotify.com/track/..." --format mp3
+   spotifysaver download "https://open.spotify.com/track/..." --format mp3
    ```
 
 3. **Usar un directorio personalizado:**
    ```bash
-   spotdownloader download "URL" --output "~/Music/Spotify"
+   spotifysaver download "URL" --output "~/Music/Spotify"
 
 ## 🎛 Configuración
 
