@@ -7,6 +7,7 @@ from mutagen.mp4 import MP4, MP4Cover
 
 from src.apis import YoutubeMusicSearcher, LrclibAPI
 from src.models import Track
+from src.config import Config
 from src.spotlog import get_logger
 
 logger = get_logger("YoutubeDownloader")
@@ -21,10 +22,10 @@ class YouTubeDownloader:
         self.lrc_client = LrclibAPI()
 
     def _get_ydl_opts(self, output_path: Path) -> dict:
-        """Genera opciones para yt-dlp basadas en el nivel de logging."""
+        """Oopciones para yt-dlp basadas en el nivel de logging."""
         is_verbose = logger.getEffectiveLevel() <= logging.DEBUG
         
-        return {
+        opts = {
             "format": "m4a/bestaudio[abr<=128]/best",
             "outtmpl": str(output_path.with_suffix(".%(ext)s")),
             "postprocessors": [{
@@ -34,11 +35,18 @@ class YouTubeDownloader:
             "quiet": not is_verbose,  # Silencioso a menos que estemos en DEBUG
             "verbose": is_verbose,   # Output detallado solo en DEBUG
             "extract_flat": False,
-            "logger": self._get_ydl_logger()  # Logger personalizado
+            "cookies": Config.YTDLP_COOKIES_PATH if Config.YTDLP_COOKIES_PATH else None,
+            "logger": self._get_ydl_logger()
         }
+        
+        #if Config.YTDLP_COOKIES_PATH is not None:
+        #    opts["cookiefile"] = str(Config.YTDLP_COOKIES_PATH) # Uso de cookies en caso de que existan
+        #    logger.debug(f"Usando archivo de cookies desde: {Config.YTDLP_COOKIES_PATH}")
+        
+        return opts
 
     def _get_ydl_logger(self):
-        """Crea un logger adaptado para yt-dlp."""
+        """Logger de yt-dlp."""
         class YDLLogger:
             def debug(self, msg):
                 logger.debug(f"[yt-dlp] {msg}")
