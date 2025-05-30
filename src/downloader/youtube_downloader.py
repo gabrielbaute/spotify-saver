@@ -22,8 +22,9 @@ class YouTubeDownloader:
         self.lrc_client = LrclibAPI()
 
     def _get_ydl_opts(self, output_path: Path) -> dict:
-        """Oopciones para yt-dlp basadas en el nivel de logging."""
+        """Configuración robusta para yt-dlp con soporte para cookies"""
         is_verbose = logger.getEffectiveLevel() <= logging.DEBUG
+        ytm_base_url = "https://music.youtube.com"
         
         opts = {
             "format": "m4a/bestaudio[abr<=128]/best",
@@ -32,17 +33,54 @@ class YouTubeDownloader:
                 "key": "FFmpegExtractAudio",
                 "preferredcodec": "m4a",
             }],
-            "quiet": not is_verbose,  # Silencioso a menos que estemos en DEBUG
-            "verbose": is_verbose,   # Output detallado solo en DEBUG
+            "quiet": not is_verbose,
+            "verbose": is_verbose,
             "extract_flat": False,
-            "logger": self._get_ydl_logger()
+            "logger": self._get_ydl_logger(),
+            # Parámetros de cookies y headers para evitar bloqueos
+            "cookiefile": str(Config.YTDLP_COOKIES_PATH) if Config.YTDLP_COOKIES_PATH else None,
+            "referer": ytm_base_url,
+            "user_agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/91.0.4472.124 Safari/537.36"
+            ),
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["web", "android_music"],
+                    "player_skip": ["configs"],
+                }
+            },
+            "retries": 5,
+            "fragment_retries": 5,
+            "skip_unavailable_fragments": True,
         }
         
-        if Config.YTDLP_COOKIES_PATH is not None:
-            opts["cookiefile"] = str(Config.YTDLP_COOKIES_PATH) # Uso de cookies en caso de que existan
-            logger.debug(f"Usando archivo de cookies desde: {Config.YTDLP_COOKIES_PATH}")
+        # Verificación adicional de cookies
+        if Config.YTDLP_COOKIES_PATH and Path(Config.YTDLP_COOKIES_PATH).exists():
+            logger.debug(f"Usando cookies de: {Config.YTDLP_COOKIES_PATH}")
+            opts.update({
+                "cookiefile": str(Config.YTDLP_COOKIES_PATH),
+                "http_headers": {
+                    "Cookie": self._load_cookies(Config.YTDLP_COOKIES_PATH),
+                    "X-Origin": ytm_base_url,
+                    "X-Goog-Visitor-Id": "CgtfQ1BvVU5nN0NKSSiNwba8Bg%3D%3D",  # Header útil para YTM
+                }
+            })
         
         return opts
+
+    def _load_cookies(self, cookie_path: str) -> str:
+        """Carga cookies y las formatea para headers HTTP"""
+        with open(cookie_path, 'r') as f:
+            cookies = []
+            for line in f:
+                if line.strip() and not line.startswith('#'):
+                    parts = line.strip().split('\t')
+                    if len(parts) >= 7:
+                        cookies.append(f"{parts[5]}={parts[6]}")
+            return '; '.join(cookies)
+
 
     def _get_ydl_logger(self):
         """Logger de yt-dlp."""
@@ -96,16 +134,16 @@ class YouTubeDownloader:
             if hasattr(track, "genres") and track.genres:
                 audio["\xa9gen"] = [", ".join(track.genres)]
             
-            # Portada (¡API nueva!)
+            # Portada
             if cover_data:
                 audio["covr"] = [MP4Cover(cover_data, imageformat=MP4Cover.FORMAT_JPEG)]
             
-            audio.save()  # Guarda los cambios
+            audio.save()
             logger.info(f"Metadatos añadidos a {file_path}")
         
         except Exception as e:
             logger.error(f"Error añadiendo metadatos: {str(e)}")
-            raise  # Opcional: relanza el error si quieres manejo externo
+            raise
 
     def _save_lyrics(self, track: 'Track', audio_path: Path) -> bool:
         """Guarda letras sincronizadas como archivo .lrc"""
