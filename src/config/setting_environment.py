@@ -14,7 +14,11 @@ class Config:
     SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_DLP_CLIENT_SECRET")
     SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_DLP_REDIRECT_URI", "http://localhost:8888/callback")
 
+    # Logger
     LOG_LEVEL = os.getenv("LOG_LEVEL", "info").lower()
+
+    # Youtube cookie file
+    YTDLP_COOKIES_PATH = os.getenv("YTDLP_COOKIES_PATH", None)
 
     @classmethod
     def validate(cls):
