@@ -80,6 +80,7 @@ target/
 celerybeat-schedule
 
 # dotenv
+cookies.txt
 .env
 
 # cache
