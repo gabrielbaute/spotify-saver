@@ -37,4 +37,4 @@ class LoggerConfig:
                 logging.StreamHandler()
             ]
         )
-        logging.info(f"Logging configurado en nivel: {logging.getLevelName(log_level)}")
+        logging.info(f"Logging configured at level: {logging.getLevelName(log_level)}")

@@ -40,21 +40,21 @@ class LrclibAPI:
             )
             
             if response.status_code == 404:
-                logger.debug(f"Letras no encontradas para: {track.name}")
+                logger.debug(f"Lyrics not found for: {track.name}")
                 return None
                 
             response.raise_for_status()
             data = response.json()
             
             lyric_type = "syncedLyrics" if synced else "plainLyrics"
-            logger.info(f"Letras obtenidas: {lyric_type}")
+            logger.info(f"Song lyrics obtained: {lyric_type}")
             return data.get(lyric_type)
             
         except requests.exceptions.RequestException as e:
-            logger.error(f"Error en la API LRC Lib: {str(e)}")
+            logger.error(f"Error in the LRC Lib API: {str(e)}")
             raise APIError(f"LRC Lib API error: {str(e)}")
         except Exception as e:
-            logger.error(f"Error inesperado: {str(e)}")
+            logger.error(f"Unexpected error: {str(e)}")
             raise APIError(f"Unexpected error: {str(e)}")
 
     def get_lyrics_with_fallback(self, track: Track) -> Optional[str]:

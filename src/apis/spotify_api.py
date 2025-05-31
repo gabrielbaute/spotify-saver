@@ -23,7 +23,7 @@ class SpotifyAPI:
     def _fetch_album_data(self, album_url: str) -> dict:
         """Obtiene datos crudos del álbum desde la API."""
         try:
-            logger.debug(f"Fetching album data: {album_url}")
+            logger.info(f"Fetching album data: {album_url}")
             return self.sp.album(album_url)
         except spotipy.exceptions.SpotifyException as e:
             logger.error(f"Error fetching album data: {e}")

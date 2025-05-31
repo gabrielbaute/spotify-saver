@@ -31,7 +31,7 @@ def download(spotify_url: str, lyrics: bool, output: Path, format: str, verbose:
         downloader = YouTubeDownloader(base_dir=output)
         
         if verbose:
-            click.secho("Modo verbose activado. Se mostrarán mensajes de depuración.", fg='yellow')
+            click.secho("Verbose mode enabled. Debug messages will be displayed.", fg='yellow')
             Config.LOG_LEVEL = 'debug'
             LoggerConfig.get_log_level()
 
@@ -51,26 +51,26 @@ def process_track(spotify, searcher, downloader, url, lyrics, format):
     yt_url = searcher.search_track(track)
     
     if not yt_url:
-        click.secho(f"No se encontró match para: {track.name}", fg='yellow')
+        click.secho(f"No match found for: {track.name}", fg='yellow')
         return
     
     audio_path, updated_track = downloader.download_track(track, yt_url, download_lyrics=lyrics)
     
     if audio_path:
-        msg = f"Descargado: {track.name}"
+        msg = f"Downloaded: {track.name}"
         if lyrics and updated_track.has_lyrics:
-            msg += " (+ letras)"
+            msg += " (+ lyrics)"
         click.secho(msg, fg='green')
 
 def process_album(spotify, searcher, downloader, url, lyrics, format):
     """Handle full album download"""
     album = spotify.get_album(url)
-    click.secho(f"\nDescargando álbum: {album.name}", fg='blue')
+    click.secho(f"\nDownloading album: {album.name}", fg='blue')
     
     for i, track in enumerate(album.tracks, 1):
         yt_url = searcher.search_track(track)
         if not yt_url:
-            click.secho(f"[{i}/{len(album.tracks)}] No encontrado: {track.name}", fg='yellow')
+            click.secho(f"[{i}/{len(album.tracks)}] Not found: {track.name}", fg='yellow')
             continue
         
         audio_path, updated_track = downloader.download_track(track, yt_url, download_lyrics=lyrics)
@@ -79,6 +79,6 @@ def process_album(spotify, searcher, downloader, url, lyrics, format):
         
         msg = f"[{i}/{len(album.tracks)}] {status} {track.name}"
         if lyrics and updated_track.has_lyrics:
-            msg += " (+ letras)"
+            msg += " (+ lyrics)"
         
         click.secho(msg, fg=color)

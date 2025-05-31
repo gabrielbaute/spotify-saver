@@ -58,7 +58,7 @@ class YouTubeDownloader:
         
         # Verificación adicional de cookies
         if Config.YTDLP_COOKIES_PATH and Path(Config.YTDLP_COOKIES_PATH).exists():
-            logger.debug(f"Usando cookies de: {Config.YTDLP_COOKIES_PATH}")
+            logger.debug(f"Using cookies from: {Config.YTDLP_COOKIES_PATH}")
             opts.update({
                 "cookiefile": str(Config.YTDLP_COOKIES_PATH),
                 "http_headers": {
@@ -139,10 +139,10 @@ class YouTubeDownloader:
                 audio["covr"] = [MP4Cover(cover_data, imageformat=MP4Cover.FORMAT_JPEG)]
             
             audio.save()
-            logger.info(f"Metadatos añadidos a {file_path}")
+            logger.info(f"Metadata added to {file_path}")
         
         except Exception as e:
-            logger.error(f"Error añadiendo metadatos: {str(e)}")
+            logger.error(f"Error adding metadata: {str(e)}")
             raise
 
     def _save_lyrics(self, track: 'Track', audio_path: Path) -> bool:
@@ -156,13 +156,13 @@ class YouTubeDownloader:
             lrc_path.write_text(lyrics, encoding="utf-8")
 
             if lrc_path.stat().st_size > 0:
-                logger.info(f"Letras guardadas: {lrc_path}")
+                logger.info(f"Lyrics saved in: {lrc_path}")
                 return True
             
             return False
             
         except Exception as e:
-            logger.error(f"Error guardando letras: {str(e)}", exc_info=True)
+            logger.error(f"Error saving song lyrics: {str(e)}", exc_info=True)
             return False
 
     def download_track(self, track: Track, yt_url: str, download_lyrics: bool = False) -> tuple[Optional[Path], Optional[Track]]:
@@ -177,7 +177,7 @@ class YouTubeDownloader:
         ydl_opts = self._get_ydl_opts(output_path)
         
         if not yt_url:
-            logger.error(f"No se encontró match para: {track.name}")
+            logger.error(f"No match found for: {track.name}")
             return None, None
 
         try:
