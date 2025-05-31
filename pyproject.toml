@@ -1,10 +1,33 @@
 [tool.poetry]
 name = "spotifysaver"
 version = "0.1.4"
-description = "Download Spotify tracks via YouTube Music"
+description = "Download Spotify tracks/albums with metadata via YouTube Music (Perfect for Jellyfin libraries!)"
 authors = ["Gabriel Baute <gabrielbaute@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+homepage = "https://github.com/gabrielbaute/spotify-saver"
+repository = "https://github.com/gabrielbaute/spotify-saver"
+documentation = "https://github.com/gabrielbaute/spotify-saver#readme"
+keywords = [
+    "spotify", 
+    "youtube-music", 
+    "music-downloader", 
+    "jellyfin", 
+    "metadata",
+    "cli-tool"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Utilities",
+    "Environment :: Console",
+]
 packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
@@ -15,6 +38,11 @@ ytmusicapi = "^1.0.0"
 requests = "^2.31.0"
 click = "^8.1.3"
 pydantic = "^2.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.7.0"
+pytest = "^7.4.0"
+mypy = "^1.5.1"
 
 [tool.poetry.scripts]
 spotifysaver = "src.cli.cli:cli"
