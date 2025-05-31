@@ -1,0 +1,101 @@
+# SpotifySaver 🎵✨
+
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![FFmpeg](https://img.shields.io/badge/FFmpeg-Required-orange?logo=ffmpeg&logoColor=white)](https://ffmpeg.org/)
+[![yt-dlp](https://img.shields.io/badge/yt--dlp-2023.7.6%2B-red)](https://github.com/yt-dlp/yt-dlp)
+[![YouTube Music](https://img.shields.io/badge/YouTube_Music-API-yellow)](https://ytmusicapi.readthedocs.io/)
+[![Spotify](https://img.shields.io/badge/Spotify-API-1ED760?logo=spotify)](https://developer.spotify.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+> Herramienta todo-en-uno para descargar y organizar música con metadata de Spotify para Jellyfin.
+
+La app se conecta a las API's de Spotify y de YoutubeMusic. El objetivo es generar un archivo .nfo en xml para completar la metadata que requiere jellyfin cuando construye las librerías de música.
+
+Lee este archivo en [inglés](README.md)
+
+## 🌟 Características
+- ✅ Descarga audio de YouTube Music con metadata de Spotify
+- ✅ Letras sincronizadas (.lrc) desde LRC Lib
+- 🚧 Generación de archivos `.info` compatibles con Jellyfin
+- ✅ Estructura automática de carpetas (Artista/Álbum)
+- ✅ Interfaz de línea de comandos (CLI)
+
+### Requisitos
+- Python 3.8+
+- FFmpeg
+- [Cuenta de desarrollador en Spotify](https://developer.spotify.com/dashboard/)
+
+```bash
+# Instalación con Poetry (recomendado)
+git clone https://github.com/gabrielbaute/spotify-saver.git
+cd spotify-saver
+poetry install
+
+# O con pip
+pip install git+https://github.com/gabrielbaute/spotify-saver.git
+```
+
+⚠️ IMPORTANTE: Debes acceder a tu cuenta de spotify como desarrollador, crear una app y obtener así una "client id" y un "client secret", debes colocar esa info en un archivo .env en el directorio raíz del proyecto.
+
+## ⚙️ Configuración
+
+Crear archivo `.env`:
+
+```ini
+SPOTIFY_CLIENT_ID=tu_id
+SPOTIFY_CLIENT_SECRET=tu_secreto
+YTDLP_COOKIES_PATH="cookies.txt"  # Para contenido con restricción de edad
+```
+
+La variable `YTDLP_COOKIES_PATH` indicará la ubicación del archivo con las cookies de Youtube Music (importante, no usar las de Youtube, sino Youtube Music), en caso de que tengamos problemas con restricciones a yt-dlp.
+
+También puedes consultar el archivo .example.env
+
+## 💻 Uso de la CLI
+
+### Comandos disponibles
+
+| Comando                | Descripción                                      | Ejemplo                                      |
+|------------------------|--------------------------------------------------|----------------------------------------------|
+| `download [URL]`       | Descarga track/álbum de Spotify                 | `spotifysaver download "URL_SPOTIFY"`     |
+| `version`              | Muestra la versión instalada                    | `spotifysaver version`                    |
+
+### Opciones principales
+
+| Opción               | Descripción                              | Valores aceptados       |
+|----------------------|------------------------------------------|-------------------------|
+| `--lyrics`           | Descargar letras sincronizadas (.lrc)   | Flag (sin valor)        |
+| `--output DIR`       | Directorio de salida                     | Ruta válida            |
+| `--format FORMATO`   | Formato de audio                         | `m4a` (default), `mp3` |
+
+## 💡 Ejemplos de uso
+```bash
+# Descargar álbum con letras sincronizadas
+spotifysaver download "https://open.spotify.com/album/..." --lyrics
+
+# Descargar canción en formato MP3 (aún en desarrollo 🚧)
+spotifysaver download "https://open.spotify.com/track/..." --format mp3
+```
+
+## 📂 Estructura de salida
+```
+Music/
+├── Artista/
+│   ├── Álbum (Año)/
+│   │   ├── 01 - Canción.m4a
+│   │   ├── 01 - Canción.lrc
+│   │   └── portada.jpg
+│   └── artist_info.nfo
+```
+
+## 🤝 Contribuciones
+1. Haz fork del proyecto
+2. Crea tu rama (`git checkout -b feature/nueva-funcion`)
+3. Haz commit de tus cambios (`git commit -m 'Agrega función increíble'`)
+4. Push a la rama (`git push origin feature/nueva-funcion`)
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+MIT © [TGabriel Baute](https://github.com/gabrielbaute)
