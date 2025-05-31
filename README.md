@@ -1,4 +1,4 @@
-# SpotifySaver 🎵
+# SpotifySaver 🎵✨
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![FFmpeg](https://img.shields.io/badge/FFmpeg-Required-orange?logo=ffmpeg&logoColor=white)](https://ffmpeg.org/)
@@ -8,102 +8,94 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-Herramienta todo-en-uno para descarga y organización de música, diseñada para integración con Jellyfin.
+> All-in-one tool for downloading and organizing music with Spotify metadata for Jellyfin.
 
-## ✨ Características principales
-- Descarga de audio desde YouTube Music con metadata de Spotify ✔️
-- Obtención de letras sincronizadas (.lrc) desde LRC Lib ✔️
-- Generación de archivos `.info` para Jellyfin 🚧
-- Estructura de carpetas automática (Artista/Álbum) ✔️
-- CLI ✔️
+The app connects to the Spotify and YouTube Music APIs. The goal is to generate an .nfo XML file to complete the metadata required by Jellyfin when building music libraries.
 
-La app se conecta a las API's de Spotify y de YoutubeMusic. El objetivo es generar un archivo .info en xml para completar la metadata que requiere jellyfin cuando construye las librerías de música.
+Read this file in [Spanish](README_ES.md)
 
-## 🔧 Requisitos
+## 🌟 Features
+- ✅ Download audio from YouTube Music with Spotify metadata
+- ✅ Synchronized lyrics (.lrc) from LRC Lib
+- 🚧 Generation of Jellyfin-compatible `.info` files
+- ✅ Automatic folder structure (Artist/Album)
+- ✅ Command-line interface (CLI)
 
+### Requirements
 - Python 3.8+
-- FFmpeg (para conversión de formatos)
-- Cuenta de desarrollador en [Spotify Dashboard](https://developer.spotify.com/dashboard/)
+- FFmpeg
+- [Spotify Developer Account](https://developer.spotify.com/dashboard/)
 
-## 🛠 Instalación
 ```bash
-# Instalación con Poetry (recomendado)
+# Installation with Poetry (recommended)
 git clone https://github.com/gabrielbaute/spotify-saver.git
 cd spotify-saver
 poetry install
 
-# O con pip
+# Or with pip
 pip install git+https://github.com/gabrielbaute/spotify-saver.git
 ```
-⚠️ IMPORTANTE: Debes acceder a tu cuenta de spotify como desarrollador, crear una app y obtener así una "client id" y un "client secret", debes colocar esa info en un archivo .env en el directorio raíz del proyecto.
 
-## 💻 Uso de la CLI
+⚠️ IMPORTANT: You must log in to your Spotify account as a developer, create an app, and obtain a "client id" and "client secret." You must place this information in an .env file in the project's root directory.
 
-### Comandos disponibles
+## ⚙️ Configuration
 
-| Comando                | Descripción                                      | Ejemplo                                      |
-|------------------------|--------------------------------------------------|----------------------------------------------|
-| `download [URL]`       | Descarga track/álbum de Spotify                 | `spotifysaver download "URL_SPOTIFY"`     |
-| `version`              | Muestra la versión instalada                    | `spotifysaver version`                    |
-
-### Opciones principales
-
-| Opción               | Descripción                              | Valores aceptados       |
-|----------------------|------------------------------------------|-------------------------|
-| `--lyrics`           | Descargar letras sincronizadas (.lrc)   | Flag (sin valor)        |
-| `--output DIR`       | Directorio de salida                     | Ruta válida            |
-| `--format FORMATO`   | Formato de audio                         | `m4a` (default), `mp3` |
-
-### Ejemplos prácticos
-
-1. **Descargar un álbum completo con letras:**
-   ```bash
-   spotifysaver download "https://open.spotify.com/album/..." --lyrics
-   ```
-
-2. **Descargar un track en formato MP3 (aún en desarrollo 🚧):**
-   ```bash
-   spotifysaver download "https://open.spotify.com/track/..." --format mp3
-   ```
-
-3. **Usar un directorio personalizado:**
-   ```bash
-   spotifysaver download "URL" --output "~/Music/Spotify"
-
-## 🎛 Configuración
-
-Crea un archivo `.env` en la raíz del proyecto con tus credenciales de Spotify:
+Create `.env` file:
 
 ```ini
-SPOTIFY_CLIENT_ID=tu_client_id
-SPOTIFY_CLIENT_SECRET=tu_client_secret
+SPOTIFY_CLIENT_ID=your_id
+SPOTIFY_CLIENT_SECRET=your_secret
+YTDLP_COOKIES_PATH="cookies.txt" # For age-restricted content
 ```
 
-También puedes consultar el archivo .example.env
+The `YTDLP_COOKIES_PATH` variable will indicate the location of the file with the YouTube Music cookies (important, don't use YouTube cookies, but YouTube Music), in case we have problems with restrictions on yt-dlp.
 
-## 📦 Estructura de salida
+You can also check the .example.env file
 
+## 💻 Using the CLI
+
+### Available Commands
+
+| Command | Description | Example |
+|------------------------|--------------------------------------------------|----------------------------------------------|
+| `download [URL]` | Download track/album from Spotify | `spotifysaver download "URL_SPOTIFY"` |
+| `version` | Displays the installed version | `spotifysaver version` |
+
+### Main Options
+
+| Option | Description | Accepted Values ​​|
+|---------------------|------------------------------------------|-------------------------|
+| `--lyrics` | Download synchronized lyrics (.lrc) | Flag (no value) |
+| `--output DIR` | Output directory | Valid path |
+| `--format FORMAT` | Audio format | `m4a` (default), `mp3` |
+
+## 💡 Usage Examples
+```bash
+# Download album with synchronized lyrics
+spotifysaver download "https://open.spotify.com/album/..." --lyrics
+
+# Download song in MP3 format (still in development 🚧)
+spotifysaver download "https://open.spotify.com/track/..." --format mp3
+```
+
+## 📂 Output Structure
 ```
 Music/
 ├── Artist/
-│   ├── Album (Year)/
-│   │   ├── 01 - Track Name.m4a
-│   │   ├── 01 - Track Name.lrc
-│   │   └── cover.jpg
-│   └── artist_info.json
+│ ├── Album (Year)/
+│ │ ├── 01 - Song.m4a
+│ │ ├── 01 - Song.lrc
+│ │ └── cover.jpg
+│ └── artist_info.nfo
 ```
 
-## 🤝 Contribución
+## 🤝 Contributions
+1. Fork the project
+2. Create your branch (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -m 'Add awesome feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Open a Pull Request
 
-1. Haz fork del proyecto
-2. Crea una rama (`git checkout -b feature/nueva-funcion`)
-3. Haz commit de tus cambios (`git commit -am 'Añade nueva función'`)
-4. Haz push a la rama (`git push origin feature/nueva-funcion`)
-5. Abre un Pull Request
-
-## 📄 Licencia
+## 📄 License
 
 MIT © [TGabriel Baute](https://github.com/gabrielbaute)
-
-## 🤝 Contribución
-¡PRs son bienvenidos! Por favor abre un issue primero para discutir cambios grandes.
