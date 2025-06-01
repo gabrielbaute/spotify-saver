@@ -65,6 +65,7 @@ class SpotifyAPI:
                 genres=raw_data.get("genres", []),
                 album_name=raw_data["name"],
                 release_date=raw_data["release_date"],
+                disc_number=track.get("disc_number", 1),
                 cover_url=raw_data["images"][0]["url"] if raw_data["images"] else None
             )
             for track in raw_data["tracks"]["items"]

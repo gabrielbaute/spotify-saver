@@ -11,6 +11,7 @@ class Track:
     uri: str
     artists: List[str]
     release_date: str
+    disc_number: int = 1
     genres: List[str] = None
     album_name: str = None
     cover_url: str = None
