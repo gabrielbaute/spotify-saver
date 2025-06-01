@@ -34,7 +34,7 @@ class LoggerConfig:
             format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
             handlers=[
                 logging.FileHandler(cls.LOG_FILE),
-                logging.StreamHandler()
-            ]
-        )
+                logging.StreamHandler() if log_level==logging.DEBUG else logging.NullHandler()
+            ],
+        )        
         logging.info(f"Logging configured at level: {logging.getLevelName(log_level)}")
