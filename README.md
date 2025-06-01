@@ -17,7 +17,7 @@ Read this file in [Spanish](README_ES.md)
 ## 🌟 Features
 - ✅ Download audio from YouTube Music with Spotify metadata
 - ✅ Synchronized lyrics (.lrc) from LRC Lib
-- 🚧 Generation of Jellyfin-compatible `.info` files
+- ✅ Generation of Jellyfin-compatible `.info` files
 - ✅ Automatic folder structure (Artist/Album)
 - ✅ Command-line interface (CLI)
 
@@ -68,11 +68,16 @@ You can also check the .example.env file
 | `--lyrics` | Download synchronized lyrics (.lrc) | Flag (no value) |
 | `--output DIR` | Output directory | Valid path |
 | `--format FORMAT` | Audio format | `m4a` (default), `mp3` |
+| `--cover` | Saves the cover album in de directoy (.jpg) | Flag (no value) |
+| `--nfo` | Generates a .nfo metadata file in the JellyFin format | Flag (no value) |
 
 ## 💡 Usage Examples
 ```bash
 # Download album with synchronized lyrics
 spotifysaver download "https://open.spotify.com/album/..." --lyrics
+
+# Download album with album cover and metadata file
+spotifysaver download "https://open.spotify.com/album/..." --nfo --cover
 
 # Download song in MP3 format (still in development 🚧)
 spotifysaver download "https://open.spotify.com/track/..." --format mp3
@@ -85,6 +90,7 @@ Music/
 │ ├── Album (Year)/
 │ │ ├── 01 - Song.m4a
 │ │ ├── 01 - Song.lrc
+│ │ ├── album.nfo
 │ │ └── cover.jpg
 │ └── artist_info.nfo
 ```

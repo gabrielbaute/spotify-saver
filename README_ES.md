@@ -65,14 +65,19 @@ También puedes consultar el archivo .example.env
 
 | Opción               | Descripción                              | Valores aceptados       |
 |----------------------|------------------------------------------|-------------------------|
-| `--lyrics`           | Descargar letras sincronizadas (.lrc)   | Flag (sin valor)        |
+| `--lyrics`           | Descargar letras sincronizadas (.lrc)    | Flag (sin valor)        |
 | `--output DIR`       | Directorio de salida                     | Ruta válida            |
 | `--format FORMATO`   | Formato de audio                         | `m4a` (default), `mp3` |
+| `--cover`            | Descarga la portada del album (.jpg)     | Flag (no value) |
+| `--nfo`              | Genera un archivo .nfo con la metadata (para Jellyfin)| Flag (no value) |
 
 ## 💡 Ejemplos de uso
 ```bash
 # Descargar álbum con letras sincronizadas
 spotifysaver download "https://open.spotify.com/album/..." --lyrics
+
+# Descargar album con archivo de metadata e imagen de portada
+spotifysaver download "https://open.spotify.com/album/..." --nfo --cover
 
 # Descargar canción en formato MP3 (aún en desarrollo 🚧)
 spotifysaver download "https://open.spotify.com/track/..." --format mp3
