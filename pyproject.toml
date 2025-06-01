@@ -33,7 +33,7 @@ packages = [{include = "src"}]
 [tool.poetry.dependencies]
 python = "^3.8"
 spotipy = "^2.22.0"
-yt-dlp = "^2023.7.6"
+yt-dlp = "^2025.5.22"
 ytmusicapi = "^1.0.0"
 requests = "^2.31.0"
 click = "^8.1.3"
