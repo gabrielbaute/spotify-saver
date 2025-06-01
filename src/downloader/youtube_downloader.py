@@ -6,7 +6,8 @@ from typing import Optional
 from mutagen.mp4 import MP4, MP4Cover
 
 from src.apis import YoutubeMusicSearcher, LrclibAPI
-from src.models import Track
+from src.metadata import NFOGenerator
+from src.models import Track, Album
 from src.config import Config
 from src.spotlog import get_logger
 
@@ -143,6 +144,23 @@ class YouTubeDownloader:
             logger.error(f"Error saving song lyrics: {str(e)}", exc_info=True)
             return False
 
+    def _get_album_dir(self, album: 'Album') -> Path:
+        """Obtiene la ruta del directorio del álbum"""
+        artist_dir = self.base_dir / album.artists[0]
+        return artist_dir / f"{album.name} ({album.release_date[:4]})"
+    
+    def _save_cover_album(self, url: str, output_path: Path):
+        """Descarga la portada del álbum"""
+        if not url:
+            return
+            
+        try:
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                output_path.write_bytes(response.content)
+        except Exception as e:
+            logger.error(f"Error downloading cover: {e}")
+
     def download_track(self, track: Track, yt_url: str, download_lyrics: bool = False) -> tuple[Optional[Path], Optional[Track]]:
         """
         Descarga un track desde YouTube Music con metadata de Spotify.
@@ -182,4 +200,16 @@ class YouTubeDownloader:
                 logger.debug(f"Removing corrupt file: {output_path}")
                 output_path.unlink()
             return None, None
+    
+    def download_album(self, album: Album, download_lyrics: bool = False):
+        """Descarga un álbum completo y genera metadatos"""
+        for track in album.tracks:
+            self.download_track(track, download_lyrics=download_lyrics)
         
+        # Generar NFO después de descargar todos los tracks
+        output_dir = self._get_album_dir(album)
+        NFOGenerator.generate(album, output_dir)
+
+        # Descargar portada (opcional)
+        self._save_cover_album(album.cover_url, output_dir / "cover.jpg")
+        pass
