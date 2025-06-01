@@ -56,30 +56,7 @@ class YouTubeDownloader:
             "skip_unavailable_fragments": True,
         }
         
-        # Verificación adicional de cookies
-        if Config.YTDLP_COOKIES_PATH and Path(Config.YTDLP_COOKIES_PATH).exists():
-            logger.debug(f"Using cookies from: {Config.YTDLP_COOKIES_PATH}")
-            opts.update({
-                "cookiefile": str(Config.YTDLP_COOKIES_PATH),
-                "http_headers": {
-                    "Cookie": self._load_cookies(Config.YTDLP_COOKIES_PATH),
-                    "X-Origin": ytm_base_url,
-                    "X-Goog-Visitor-Id": "CgtfQ1BvVU5nN0NKSSiNwba8Bg%3D%3D",  # Header útil para YTM
-                }
-            })
-        
         return opts
-
-    def _load_cookies(self, cookie_path: str) -> str:
-        """Carga cookies y las formatea para headers HTTP"""
-        with open(cookie_path, 'r') as f:
-            cookies = []
-            for line in f:
-                if line.strip() and not line.startswith('#'):
-                    parts = line.strip().split('\t')
-                    if len(parts) >= 7:
-                        cookies.append(f"{parts[5]}={parts[6]}")
-            return '; '.join(cookies)
 
 
     def _get_ydl_logger(self):
