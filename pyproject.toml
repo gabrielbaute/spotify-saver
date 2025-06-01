@@ -31,7 +31,7 @@ classifiers = [
 packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9 || ^3.10 || ^3.11 || ^3.12"
 spotipy = "^2.22.0"
 yt-dlp = "^2025.5.22"
 ytmusicapi = "^1.0.0"
