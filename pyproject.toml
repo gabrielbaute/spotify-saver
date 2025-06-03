@@ -28,7 +28,7 @@ classifiers = [
     "Topic :: Utilities",
     "Environment :: Console",
 ]
-packages = [{include = "src"}]
+packages = [{include = "spotifysaver"}]
 
 [tool.poetry.dependencies]
 python = "^3.9 || ^3.10 || ^3.11 || ^3.12"
@@ -45,7 +45,7 @@ pytest = "^7.4.0"
 mypy = "^1.5.1"
 
 [tool.poetry.scripts]
-spotifysaver = "src.cli.cli:cli"
+spotifysaver = "spotifysaver.cli.cli:cli"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
