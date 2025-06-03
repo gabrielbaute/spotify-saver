@@ -1,6 +1,5 @@
-# En tu main.py o servicio de descarga
-from src.spotify.spotify_api import SpotifyAPI
-from src.spotlog.logger import get_logger
+from spotifysaver.apis.spotify_api import SpotifyAPI
+from spotifysaver.spotlog.logger import get_logger
 
 logger = get_logger("main")
 

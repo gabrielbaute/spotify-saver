@@ -1,6 +1,6 @@
-from src.apis import SpotifyAPI, YoutubeMusicSearcher
-from src.downloader import YouTubeDownloader
-from src.spotlog import get_logger
+from spotifysaver.apis import SpotifyAPI, YoutubeMusicSearcher
+from spotifysaver.downloader import YouTubeDownloader
+from spotifysaver.spotlog import get_logger
 
 logger = get_logger("main")
 
