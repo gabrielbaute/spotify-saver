@@ -7,7 +7,7 @@ from mutagen.mp4 import MP4, MP4Cover
 
 from spotifysaver.apis import YoutubeMusicSearcher, LrclibAPI
 from spotifysaver.metadata import NFOGenerator
-from spotifysaver.models import Track, Album
+from spotifysaver.models import Track, Album, Playlist
 from spotifysaver.config import Config
 from spotifysaver.spotlog import get_logger
 
@@ -79,10 +79,13 @@ class YouTubeDownloader:
 
     def _get_output_path(self, track: Track) -> Path:
         """Genera rutas: Music/Artist/Album (Year)/Track.m4a."""
-        artist_dir = self.base_dir / track.artists[0]
-        album_dir = artist_dir / f"{track.album_name} ({track.release_date[:4]})"
-        album_dir.mkdir(parents=True, exist_ok=True)
-        return album_dir / f"{track.name}.m4a"
+        if track.source_type == "playlist":
+            dir_path = self.base_dir / track.playlist_name
+        else:
+            dir_path = self.base_dir / track.artists[0] / f"{track.album_name} ({track.release_date[:4]})"
+        
+        dir_path.mkdir(parents=True, exist_ok=True)
+        return dir_path / f"{track.name}.m4a"
 
     def _download_cover(self, track: Track) -> Optional[bytes]:
         """Descarga la portada desde Spotify."""
@@ -212,4 +215,30 @@ class YouTubeDownloader:
 
         # Descargar portada (opcional)
         self._save_cover_album(album.cover_url, output_dir / "cover.jpg")
+        pass
+
+    def download_playlist(self, playlist: Playlist, download_lyrics: bool = False):
+        """Descarga una playlist completa y genera metadatos"""
+        
+        # Generar directorio para la playlist
+        if not playlist.name:
+            logger.error("Playlist name is empty. Cannot create directory.")
+            return
+        output_dir = self.base_dir / playlist.name
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Descargar cada track de la playlist
+        failed_tracks = []
+        for track in playlist.tracks:
+            result = self.download_track(track, download_lyrics=download_lyrics)
+            if result[0] is None:
+                failed_tracks.append(track)
+
+        # Descargar portada (opcional)
+        self._save_cover_album(playlist.cover_url, output_dir / "cover.jpg")
+
+        # Lista de tracks fallidos
+        if failed_tracks:
+            logger.warning(f"Failed tracks in playlist '{playlist.name}': {', '.join(failed_tracks)}")
+        
         pass
