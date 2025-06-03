@@ -1,5 +1,5 @@
 from dataclasses import dataclass, replace
-from typing import List
+from typing import List, Optional
 
 @dataclass(frozen=True)
 class Track:
@@ -12,6 +12,8 @@ class Track:
     artists: List[str]
     release_date: str
     disc_number: int = 1
+    source_type: str = "album"
+    playlist_name: Optional[str] = None
     genres: List[str] = None
     album_name: str = None
     cover_url: str = None
