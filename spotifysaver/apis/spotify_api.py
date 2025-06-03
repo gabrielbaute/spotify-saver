@@ -84,6 +84,7 @@ class SpotifyAPI:
         # Construye objetos Track
         tracks = [
             Track(
+                source_type="album",
                 number=track["track_number"],
                 total_tracks=raw_data["total_tracks"],
                 name=track["name"],
@@ -131,6 +132,8 @@ class SpotifyAPI:
         
         tracks = [
             Track(
+                source_type="playlist",
+                playlist_name=raw_data["name"],
                 number=idx + 1,
                 total_tracks=raw_data["tracks"]["total"],
                 name=track["track"]["name"],
@@ -142,7 +145,7 @@ class SpotifyAPI:
                 cover_url=track["track"]["album"]["images"][0]["url"] if track["track"]["album"]["images"] else None
             )
             for idx, track in enumerate(raw_data["tracks"]["items"])
-            if track["track"]  # Filtra tracks None (puede ocurrir en playlists)
+            if track["track"]
         ]
 
         # Construye objeto Playlist
