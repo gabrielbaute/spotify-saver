@@ -1,11 +1,16 @@
-"""Log command for displaying the last lines of the log file."""
+"""Log Display Command Module.
+
+This module provides CLI functionality to display and filter application log files,
+allowing users to view recent log entries, filter by log level, and get log file
+path information for debugging and monitoring purposes.
+"""
 
 from pathlib import Path
 from typing import Optional
 
 import click
 
-from spotifysaver.spotlog import LoggerConfig  # Importamos la configuración
+from spotifysaver.spotlog import LoggerConfig  # Import configuration
 
 
 @click.command("show-log")
@@ -25,7 +30,17 @@ from spotifysaver.spotlog import LoggerConfig  # Importamos la configuración
     help="Show only the path of the log file (no content will be displayed)",
 )
 def show_log(lines: int, level: Optional[str], path: bool):
-    """Displays the last lines of the log file."""
+    """Display the last lines of the application log file with optional filtering.
+    
+    This command provides access to application logs with filtering capabilities
+    by log level and line count. It can also display just the log file path
+    for external log viewing tools.
+    
+    Args:
+        lines (int): Number of recent log lines to display (default: 10)
+        level (Optional[str]): Filter logs by specific level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        path (bool): If True, only display the log file path without content
+    """
     log_file = Path(LoggerConfig.get_log_path())
 
     if path:
@@ -38,16 +53,14 @@ def show_log(lines: int, level: Optional[str], path: bool):
 
     try:
         with open(log_file, "r", encoding="latin-1") as f:
-            all_lines = f.readlines()
-
-        # Filtrar por nivel si se especificó
+            all_lines = f.readlines()        # Filter by level if specified
         filtered_lines = (
             [line for line in all_lines if not level or f"[{level.upper()}]" in line]
             if level
             else all_lines
         )
 
-        # Mostrar las últimas N líneas
+        # Display the last N lines
         last_n_lines = filtered_lines[-lines:] if lines > 0 else filtered_lines
         click.echo_via_pager("".join(last_n_lines))
 

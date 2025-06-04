@@ -1,10 +1,26 @@
-"""Track download command module."""
+"""Single track download command module for SpotifySaver CLI.
+
+This module handles the download process for individual Spotify tracks,
+including YouTube Music search and metadata application.
+"""
 
 import click
 
 
 def process_track(spotify, searcher, downloader, url, lyrics, format):
-    """Handle single track download"""
+    """Process and download a single Spotify track.
+    
+    Downloads a single track from Spotify by finding a matching track on
+    YouTube Music and applying the original Spotify metadata.
+    
+    Args:
+        spotify: SpotifyAPI instance for fetching track data
+        searcher: YoutubeMusicSearcher for finding YouTube matches
+        downloader: YouTubeDownloader for downloading and processing files
+        url: Spotify track URL
+        lyrics: Whether to download synchronized lyrics
+        format: Audio format for downloaded files
+    """
     track = spotify.get_track(url)
     yt_url = searcher.search_track(track)
 

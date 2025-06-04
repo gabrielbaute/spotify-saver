@@ -1,4 +1,8 @@
-"""Inspect command for displaying metadata of Spotify tracks, albums, or playlists."""
+"""Inspect command for displaying Spotify metadata without downloading.
+
+This module provides the inspect command that fetches and displays detailed
+metadata about Spotify tracks, albums, or playlists without downloading any content.
+"""
 
 import click
 
@@ -13,7 +17,16 @@ from spotifysaver.cli.commands.inspect.playlist_info import show_playlist_info
 @click.argument("spotify_url")
 @click.option("--verbose", is_flag=True, help="Shows technical details")
 def inspect(spotify_url: str, verbose: bool):
-    """Displays metadata of a track/album/playlist without downloading."""
+    """Display detailed metadata of Spotify content without downloading.
+    
+    Fetches and displays comprehensive metadata about Spotify tracks, albums,
+    or playlists including artist information, release dates, track listings,
+    and technical details when verbose mode is enabled.
+    
+    Args:
+        spotify_url: Spotify URL for track, album, or playlist
+        verbose: Whether to show additional technical details
+    """
     LoggerConfig.setup(level="DEBUG" if verbose else "INFO")
 
     try:

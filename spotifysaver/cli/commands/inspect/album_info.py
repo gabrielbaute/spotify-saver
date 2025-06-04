@@ -1,4 +1,9 @@
-"""Album Information Command Module."""
+"""Album Information Display Module.
+
+This module provides functionality to display comprehensive album information
+and metadata from Spotify albums, including tracklist details and technical
+information through the CLI interface.
+"""
 
 import click
 
@@ -6,7 +11,17 @@ from spotifysaver.models import Album
 
 
 def show_album_info(album: Album, verbose: bool):
-    """Muestra metadata de un álbum."""
+    """Display comprehensive album metadata and tracklist information.
+    
+    Shows formatted album information including name, artists, release date,
+    complete tracklist with durations, and optionally technical details
+    like genres when verbose mode is enabled.
+    
+    Args:
+        album (Album): The album object containing metadata and tracks to display
+        verbose (bool): Whether to show detailed technical information including
+                       genres and additional metadata
+    """
     click.secho(f"\n💿 Álbum: {album.name}", fg="magenta", bold=True)
     click.echo(f"👥 Artista(s): {', '.join(album.artists)}")
     click.echo(f"📅 Fecha de lanzamiento: {album.release_date}")

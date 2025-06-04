@@ -18,16 +18,37 @@ logger = get_logger("YoutubeDownloader")
 
 
 class YouTubeDownloader:
-    """Descarga tracks de YouTube Music y añade metadatos de Spotify."""
+    """Downloads tracks from YouTube Music and adds Spotify metadata.
+    
+    This class handles the complete download process including audio download,
+    metadata injection, lyrics fetching, and file organization.
+    
+    Attributes:
+        base_dir: Base directory for music downloads
+        searcher: YouTube Music searcher instance
+        lrc_client: LRC Lib API client for lyrics
+    """
 
     def __init__(self, base_dir: str = "Music"):
+        """Initialize the YouTube downloader.
+        
+        Args:
+            base_dir: Base directory where music will be downloaded
+        """
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(exist_ok=True)
         self.searcher = YoutubeMusicSearcher()
         self.lrc_client = LrclibAPI()
 
     def _get_ydl_opts(self, output_path: Path) -> dict:
-        """Configuración robusta para yt-dlp con soporte para cookies"""
+        """Get robust yt-dlp configuration with cookie support.
+        
+        Args:
+            output_path: Path where the file should be saved
+            
+        Returns:
+            dict: yt-dlp configuration options
+        """
         is_verbose = logger.getEffectiveLevel() <= logging.DEBUG
         ytm_base_url = "https://music.youtube.com"
 
@@ -68,7 +89,11 @@ class YouTubeDownloader:
         return opts
 
     def _get_ydl_logger(self):
-        """Logger de yt-dlp."""
+        """Create a yt-dlp logger that integrates with the application logger.
+        
+        Returns:
+            YDLLogger: Custom logger for yt-dlp integration
+        """
 
         class YDLLogger:
             def debug(self, msg):
@@ -86,7 +111,15 @@ class YouTubeDownloader:
         return YDLLogger()
 
     def _get_output_path(self, track: Track, album_artist: str = None) -> Path:
-        """Genera rutas: Music/Artist/Album (Year)/Track.m4a."""
+        """Generate output paths: Music/Artist/Album (Year)/Track.m4a.
+        
+        Args:
+            track: Track object containing metadata
+            album_artist: Artist name for album organization
+            
+        Returns:
+            Path: Complete file path where the track should be saved
+        """
         if track.source_type == "playlist":
             dir_path = self.base_dir / track.playlist_name
         else:
@@ -100,7 +133,14 @@ class YouTubeDownloader:
         return dir_path / f"{track.name}.m4a"
 
     def _download_cover(self, track: Track) -> Optional[bytes]:
-        """Descarga la portada desde Spotify."""
+        """Download cover art from Spotify.
+        
+        Args:
+            track: Track object containing cover URL
+            
+        Returns:
+            bytes: Cover art image data, or None if download failed
+        """
         if not track.cover_url:
             return None
         try:
@@ -111,27 +151,36 @@ class YouTubeDownloader:
             return None
 
     def _add_metadata(self, file_path: Path, track: Track, cover_data: Optional[bytes]):
-        """Añade metadatos y portada usando la API moderna de Mutagen."""
+        """Add metadata and cover art using Mutagen MP4 tags.
+        
+        Args:
+            file_path: Path to the audio file
+            track: Track object with metadata
+            cover_data: Cover art image data
+            
+        Raises:
+            Exception: If metadata addition fails
+        """
         try:
             audio = MP4(file_path)
 
-            # Metadatos básicos (usando claves estándar MP4)
+            # Basic metadata (using standard MP4 tags)
             audio["\xa9nam"] = [track.name]  # Título (¡Debe ser una lista!)
             audio["\xa9ART"] = [";".join(track.artists)]  # Artista
             audio["\xa9alb"] = [track.album_name]  # Álbum
-            audio["\xa9day"] = [track.release_date[:4]]  # Solo el año
+            audio["\xa9day"] = [track.release_date[:4]]  # Year only
             audio["trkn"] = [
                 (track.number, track.total_tracks)
             ]  # Número de pista y total
             audio["disk"] = [
                 (track.disc_number, 1)
-            ]  # Número de disco (asumiendo 1 disco)
+            ]  # Disc number (assuming 1 disc)
 
-            # Género (si existe en el track)
+            # Genre (if exists in track)
             if hasattr(track, "genres") and track.genres:
                 audio["\xa9gen"] = [";".join(track.genres)]
 
-            # Portada
+            # Cover art
             if cover_data:
                 audio["covr"] = [MP4Cover(cover_data, imageformat=MP4Cover.FORMAT_JPEG)]
 
@@ -143,7 +192,15 @@ class YouTubeDownloader:
             raise
 
     def _save_lyrics(self, track: "Track", audio_path: Path) -> bool:
-        """Guarda letras sincronizadas como archivo .lrc"""
+        """Save synchronized lyrics as .lrc file.
+        
+        Args:
+            track: Track object for lyrics search
+            audio_path: Path to the audio file (used to determine .lrc path)
+            
+        Returns:
+            bool: True if lyrics were successfully saved, False otherwise
+        """
         try:
             lyrics = self.lrc_client.get_lyrics_with_fallback(track)
             if not lyrics or "[instrumental]" in lyrics.lower():
@@ -163,12 +220,24 @@ class YouTubeDownloader:
             return False
 
     def _get_album_dir(self, album: "Album") -> Path:
-        """Obtiene la ruta del directorio del álbum"""
+        """Get the album directory path.
+        
+        Args:
+            album: Album object containing metadata
+            
+        Returns:
+            Path: Directory path for the album
+        """
         artist_dir = self.base_dir / album.artists[0]
         return artist_dir / f"{album.name} ({album.release_date[:4]})"
 
     def _save_cover_album(self, url: str, output_path: Path):
-        """Descarga la portada del álbum"""
+        """Download and save album cover art.
+        
+        Args:
+            url: URL of the cover image
+            output_path: Path where the cover should be saved
+        """
         if not url:
             return
 
@@ -186,11 +255,16 @@ class YouTubeDownloader:
         album_artist: str = None,
         download_lyrics: bool = False,
     ) -> tuple[Optional[Path], Optional[Track]]:
-        """
-        Descarga un track desde YouTube Music con metadata de Spotify.
+        """Download a track from YouTube Music with Spotify metadata.
+
+        Args:
+            track: Track object with metadata
+            yt_url: YouTube Music URL for the track
+            album_artist: Artist name for file organization
+            download_lyrics: Whether to download lyrics
 
         Returns:
-            tuple: (Path del archivo descargado, Track actualizado) o (None, None) en caso de error
+            tuple: (Downloaded file path, Updated track) or (None, None) on error
         """
         output_path = self._get_output_path(track, album_artist)
         yt_url = self.searcher.search_track(track)
@@ -205,11 +279,11 @@ class YouTubeDownloader:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([yt_url])
 
-            # 2. Añade metadatos y portada
+            # 2. Add metadata and cover art
             cover_data = self._download_cover(track)
             self._add_metadata(output_path, track, cover_data)
 
-            # 3. Manejo de letras
+            # 3. Lyrics handling
             updated_track = track
             if download_lyrics:
                 success = self._save_lyrics(track, output_path)
@@ -232,7 +306,14 @@ class YouTubeDownloader:
         nfo: bool = False,
         cover: bool = False,
     ):
-        """Descarga un álbum completo y genera metadatos"""
+        """Download a complete album and generate metadata.
+        
+        Args:
+            album: Album object to download
+            download_lyrics: Whether to download lyrics for tracks
+            nfo: Whether to generate NFO metadata file
+            cover: Whether to download album cover
+        """
         for track in album.tracks:
             yt_url = self.searcher.search_track(track)
             self.download_track(
@@ -249,7 +330,7 @@ class YouTubeDownloader:
             logger.info(f"Generating NFO for album: {album.name}")
             NFOGenerator.generate(album, output_dir)
 
-        # Descargar portada
+        # Download cover art
         if cover and album.cover_url:
             logger.info(f"Downloading cover for album: {album.name}")
             self._save_cover_album(album.cover_url, output_dir / "cover.jpg")
@@ -258,17 +339,23 @@ class YouTubeDownloader:
 
     def download_album_cli(
         self,
-        album: Album,
-        download_lyrics: bool = False,
-        nfo: bool = False,  # Generar NFO
-        cover: bool = False,  # Descargar portada
-        progress_callback: Optional[callable] = None,  # Callback para progreso
-    ) -> tuple[int, int]:  # Retorna (éxitos, total)
-        """Descarga un álbum completo con soporte para progreso.
+        album: Album,        download_lyrics: bool = False,
+        nfo: bool = False,  # Generate NFO
+        cover: bool = False,  # Download cover art
+        progress_callback: Optional[callable] = None,  # Progress callback
+    ) -> tuple[int, int]:  # Returns (success, total)
+        """Download a complete album with progress support.
 
         Args:
-            progress_callback: Función que recibe (track_actual, total_tracks, nombre_track).
-                            Ejemplo: lambda idx, total, name: print(f"{idx}/{total} {name}")
+            album: Album object to download
+            download_lyrics: Whether to download lyrics
+            nfo: Whether to generate NFO file
+            cover: Whether to download cover art
+            progress_callback: Function that receives (current_track, total_tracks, track_name).
+                            Example: lambda idx, total, name: print(f"{idx}/{total} {name}")
+
+        Returns:
+            tuple: (successful_downloads, total_tracks)
         """
         if not album.tracks:
             logger.error("Álbum no contiene tracks.")
@@ -312,7 +399,17 @@ class YouTubeDownloader:
         cover: bool = False,
         nfo: bool = False,
     ):
-        """Descarga una playlist completa y genera metadatos"""
+        """Download a complete playlist and generate metadata.
+        
+        Args:
+            playlist: Playlist object to download
+            download_lyrics: Whether to download lyrics
+            cover: Whether to download playlist cover
+            nfo: Whether to generate NFO file
+            
+        Returns:
+            bool: True if at least one track was successfully downloaded
+        """
 
         # Validación básica
         if not playlist.name:
@@ -339,19 +436,17 @@ class YouTubeDownloader:
                     success = True
             except Exception as e:
                 failed_tracks.append(track.name)
-                logger.error(f"Error downloading track {track.name}: {e}")
-
-        # Descargar portada (sólo si success)
+                logger.error(f"Error downloading track {track.name}: {e}")        # Download cover art (only if successful)
         if success and playlist.cover_url and cover:
             logger.info(f"Downloading cover for playlist: {playlist.name}")
             self._save_cover_album(playlist.cover_url, output_dir / "cover.jpg")
 
-        # Generar NFO (sólo si success)
+        # Generate NFO (only if successful)
         if success and nfo:
             logger.info(f"Generating NFO for playlist: {playlist.name}")
             NFOGenerator.generate(playlist, output_dir)
 
-        # Log de resultados
+        # Log results
         if failed_tracks:
             logger.warning(
                 f"Failed downloads in playlist '{playlist.name}': {len(failed_tracks)}/{len(playlist.tracks)}. "
@@ -367,11 +462,17 @@ class YouTubeDownloader:
         cover: bool = False,
         progress_callback: Optional[callable] = None,
     ) -> tuple[int, int]:
-        """Descarga una playlist completa con soporte para barra de progreso.
+        """Download a complete playlist with progress bar support.
 
         Args:
-            progress_callback: Función que recibe (track_actual, total_tracks, nombre_track).
-                            Ejemplo: lambda idx, total, name: print(f"{idx}/{total} {name}")
+            playlist: Playlist object to download
+            download_lyrics: Whether to download lyrics
+            cover: Whether to download playlist cover
+            progress_callback: Function that receives (current_track, total_tracks, track_name).
+                            Example: lambda idx, total, name: print(f"{idx}/{total} {name}")
+
+        Returns:
+            tuple: (successful_downloads, total_tracks)
         """
         if not playlist.name or not playlist.tracks:
             logger.error("Playlist inválida: sin nombre o tracks vacíos")

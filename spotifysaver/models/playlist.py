@@ -8,7 +8,19 @@ from .track import Track
 
 @dataclass
 class Playlist:
-    """Representa una playlist de Spotify y sus tracks."""
+    """Represents a Spotify playlist and its tracks.
+    
+    This class encapsulates all information about a playlist including
+    metadata and the collection of tracks it contains.
+    
+    Attributes:
+        name: The playlist name/title
+        description: Description or summary of the playlist
+        owner: Username of the playlist owner
+        uri: Spotify URI for the playlist
+        cover_url: URL to the playlist cover image
+        tracks: List of Track objects in the playlist
+    """
 
     name: str
     description: str
@@ -18,5 +30,12 @@ class Playlist:
     tracks: List[Track]
 
     def get_track_by_uri(self, uri: str) -> Track | None:
-        """Busca un track por su URI (similar al método de Album)."""
+        """Find a track by its URI (similar to Album method).
+        
+        Args:
+            uri: The Spotify URI to search for
+            
+        Returns:
+            Track: The track with matching URI, or None if not found
+        """
         return next((t for t in self.tracks if t.uri == uri), None)
