@@ -12,6 +12,6 @@ tag_scope = "global"
 "pyproject.toml" = [
     'version = "{version}"'
 ]
-"src/__init__.py" = [
+"spotifysaver/__init__.py" = [
     '__version__ = "{version}"'
 ]
