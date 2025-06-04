@@ -77,12 +77,12 @@ class YouTubeDownloader:
 
         return YDLLogger()
 
-    def _get_output_path(self, track: Track) -> Path:
+    def _get_output_path(self, track: Track, album_artist: str = None) -> Path:
         """Genera rutas: Music/Artist/Album (Year)/Track.m4a."""
         if track.source_type == "playlist":
             dir_path = self.base_dir / track.playlist_name
         else:
-            dir_path = self.base_dir / track.artists[0] / f"{track.album_name} ({track.release_date[:4]})"
+            dir_path = self.base_dir / album_artist / f"{track.album_name} ({track.release_date[:4]})"
         
         dir_path.mkdir(parents=True, exist_ok=True)
         return dir_path / f"{track.name}.m4a"
@@ -163,14 +163,14 @@ class YouTubeDownloader:
         except Exception as e:
             logger.error(f"Error downloading cover: {e}")
 
-    def download_track(self, track: Track, yt_url: str, download_lyrics: bool = False) -> tuple[Optional[Path], Optional[Track]]:
+    def download_track(self, track: Track, yt_url: str, album_artist: str = None, download_lyrics: bool = False) -> tuple[Optional[Path], Optional[Track]]:
         """
         Descarga un track desde YouTube Music con metadata de Spotify.
         
         Returns:
             tuple: (Path del archivo descargado, Track actualizado) o (None, None) en caso de error
         """
-        output_path = self._get_output_path(track)
+        output_path = self._get_output_path(track, album_artist)
         yt_url = self.searcher.search_track(track)
         ydl_opts = self._get_ydl_opts(output_path)
         
@@ -207,7 +207,7 @@ class YouTubeDownloader:
         """Descarga un álbum completo y genera metadatos"""
         for track in album.tracks:
             yt_url = self.searcher.search_track(track)
-            self.download_track(track, yt_url, download_lyrics=download_lyrics)
+            self.download_track(track, yt_url, album_artist=album.artists[0], download_lyrics=download_lyrics)
         
         # Generar NFO después de descargar todos los tracks
         output_dir = self._get_album_dir(album)
@@ -243,7 +243,7 @@ class YouTubeDownloader:
                 if not yt_url:
                     raise ValueError(f"No se encontró en YouTube Music: {track.name}")
 
-                audio_path, _ = self.download_track(track, yt_url, download_lyrics=download_lyrics)
+                audio_path, _ = self.download_track(track, yt_url, album_artist=album.artists[0], download_lyrics=download_lyrics)
                 if audio_path:
                     success += 1
             except Exception as e:
