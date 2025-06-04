@@ -79,11 +79,11 @@ You can also check the .example.env file
 
 ### show-log Options
 
-| Option      | Description                             | Accepted Values ​​         |
-|-------------|-----------------------------------------|--------------------------|
-| `--lines`   | Number of log lines to display          | `--lines 25`             |
-| `--level`   | Filter by log level                     | `--level WARNING`        |
-| `--path`    | Displays the location of the log file   | Flag (no value)          |
+| Option      | Description                             | Accepted Values ​​              |
+|-------------|-----------------------------------------|-------------------------------|
+| `--lines`   | Number of log lines to display          | `--lines 25` --> `int         |
+| `--level`   | Filter by log level                     | INFO, WARNING, DEBUG, ERROR   |
+| `--path`    | Displays the location of the log file   | Flag (no value)               |
 
 ## 💡 Usage Examples
 ```bash

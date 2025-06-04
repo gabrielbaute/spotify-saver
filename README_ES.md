@@ -79,11 +79,11 @@ También puedes consultar el archivo .example.env
 
 ### Opciones de show-log
 
-| Opción            | Descripción                              | Valores aceptados       |
-|-------------------|------------------------------------------|-------------------------|
-| `--lines`         | Número de líneas del log que mostrar     | `--lines 25`            |
-| `--level`         | Filtra por nivel de log                  | `--level WARNING`       |
-| `--path`          | Muestra la ubicación del archivo de log  | Flag (sin valor)        |
+| Opción            | Descripción                              | Valores aceptados             |
+|-------------------|------------------------------------------|-------------------------------|
+| `--lines`         | Número de líneas del log que mostrar     | `--lines 25` --> `int         |
+| `--level`         | Filtra por nivel de log                  | INFO, WARNING, DEBUG, ERROR   |
+| `--path`          | Muestra la ubicación del archivo de log  | Flag (sin valor)              |
 
 ## 💡 Ejemplos de uso
 ```bash
