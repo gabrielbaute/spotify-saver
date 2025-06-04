@@ -12,23 +12,37 @@ logger = get_logger("LrclibAPI")
 
 
 class LrclibAPI:
+    """LRC Lib API client for fetching synchronized lyrics.
+    
+    This class provides an interface to the LRC Lib API for retrieving
+    synchronized and plain lyrics for music tracks.
+    
+    Attributes:
+        BASE_URL: Base URL for the LRC Lib API
+        session: HTTP session for making requests    """
+    
     BASE_URL = "https://lrclib.net/api"
 
     def __init__(self):
-        """Inicializa el cliente de LRC Lib API."""
+        """Initialize the LRC Lib API client.
+        
+        Sets up the HTTP session with appropriate timeout settings.
+        """
         self.session = requests.Session()
-        self.session.timeout = 10  # 10 segundos de timeout
+        self.session.timeout = 10  # 10 seconds timeout
 
     def get_lyrics(self, track: Track, synced: bool = True) -> Optional[str]:
-        """
-        Obtiene letras sincronizadas o planas para un track.
+        """Get synchronized or plain lyrics for a track.
 
         Args:
-            track: Objeto Track con los metadatos
-            synced: Si True, devuelve letras sincronizadas (.lrc)
+            track: Track object with metadata for lyrics search
+            synced: If True, returns synchronized lyrics (.lrc format)
 
         Returns:
-            str: Letras en formato solicitado o None si hay error
+            str: Lyrics in requested format, or None if not found/error occurred
+            
+        Raises:
+            APIError: If there's an error with the API request
         """
         try:
             params = {
@@ -63,7 +77,14 @@ class LrclibAPI:
             raise APIError(f"Unexpected error: {str(e)}")
 
     def get_lyrics_with_fallback(self, track: Track) -> Optional[str]:
-        """Intenta obtener letras sincronizadas, si falla usa las planas"""
+        """Attempt to get synchronized lyrics, fallback to plain lyrics if failed.
+        
+        Args:
+            track: Track object with metadata for lyrics search
+            
+        Returns:
+            str: Lyrics (synchronized preferred, plain as fallback), or None if unavailable
+        """
         try:
             return self.get_lyrics(track, synced=True) or self.get_lyrics(
                 track, synced=False

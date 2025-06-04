@@ -1,4 +1,9 @@
-"""Download a track, album, or playlist from Spotify via YouTube Music"""
+"""Main download command module for SpotifySaver CLI.
+
+This module provides the primary download command that handles downloading
+tracks, albums, or playlists from Spotify by finding matching content on
+YouTube Music and applying Spotify metadata.
+"""
 
 from pathlib import Path
 
@@ -29,7 +34,21 @@ def download(
     format: str,
     verbose: bool,
 ):
-    """Download a track, album, or playlist from Spotify via YouTube Music"""
+    """Download music from Spotify URLs via YouTube Music with metadata.
+    
+    This command downloads audio content from YouTube Music that matches
+    Spotify tracks, albums, or playlists, then applies the original Spotify
+    metadata to create properly organized music files.
+    
+    Args:
+        spotify_url: Spotify URL for track, album, or playlist
+        lyrics: Whether to download synchronized lyrics files
+        nfo: Whether to generate Jellyfin-compatible metadata files
+        cover: Whether to download album/playlist cover art
+        output: Base directory for downloaded files
+        format: Audio format for downloaded files
+        verbose: Whether to show detailed debug information
+    """
     LoggerConfig.setup(level="DEBUG" if verbose else "INFO")
 
     try:

@@ -1,10 +1,28 @@
-"""Album Download Command Module."""
+"""Album download command module for SpotifySaver CLI.
+
+This module handles the download process for complete Spotify albums,
+including progress tracking, metadata generation, and cover art download.
+"""
 
 import click
 
 
 def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, format):
-    """Maneja la descarga de álbumes mostrando progreso."""
+    """Process and download a complete Spotify album with progress tracking.
+    
+    Downloads all tracks from a Spotify album, showing a progress bar and
+    handling optional features like lyrics, NFO metadata, and cover art.
+    
+    Args:
+        spotify: SpotifyAPI instance for fetching album data
+        searcher: YoutubeMusicSearcher for finding YouTube matches
+        downloader: YouTubeDownloader for downloading and processing files
+        url: Spotify album URL
+        lyrics: Whether to download synchronized lyrics
+        nfo: Whether to generate Jellyfin metadata files
+        cover: Whether to download album cover art
+        format: Audio format for downloaded files
+    """
     album = spotify.get_album(url)
     click.secho(f"\nDownloading album: {album.name}", fg="cyan")
 
@@ -32,7 +50,7 @@ def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, format
             progress_callback=update_progress,
         )
 
-    # Mostrar resumen
+    # Display summary
     if success > 0:
         click.secho(f"\n✔ Downloaded {success}/{total} tracks", fg="green")
         if nfo:
@@ -42,14 +60,23 @@ def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, format
 
 
 def generate_nfo_for_album(downloader, album, cover=False):
-    """Helper function for NFO generation"""
+    """Generate NFO metadata file for an album.
+    
+    Creates a Jellyfin-compatible NFO file with album metadata and optionally
+    downloads the album cover art.
+    
+    Args:
+        downloader: YouTubeDownloader instance for file operations
+        album: Album object with metadata
+        cover: Whether to download album cover art
+    """
     try:
         from spotifysaver.metadata import NFOGenerator
 
         album_dir = downloader._get_album_dir(album)
         NFOGenerator.generate(album, album_dir)
 
-        # Descargar portada si no existe
+        # Download cover if it doesn't exist
         if cover and album.cover_url:
             cover_path = album_dir / "cover.jpg"
             if not cover_path.exists() and album.cover_url:

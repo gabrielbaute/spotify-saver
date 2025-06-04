@@ -1,13 +1,33 @@
-"""SpotifySaver CLI - Download Playlist Command"""
+"""Playlist download command module for SpotifySaver CLI.
+
+This module handles the download process for complete Spotify playlists,
+including progress tracking and optional metadata generation.
+"""
 
 import click
 
 
 def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, format):
+    """Process and download a complete Spotify playlist with progress tracking.
+    
+    Downloads all tracks from a Spotify playlist, showing a progress bar and
+    handling optional features like lyrics and cover art. NFO generation for
+    playlists is currently in development.
+    
+    Args:
+        spotify: SpotifyAPI instance for fetching playlist data
+        searcher: YoutubeMusicSearcher for finding YouTube matches
+        downloader: YouTubeDownloader for downloading and processing files
+        url: Spotify playlist URL
+        lyrics: Whether to download synchronized lyrics
+        nfo: Whether to generate metadata files (in development)
+        cover: Whether to download playlist cover art
+        format: Audio format for downloaded files
+    """
     playlist = spotify.get_playlist(url)
     click.secho(f"\nDownloading playlist: {playlist.name}", fg="magenta")
 
-    # Configurar la barra de progreso
+    # Configure progress bar
     with click.progressbar(
         length=len(playlist.tracks),
         label="  Processing",
@@ -24,7 +44,7 @@ def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, for
             )
             bar.update(1)
 
-        # Delegar TODO al downloader
+        # Delegate everything to the downloader
         success, total = downloader.download_playlist_cli(
             playlist,
             download_lyrics=lyrics,
@@ -32,7 +52,7 @@ def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, for
             progress_callback=update_progress,
         )
 
-    # Resultados
+    # Display results
     if success > 0:
         click.secho(f"\n✔ Downloaded {success}/{total} tracks", fg="green")
         if nfo:
@@ -45,7 +65,16 @@ def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, for
 
 
 def generate_nfo_for_playlist(downloader, playlist, cover=False):
-    """Genera metadata NFO para playlists (similar a álbumes)"""
+    """Generate NFO metadata file for a playlist (similar to albums).
+    
+    Creates a Jellyfin-compatible NFO file with playlist metadata and optionally
+    downloads the playlist cover art. This function is currently in development.
+    
+    Args:
+        downloader: YouTubeDownloader instance for file operations
+        playlist: Playlist object with metadata
+        cover: Whether to download playlist cover art
+    """
     try:
         from spotifysaver.metadata import NFOGenerator
 

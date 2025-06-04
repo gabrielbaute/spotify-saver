@@ -17,20 +17,52 @@ logger = get_logger("YouTubeMusicSearcher")
 
 
 class YoutubeMusicSearcher:
+    """YouTube Music search service for finding tracks.
+    
+    This class provides functionality to search for tracks on YouTube Music
+    using various strategies and scoring algorithms to find the best matches
+    for Spotify tracks.
+    
+    Attributes:
+        ytmusic: YTMusic API client instance
+        max_retries: Maximum number of retry attempts for failed searches
+    """
+    
     def __init__(self):
+        """Initialize the YouTube Music searcher.
+        
+        Sets up the YTMusic client and configures retry behavior.
+        """
         self.ytmusic = YTMusic()
         self.max_retries = 3
 
     @staticmethod
     def _similar(a: str, b: str) -> float:
-        """Calcula similitud entre strings (0-1) usando SequenceMatcher."""
+        """Calculate similarity between strings (0-1) using SequenceMatcher.
+        
+        Args:
+            a: First string to compare
+            b: Second string to compare
+            
+        Returns:
+            float: Similarity ratio between 0.0 and 1.0
+        """
         from difflib import SequenceMatcher
 
         return SequenceMatcher(None, a, b).ratio()
 
     @staticmethod
     def _normalize(text: str) -> str:
-        """Normalización consistente para textos."""
+        """Consistent text normalization for comparison.
+        
+        Removes common words and characters that might interfere with matching.
+        
+        Args:
+            text: Text to normalize
+            
+        Returns:
+            str: Normalized text string
+        """
         text = (
             text.lower()
             .replace("official", "")
@@ -40,7 +72,17 @@ class YoutubeMusicSearcher:
         return " ".join([w for w in text.split() if w not in {"lyrics", "audio"}])
 
     def _search_with_fallback(self, track: Track) -> Optional[str]:
-        """Estrategia de búsqueda priorizada."""
+        """Prioritized search strategy with multiple fallback methods.
+        
+        Tries different search strategies in order of reliability until
+        a match is found.
+        
+        Args:
+            track: Track object to search for
+            
+        Returns:
+            str: YouTube Music URL if found, None otherwise
+        """
         search_strategies = [
             self._search_exact_match,
             self._search_album_context,
@@ -57,7 +99,14 @@ class YoutubeMusicSearcher:
         return None
 
     def _search_exact_match(self, track: Track) -> Optional[str]:
-        """Búsqueda exacta con filtro de canciones."""
+        """Exact search with song filter.
+        
+        Args:
+            track: Track object to search for
+            
+        Returns:
+            str: YouTube Music URL if found, None otherwise
+        """
         query = f"{track.artists[0]} {track.name} {track.album_name}"
         results = self.ytmusic.search(
             query=query, filter="songs", limit=5, ignore_spelling=True
@@ -66,7 +115,18 @@ class YoutubeMusicSearcher:
         return self._process_results(results, track, strict=True)
 
     def _search_album_context(self, track: Track) -> Optional[str]:
-        """Busca el álbum con manejo de errores detallado."""
+        """Search for the album with detailed error handling.
+        
+        Args:
+            track: Track object to search for
+            
+        Returns:
+            str: YouTube Music URL if found, None otherwise
+            
+        Raises:
+            AlbumNotFoundError: If the album cannot be found
+            InvalidResultError: If the API returns invalid data
+        """
         try:
             # Búsqueda del álbum
             album_results = self.ytmusic.search(
@@ -101,19 +161,35 @@ class YoutubeMusicSearcher:
             raise InvalidResultError(f"Unexpected error in album search: {str(e)}")
 
     def _search_fuzzy_match(self, track: Track) -> Optional[str]:
-        """Búsqueda más flexible cuando las exactas fallan."""
+        """More flexible search when exact searches fail.
+        
+        Args:
+            track: Track object to search for
+            
+        Returns:
+            str: YouTube Music URL if found, None otherwise
+        """
         results = self.ytmusic.search(
             query=f"{track.artists[0]} {track.name}",
             filter="songs",
             limit=10,
-            ignore_spelling=False,  # Permite correcciones
+            ignore_spelling=False,  # Allow spelling corrections
         )
         return self._process_results(results, track, strict=False)
 
     def _process_results(
         self, results: List[Dict], track: Track, strict: bool
     ) -> Optional[str]:
-        """Evalúa y selecciona el mejor resultado."""
+        """Evaluate and select the best result.
+        
+        Args:
+            results: List of search results from YouTube Music
+            track: Original track to match against
+            strict: Whether to use strict matching criteria
+            
+        Returns:
+            str: YouTube Music URL of the best match, None if no valid matches
+        """
         if not results:
             logger.warning(f"No results found for {track.name} by {track.artists[0]}")
             return None
@@ -131,7 +207,7 @@ class YoutubeMusicSearcher:
             )
             return None
 
-        # Ordena por puntaje descendente
+        # Sort by descending score
         scored_results.sort(reverse=True, key=lambda x: x[0])
         best_match = scored_results[0][1]
         logger.info(
@@ -142,15 +218,26 @@ class YoutubeMusicSearcher:
     def _calculate_match_score(
         self, yt_result: Dict, track: Track, strict: bool
     ) -> float:
-        """Sistema de puntuación mejorado."""
-        try:
-            # 1. Coincidencia de duración (30% del score)
+        """Improved scoring system for matching results.
+        
+        Calculates a score based on duration, artist overlap, title similarity,
+        and album matching.
+        
+        Args:
+            yt_result: YouTube Music search result
+            track: Original track to score against
+            strict: Whether to use strict scoring thresholds
+            
+        Returns:
+            float: Match score between 0.0 and 1.0+
+        """
+        try:            # 1. Duration match (30% of score)
             duration_diff = abs(yt_result.get("duration_seconds", 0) - track.duration)
             duration_score = max(
                 0, 1 - (duration_diff / 10)
-            )  # 1 si es exacto, 0 si >10s diff
+            )  # 1 if exact, 0 if >10s diff
 
-            # 2. Coincidencia de artistas (40% del score)
+            # 2. Artist match (40% of score)
             yt_artists = {
                 a["name"].lower()
                 for a in yt_result.get("artists", [])
@@ -160,13 +247,13 @@ class YoutubeMusicSearcher:
             artist_overlap = len(yt_artists & sp_artists) / len(sp_artists)
             artist_score = artist_overlap * 0.4
 
-            # 3. Coincidencia de título (30% del score)
+            # 3. Title match (30% of score)
             title_similarity = self._similar(
                 str(yt_result.get("title", "")).lower(), track.name.lower()
             )
             title_score = title_similarity * 0.3
 
-            # 4. Bonus por álbum (manejo seguro de tipos)
+            # 4. Album bonus (safe type handling)
             bonus = 0
             album_data = yt_result.get("album")
             if album_data:
@@ -188,7 +275,16 @@ class YoutubeMusicSearcher:
 
     @lru_cache(maxsize=100)
     def search_track(self, track: Track) -> Optional[str]:
-        """Búsqueda con manejo elegante de errores."""
+        """Search for a track with elegant error handling.
+        
+        Main entry point for track searching with retry logic and caching.
+        
+        Args:
+            track: Track object to search for
+            
+        Returns:
+            str: YouTube Music URL if found, None if not found after all attempts
+        """
         last_error = None
 
         for attempt in range(1, self.max_retries + 1):
