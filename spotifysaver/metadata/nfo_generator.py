@@ -37,8 +37,11 @@ class NFOGenerator:
                 ET.SubElement(root, "genre").text = genre
         
         # Artistas
-        ET.SubElement(root, "artist").text = ", ".join(album.artists)
-        ET.SubElement(root, "albumartist").text = ", ".join(album.artists)
+        for artist in album.artists:
+            artist_elem = ET.SubElement(root, "artist")
+            ET.SubElement(artist_elem, "name").text = artist
+        #ET.SubElement(root, "albumartist").text = ", ".join(album.artists)
+        
         
         # Tracks
         for track in album.tracks:
