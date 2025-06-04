@@ -62,18 +62,28 @@ También puedes consultar el archivo .example.env
 
 | Comando                | Descripción                                      | Ejemplo                                      |
 |------------------------|--------------------------------------------------|----------------------------------------------|
-| `download [URL]`       | Descarga track/álbum de Spotify                 | `spotifysaver download "URL_SPOTIFY"`     |
-| `version`              | Muestra la versión instalada                    | `spotifysaver version`                    |
+| `download [URL]`       | Descarga track/álbum de Spotify                  | `spotifysaver download "URL_SPOTIFY"`        |
+| `inspect`              | Muestra la metadata de spotify (album, playlist) | `spotifysaver inspect "URL_SPOTIFY"`         |
+| `show-log`             | Muestra el log de la aplicación                  | `spotifysaver show-log`                      |
+| `version`              | Muestra la versión instalada                     | `spotifysaver version`                       |
 
-### Opciones principales
+### Opciones de download
 
-| Opción               | Descripción                              | Valores aceptados       |
-|----------------------|------------------------------------------|-------------------------|
-| `--lyrics`           | Descargar letras sincronizadas (.lrc)    | Flag (sin valor)        |
-| `--output DIR`       | Directorio de salida                     | Ruta válida            |
-| `--format FORMATO`   | Formato de audio                         | `m4a` (default), `mp3` |
-| `--cover`            | Descarga la portada del album (.jpg)     | Flag (no value) |
+| Opción               | Descripción                              | Valores aceptados            |
+|----------------------|------------------------------------------|------------------------------|
+| `--lyrics`           | Descargar letras sincronizadas (.lrc)    | Flag (sin valor)             |
+| `--output DIR`       | Directorio de salida                     | Ruta válida                  |
+| `--format FORMATO`   | Formato de audio                         | `m4a` (default), `mp3`       |
+| `--cover`            | Descarga la portada del album (.jpg)     | Flag (no value)              |
 | `--nfo`              | Genera un archivo .nfo con la metadata (para Jellyfin)| Flag (no value) |
+
+### Opciones de show-log
+
+| Opción            | Descripción                              | Valores aceptados       |
+|-------------------|------------------------------------------|-------------------------|
+| `--lines`         | Número de líneas del log que mostrar     | `--lines 25`            |
+| `--level`         | Filtra por nivel de log                  | `--level WARNING`       |
+| `--path`          | Muestra la ubicación del archivo de log  | Flag (sin valor)        |
 
 ## 💡 Ejemplos de uso
 ```bash

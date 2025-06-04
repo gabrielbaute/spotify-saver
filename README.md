@@ -60,20 +60,30 @@ You can also check the .example.env file
 
 ### Available Commands
 
-| Command | Description | Example |
-|------------------------|--------------------------------------------------|----------------------------------------------|
-| `download [URL]` | Download track/album from Spotify | `spotifysaver download "URL_SPOTIFY"` |
-| `version` | Displays the installed version | `spotifysaver version` |
+| Command              | Description                                | Example                                    |
+|----------------------|--------------------------------------------|--------------------------------------------|
+| `download [URL]`     | Download track/album from Spotify          | `spotifysaver download "URL_SPOTIFY"`      |
+| `inspect`            | Shows Spotify metadata (album, playlist)   | `spotifysaver inspect "URL_SPOTIFY"`       |
+| `show-log`           | Shows the application log                  | `spotifysaver show-log`                    |
+| `version`            | Shows the installed version                | `spotifysaver version`                     |
 
-### Main Options
+### Download Options
 
-| Option | Description | Accepted Values ​​|
-|---------------------|------------------------------------------|-------------------------|
-| `--lyrics` | Download synchronized lyrics (.lrc) | Flag (no value) |
-| `--output DIR` | Output directory | Valid path |
-| `--format FORMAT` | Audio format | `m4a` (default), `mp3` |
-| `--cover` | Saves the cover album in de directoy (.jpg) | Flag (no value) |
-| `--nfo` | Generates a .nfo metadata file in the JellyFin format | Flag (no value) |
+| Option            | Description                                           | Accepted Values         ​​|
+|-------------------|-------------------------------------------------------|-------------------------|
+| `--lyrics`        | Download synchronized lyrics (.lrc)                   | Flag (no value)         |
+| `--output DIR`    | Output directory                                      | Valid path              |
+| `--format FORMAT` | Audio format                                          | `m4a` (default), `mp3`  |
+| `--cover`         | Saves the cover album in de directoy (.jpg)           | Flag (no value)         |
+| `--nfo`           | Generates a .nfo metadata file in the JellyFin format | Flag (no value)         |
+
+### show-log Options
+
+| Option      | Description                             | Accepted Values ​​         |
+|-------------|-----------------------------------------|--------------------------|
+| `--lines`   | Number of log lines to display          | `--lines 25`             |
+| `--level`   | Filter by log level                     | `--level WARNING`        |
+| `--path`    | Displays the location of the log file   | Flag (no value)          |
 
 ## 💡 Usage Examples
 ```bash
