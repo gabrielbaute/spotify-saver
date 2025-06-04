@@ -2,9 +2,11 @@ from dataclasses import dataclass
 from typing import List
 from .track import Track
 
+
 @dataclass
 class Album:
     """Representa un álbum y sus tracks."""
+
     name: str
     artists: List[str]
     release_date: str

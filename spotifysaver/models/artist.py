@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 from typing import List
 
+
 @dataclass
 class Artist:
     """Representa un artista individual con su metadata."""
+
     name: str
     uri: str
     genres: List[str] = None
@@ -19,5 +21,5 @@ class Artist:
             "genres": self.genres or [],
             "popularity": self.popularity,
             "followers": self.followers,
-            "image_url": self.image_url
+            "image_url": self.image_url,
         }

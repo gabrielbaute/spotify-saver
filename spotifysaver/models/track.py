@@ -1,9 +1,11 @@
 from dataclasses import dataclass, replace
 from typing import List, Optional
 
+
 @dataclass(frozen=True)
 class Track:
     """Representa un track individual con su metadata."""
+
     number: int
     total_tracks: int
     name: str
@@ -22,10 +24,10 @@ class Track:
     def __hash__(self):
         return hash((self.name, tuple(self.artists), self.duration))
 
-    def with_lyrics_status(self, success: bool) -> 'Track':
+    def with_lyrics_status(self, success: bool) -> "Track":
         """Devuelve una NUEVA instancia con el estado actualizado"""
         return replace(self, has_lyrics=success)
-    
+
     @property
     def lyrics_filename(self) -> str:
         """Nombre seguro para archivos LRC."""
@@ -34,6 +36,6 @@ class Track:
     def to_dict(self) -> dict:
         """Versión compatible con el estado has_lyrics."""
         return {
-            **{k: v for k, v in self.__dict__.items() if k != 'has_lyrics'},
-            "lyrics_available": self.has_lyrics
+            **{k: v for k, v in self.__dict__.items() if k != "has_lyrics"},
+            "lyrics_available": self.has_lyrics,
         }

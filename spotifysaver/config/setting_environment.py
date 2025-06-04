@@ -1,4 +1,5 @@
 """Configures environment settings for the application."""
+
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -6,6 +7,7 @@ from dotenv import load_dotenv
 # Carga el .env desde la raíz del proyecto (ajusta según tu estructura)
 env_path = Path(__file__).resolve().parents[2] / ".env"
 load_dotenv(env_path)
+
 
 class Config:
     """Configuration class for Spotify API and other settings."""

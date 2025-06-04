@@ -3,9 +3,11 @@ from dataclasses import dataclass
 from typing import List
 from .track import Track
 
+
 @dataclass
 class Playlist:
     """Representa una playlist de Spotify y sus tracks."""
+
     name: str
     description: str
     owner: str
