@@ -218,6 +218,47 @@ class YouTubeDownloader:
         self._save_cover_album(album.cover_url, output_dir / "cover.jpg")
         pass
 
+    def download_album_cli(
+        self,
+        album: Album,
+        download_lyrics: bool = False,
+        progress_callback: Optional[callable] = None  # Callback para progreso
+    ) -> tuple[int, int]:  # Retorna (éxitos, total)
+        """Descarga un álbum completo con soporte para progreso.
+        
+        Args:
+            progress_callback: Función que recibe (track_actual, total_tracks, nombre_track).
+                            Ejemplo: lambda idx, total, name: print(f"{idx}/{total} {name}")
+        """
+        if not album.tracks:
+            logger.error("Álbum no contiene tracks.")
+            return 0, 0
+
+        success = 0
+        for idx, track in enumerate(album.tracks, 1):
+            try:
+                if progress_callback:
+                    progress_callback(idx, len(album.tracks), track.name)
+
+                yt_url = self.searcher.search_track(track)
+                if not yt_url:
+                    raise ValueError(f"No se encontró en YouTube Music: {track.name}")
+
+                audio_path, _ = self.download_track(track, yt_url, download_lyrics=download_lyrics)
+                if audio_path:
+                    success += 1
+            except Exception as e:
+                logger.error(f"Error en track {track.name}: {str(e)}")
+
+        # Generar metadatos solo si hay éxitos
+        if success > 0:
+            output_dir = self._get_album_dir(album)
+            NFOGenerator.generate(album, output_dir)
+            if album.cover_url:
+                self._save_cover_album(album.cover_url, output_dir / "cover.jpg")
+
+        return success, len(album.tracks)
+
     def download_playlist(self, playlist: Playlist, download_lyrics: bool = False):
         """Descarga una playlist completa y genera metadatos"""
         

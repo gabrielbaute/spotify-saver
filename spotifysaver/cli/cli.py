@@ -64,60 +64,35 @@ def process_track(spotify, searcher, downloader, url, lyrics, format):
             msg += " (+ lyrics)"
         click.secho(msg, fg='green')
 
-def process_album(spotify, searcher, downloader, url, lyrics, nfo, format, cover):
-    """Handle full album download with optional NFO generation"""
+def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, format):
+    """Maneja la descarga de álbumes mostrando progreso."""
     album = spotify.get_album(url)
     click.secho(f"\nDownloading album: {album.name}", fg='cyan')
-    
-    results = []
-    with click.progressbar(
-        album.tracks,
-        label='  Downloading tracks',
-        fill_char='█',
-        empty_char=' ',
-        bar_template='  %(label)s  [%(bar)s]  %(info)s',
-        show_percent=True,
-        show_pos=True,
-        width=30,
-        color=True,
-        item_show_func=lambda t: t.name if t else ''
-    ) as bar:
-        for track in bar:
-            bar.label = f'  Searching: {track.name[:25]}...'
-            yt_url = searcher.search_track(track)
-            if not yt_url:
-                results.append((track, False, "Not found"))
-                continue
-            
-            try:
-                bar.label = f"  Downloading {track.name[:25]}..." 
-                audio_path, updated_track = downloader.download_track(
-                    track, yt_url, download_lyrics=lyrics
-                )
 
-                if audio_path:
-                    bar.label = f'  Tagging: {track.name[:25]}...'
-                
-                results.append((track, bool(audio_path), None))
-            except Exception as e:
-                results.append((track, False, str(e)))
+    with click.progressbar(
+        length=len(album.tracks),
+        label="  Processing",
+        fill_char='█',
+        show_percent=True,
+        item_show_func=lambda t: t.name[:25] + '...' if t else ''
+    ) as bar:
+        def update_progress(idx, total, name):
+            bar.label = f"  Downloading: {name[:20]}..." if len(name) > 20 else f"  Downloading: {name}"
+            bar.update(1)
+
+        success, total = downloader.download_album_cli(
+            album,
+            download_lyrics=lyrics,
+            progress_callback=update_progress
+        )
 
     # Mostrar resumen
-    successful = 0
-    for i, (track, success, error) in enumerate(results, 1):
-        status = "✓" if success else f"✗ ({error})" if error else "✗"
-        color = 'green' if success else 'yellow' if error else 'red'
-        
-        msg = f"[{i}/{len(results)}] {status} {track.name}"
-        if success and lyrics and hasattr(track, 'has_lyrics') and track.has_lyrics:
-            msg += " (+ lyrics)"
-        
-        click.secho(msg, fg=color)
-        successful += int(success)
-
-    # Generar NFO si se solicita y hay éxitos
-    if nfo and successful > 0:
-        generate_nfo_for_album(downloader, album, cover)
+    if success > 0:
+        click.secho(f"\n✔ Downloaded {success}/{total} tracks", fg='green')
+        if nfo:
+            click.secho("✔ Generated album metadata (NFO)", fg='green')
+    else:
+        click.secho("\n⚠ No tracks downloaded", fg='yellow')
 
 def generate_nfo_for_album(downloader, album, cover=False):
     """Helper function for NFO generation"""
