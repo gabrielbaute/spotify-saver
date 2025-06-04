@@ -14,6 +14,11 @@ class LoggerConfig:
     LOG_FILE = os.path.join(LOG_DIR, "app.log")
 
     @classmethod
+    def get_log_path(cls) -> str:
+        """Devuelve la ruta absoluta del archivo de log."""
+        return os.path.abspath(cls.LOG_FILE)
+
+    @classmethod
     def get_log_level(cls) -> int:
         """Obtiene el nivel de logging de las variables de entorno."""
         level_map = {
