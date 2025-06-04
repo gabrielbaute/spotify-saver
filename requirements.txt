@@ -44,7 +44,6 @@ requests-toolbelt==1.0.0
 rfc3986==2.0.0
 rich==14.0.0
 six==1.17.0
-spotifysaver==0.2.2
 spotipy==2.23.0
 toml==0.10.2
 twine==6.1.0
