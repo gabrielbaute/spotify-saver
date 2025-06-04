@@ -9,7 +9,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-> Herramienta todo-en-uno para descargar y organizar música con metadata de Spotify para Jellyfin.
+> ⚠️ Este repositorio está bajo una fuerte etapa de desarrollo, espere cambios constantes. Si encuentra algún error o bug, por favor abra un issue.
+
+Herramienta todo-en-uno para descargar y organizar música con metadata de Spotify para Jellyfin.
 
 La app se conecta a las API's de Spotify y de YoutubeMusic. El objetivo es generar un archivo .nfo en xml para completar la metadata que requiere jellyfin cuando construye las librerías de música.
 
