@@ -1,4 +1,7 @@
+"""Album Download Command Module."""
+
 import click
+
 
 def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, format):
     """Maneja la descarga de álbumes mostrando progreso."""
@@ -26,7 +29,7 @@ def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, format
             download_lyrics=lyrics,
             nfo=nfo,
             cover=cover,
-            progress_callback=update_progress
+            progress_callback=update_progress,
         )
 
     # Mostrar resumen
@@ -36,6 +39,7 @@ def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, format
             click.secho("✔ Generated album metadata (NFO)", fg="green")
     else:
         click.secho("\n⚠ No tracks downloaded", fg="yellow")
+
 
 def generate_nfo_for_album(downloader, album, cover=False):
     """Helper function for NFO generation"""

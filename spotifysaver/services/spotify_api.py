@@ -1,7 +1,10 @@
+"""SpotifyAPI: Interface for interacting with the Spotify Web API."""
+
 from functools import lru_cache
+from typing import Dict, List, Optional
+
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-from typing import Dict, List, Optional
 
 from spotifysaver.config import Config
 from spotifysaver.models import Album, Track, Artist, Playlist

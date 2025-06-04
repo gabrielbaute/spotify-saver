@@ -1,3 +1,5 @@
+"""SpotifySaver Metadata Module"""
+
 from spotifysaver.metadata.nfo_generator import NFOGenerator
 
 __all__ = [

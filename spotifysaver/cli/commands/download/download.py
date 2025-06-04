@@ -1,11 +1,16 @@
-import click
+"""Download a track, album, or playlist from Spotify via YouTube Music"""
+
 from pathlib import Path
+
+import click
+
 from spotifysaver.services import SpotifyAPI, YoutubeMusicSearcher
 from spotifysaver.downloader import YouTubeDownloader
 from spotifysaver.spotlog import LoggerConfig
 from spotifysaver.cli.commands.download.album import process_album
 from spotifysaver.cli.commands.download.playlist import process_playlist
 from spotifysaver.cli.commands.download.track import process_track
+
 
 @click.command("download")
 @click.argument("spotify_url")

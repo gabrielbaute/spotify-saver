@@ -1,9 +1,12 @@
+"""NFO Generator for Jellyfin Music Albums."""
+
 from dataclasses import dataclass
 from typing import List
 from pathlib import Path
 from datetime import datetime
 from xml.etree import ElementTree as ET
 from xml.dom import minidom
+
 from spotifysaver.models.album import Album
 
 

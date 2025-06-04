@@ -1,6 +1,9 @@
+"""Youtube Downloader Module"""
+
 import logging
 from pathlib import Path
 from typing import Optional
+
 import requests
 import yt_dlp
 from mutagen.mp4 import MP4, MP4Cover
@@ -223,11 +226,12 @@ class YouTubeDownloader:
             return None, None
 
     def download_album(
-            self, 
-            album: Album, 
-            download_lyrics: bool = False, 
-            nfo: bool = False, 
-            cover: bool = False):
+        self,
+        album: Album,
+        download_lyrics: bool = False,
+        nfo: bool = False,
+        cover: bool = False,
+    ):
         """Descarga un álbum completo y genera metadatos"""
         for track in album.tracks:
             yt_url = self.searcher.search_track(track)
@@ -239,7 +243,7 @@ class YouTubeDownloader:
             )
 
         output_dir = self._get_album_dir(album)
-        
+
         # Generar NFO después de descargar todos los tracks
         if nfo:
             logger.info(f"Generating NFO for album: {album.name}")
@@ -249,7 +253,7 @@ class YouTubeDownloader:
         if cover and album.cover_url:
             logger.info(f"Downloading cover for album: {album.name}")
             self._save_cover_album(album.cover_url, output_dir / "cover.jpg")
-        
+
         pass
 
     def download_album_cli(
@@ -258,7 +262,7 @@ class YouTubeDownloader:
         download_lyrics: bool = False,
         nfo: bool = False,  # Generar NFO
         cover: bool = False,  # Descargar portada
-        progress_callback: Optional[callable] = None  # Callback para progreso
+        progress_callback: Optional[callable] = None,  # Callback para progreso
     ) -> tuple[int, int]:  # Retorna (éxitos, total)
         """Descarga un álbum completo con soporte para progreso.
 
@@ -302,11 +306,12 @@ class YouTubeDownloader:
         return success, len(album.tracks)
 
     def download_playlist(
-            self, 
-            playlist: Playlist, 
-            download_lyrics: bool = False,
-            cover: bool = False,
-            nfo: bool = False):
+        self,
+        playlist: Playlist,
+        download_lyrics: bool = False,
+        cover: bool = False,
+        nfo: bool = False,
+    ):
         """Descarga una playlist completa y genera metadatos"""
 
         # Validación básica
@@ -345,7 +350,7 @@ class YouTubeDownloader:
         if success and nfo:
             logger.info(f"Generating NFO for playlist: {playlist.name}")
             NFOGenerator.generate(playlist, output_dir)
-        
+
         # Log de resultados
         if failed_tracks:
             logger.warning(
@@ -360,7 +365,7 @@ class YouTubeDownloader:
         playlist: Playlist,
         download_lyrics: bool = False,
         cover: bool = False,
-        progress_callback: Optional[callable] = None
+        progress_callback: Optional[callable] = None,
     ) -> tuple[int, int]:
         """Descarga una playlist completa con soporte para barra de progreso.
 

@@ -1,6 +1,9 @@
+"""YouTube Music Searcher Service"""
+
 from functools import lru_cache
-from ytmusicapi import YTMusic
 from typing import List, Dict, Optional, Tuple
+
+from ytmusicapi import YTMusic
 
 from spotifysaver.models.track import Track
 from spotifysaver.spotlog import get_logger

@@ -1,12 +1,15 @@
 """Spotify to YouTube Music Downloader CLI"""
 
 from click import group
+
 from spotifysaver.cli.commands import download, version, inspect, show_log
+
 
 @group()
 def cli():
     """Spotify to YouTube Music Downloader"""
     pass
+
 
 # Registra todos los comandos
 cli.add_command(download)
