@@ -18,9 +18,10 @@ Lee este archivo en [inglés](README.md)
 ## 🌟 Características
 - ✅ Descarga audio de YouTube Music con metadata de Spotify
 - ✅ Letras sincronizadas (.lrc) desde LRC Lib
-- 🚧 Generación de archivos `.info` compatibles con Jellyfin
+- ✅ Generación de archivos `.info` compatibles con Jellyfin
 - ✅ Estructura automática de carpetas (Artista/Álbum)
 - ✅ Interfaz de línea de comandos (CLI)
+- ✅ Soporte para playlist
 
 ### Requisitos
 - Python 3.8+

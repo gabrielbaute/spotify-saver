@@ -21,6 +21,7 @@ Read this file in [Spanish](README_ES.md)
 - ✅ Generation of Jellyfin-compatible `.info` files
 - ✅ Automatic folder structure (Artist/Album)
 - ✅ Command-line interface (CLI)
+- ✅ Playlist support
 
 ### Requirements
 - Python 3.8+
