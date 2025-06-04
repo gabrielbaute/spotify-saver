@@ -207,7 +207,8 @@ class YouTubeDownloader:
     def download_album(self, album: Album, download_lyrics: bool = False):
         """Descarga un álbum completo y genera metadatos"""
         for track in album.tracks:
-            self.download_track(track, download_lyrics=download_lyrics)
+            yt_url = self.searcher.search_track(track)
+            self.download_track(track, yt_url, download_lyrics=download_lyrics)
         
         # Generar NFO después de descargar todos los tracks
         output_dir = self._get_album_dir(album)
@@ -220,25 +221,81 @@ class YouTubeDownloader:
     def download_playlist(self, playlist: Playlist, download_lyrics: bool = False):
         """Descarga una playlist completa y genera metadatos"""
         
-        # Generar directorio para la playlist
+        # Validación básica
         if not playlist.name:
             logger.error("Playlist name is empty. Cannot create directory.")
-            return
+            return False
+        if not playlist.tracks:
+            logger.warning(f"Playlist '{playlist.name}' has no tracks.")
+            return False
+
+        # Configuración inicial
         output_dir = self.base_dir / playlist.name
         output_dir.mkdir(parents=True, exist_ok=True)
-
-        # Descargar cada track de la playlist
+        success = False
         failed_tracks = []
+
+        # Descarga de tracks
         for track in playlist.tracks:
-            result = self.download_track(track, download_lyrics=download_lyrics)
-            if result[0] is None:
-                failed_tracks.append(track)
+            try:
+                # Asegurar que el track tenga el contexto de playlist
+                track.source_type = "playlist"
+                track.playlist_name = playlist.name
 
-        # Descargar portada (opcional)
-        self._save_cover_album(playlist.cover_url, output_dir / "cover.jpg")
+                _, updated_track = self.download_track(track, download_lyrics=download_lyrics)
+                if updated_track:
+                    success = True
+            except Exception as e:
+                failed_tracks.append(track.name)
+                logger.error(f"Error downloading track {track.name}: {e}")
 
-        # Lista de tracks fallidos
+        # Descargar portada (sólo si success)
+        if success and playlist.cover_url:
+            self._save_cover_album(playlist.cover_url, output_dir / "cover.jpg")
+
+        # Log de resultados
         if failed_tracks:
-            logger.warning(f"Failed tracks in playlist '{playlist.name}': {', '.join(failed_tracks)}")
+            logger.warning(
+                f"Failed downloads in playlist '{playlist.name}': {len(failed_tracks)}/{len(playlist.tracks)}. "
+                f"Ejemplos: {', '.join(failed_tracks[:3])}{'...' if len(failed_tracks) > 3 else ''}"
+            )
         
-        pass
+        return success
+    
+    def download_playlist_cli(
+        self, 
+        playlist: Playlist, 
+        download_lyrics: bool = False,
+        progress_callback: Optional[callable] = None
+    ) -> tuple[int, int]:
+        """Descarga una playlist completa con soporte para barra de progreso.
+        
+        Args:
+            progress_callback: Función que recibe (track_actual, total_tracks, nombre_track).
+                            Ejemplo: lambda idx, total, name: print(f"{idx}/{total} {name}")
+        """
+        if not playlist.name or not playlist.tracks:
+            logger.error("Playlist inválida: sin nombre o tracks vacíos")
+            return 0, 0
+
+        output_dir = self.base_dir / playlist.name
+        output_dir.mkdir(parents=True, exist_ok=True)
+        success = 0
+
+        for idx, track in enumerate(playlist.tracks, 1):
+            try:
+                # Notificar progreso (si hay callback)
+                if progress_callback:
+                    progress_callback(idx, len(playlist.tracks), track.name)
+                
+                yt_url = self.searcher.search_track(track)
+                _, updated_track = self.download_track(track, yt_url, download_lyrics=download_lyrics)
+                if updated_track:
+                    success += 1
+            except Exception as e:
+                logger.error(f"Error en {track.name}: {str(e)}")
+
+        if success > 0 and playlist.cover_url:
+            self._save_cover_album(playlist.cover_url, output_dir / "cover.jpg")
+
+        return success, len(playlist.tracks)

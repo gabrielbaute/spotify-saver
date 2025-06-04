@@ -25,7 +25,7 @@ def version():
 @click.option('--format', type=click.Choice(['m4a', 'mp3', 'opus']), default='m4a')
 @click.option('--verbose', is_flag=True, help='Show debug output')
 def download(spotify_url: str, lyrics: bool, nfo: bool, cover: bool, output: Path, format: str, verbose: bool):
-    """Download a track or album from Spotify via YouTube Music"""
+    """Download a track, album, or playlist from Spotify via YouTube Music"""
     LoggerConfig.setup(level='DEBUG' if verbose else 'INFO')
     
     try:
@@ -33,16 +33,16 @@ def download(spotify_url: str, lyrics: bool, nfo: bool, cover: bool, output: Pat
         searcher = YoutubeMusicSearcher()
         downloader = YouTubeDownloader(base_dir=output)
 
-        # Detectar si es album o track individual
         if 'album' in spotify_url:
             process_album(spotify, searcher, downloader, spotify_url, lyrics, nfo, cover, format)
+        elif 'playlist' in spotify_url:
+            process_playlist(spotify, searcher, downloader, spotify_url, lyrics, nfo, cover, format)
         else:
             process_track(spotify, searcher, downloader, spotify_url, lyrics, format)
             
     except Exception as e:
         click.secho(f"Error: {str(e)}", fg='red', err=True)
         if verbose:
-            click.secho("Traceback:", fg='red', err=True)
             import traceback
             traceback.print_exc()
         raise click.Abort()
@@ -134,5 +134,54 @@ def generate_nfo_for_album(downloader, album, cover=False):
                 click.secho(f"✔ Saved album cover: {album_dir}/cover.jpg", fg='green')
             
         click.secho(f"\n✔ Generated Jellyfin metadata: {album_dir}/album.nfo", fg='green')
+    except Exception as e:
+        click.secho(f"\n⚠ Failed to generate NFO: {str(e)}", fg='yellow')
+
+def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, format):
+    playlist = spotify.get_playlist(url)
+    click.secho(f"\nDownloading playlist: {playlist.name}", fg='magenta')
+    
+    # Configurar la barra de progreso
+    with click.progressbar(
+        length=len(playlist.tracks),
+        label="  Processing",
+        fill_char='█',
+        show_percent=True,
+        item_show_func=lambda t: t.name[:25] + '...' if t else ''
+    ) as bar:
+        def update_progress(idx, total, name):
+            bar.label = f"  Downloading: {name[:20]}..." if len(name) > 20 else f"  Downloading: {name}"
+            bar.update(1)
+        
+        # Delegar TODO al downloader
+        success, total = downloader.download_playlist_cli(
+            playlist, 
+            download_lyrics=lyrics,
+            progress_callback=update_progress
+        )
+
+    # Resultados
+    if success > 0:
+        click.secho(f"\n✔ Downloaded {success}/{total} tracks", fg='green')
+        if nfo:
+            click.secho(f"\nGenerating NFO for playlist: method in development", fg='magenta')
+            #generate_nfo_for_playlist(downloader, playlist, cover)
+    else:
+        click.secho("\n⚠ No tracks downloaded", fg='yellow')
+
+def generate_nfo_for_playlist(downloader, playlist, cover=False):
+    """Genera metadata NFO para playlists (similar a álbumes)"""
+    try:
+        from spotifysaver.metadata.nfo_generator import NFOGenerator
+        playlist_dir = downloader.base_dir / playlist.name
+        NFOGenerator.generate_playlist(playlist, playlist_dir)
+        
+        if cover and playlist.cover_url:
+            cover_path = playlist_dir / "cover.jpg"
+            if not cover_path.exists():
+                downloader._save_cover_album(playlist.cover_url, cover_path)
+                click.secho(f"✔ Saved playlist cover: {cover_path}", fg='green')
+        
+        click.secho(f"\n✔ Generated playlist metadata: {playlist_dir}/playlist.nfo", fg='green')
     except Exception as e:
         click.secho(f"\n⚠ Failed to generate NFO: {str(e)}", fg='yellow')
