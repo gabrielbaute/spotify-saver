@@ -222,7 +222,12 @@ class YouTubeDownloader:
                 output_path.unlink()
             return None, None
 
-    def download_album(self, album: Album, download_lyrics: bool = False, nfo: bool = False, cover: bool = False):
+    def download_album(
+            self, 
+            album: Album, 
+            download_lyrics: bool = False, 
+            nfo: bool = False, 
+            cover: bool = False):
         """Descarga un álbum completo y genera metadatos"""
         for track in album.tracks:
             yt_url = self.searcher.search_track(track)
@@ -233,12 +238,18 @@ class YouTubeDownloader:
                 download_lyrics=download_lyrics,
             )
 
-        # Generar NFO después de descargar todos los tracks
         output_dir = self._get_album_dir(album)
-        NFOGenerator.generate(album, output_dir)
+        
+        # Generar NFO después de descargar todos los tracks
+        if nfo:
+            logger.info(f"Generating NFO for album: {album.name}")
+            NFOGenerator.generate(album, output_dir)
 
-        # Descargar portada (opcional)
-        self._save_cover_album(album.cover_url, output_dir / "cover.jpg")
+        # Descargar portada
+        if cover and album.cover_url:
+            logger.info(f"Downloading cover for album: {album.name}")
+            self._save_cover_album(album.cover_url, output_dir / "cover.jpg")
+        
         pass
 
     def download_album_cli(
@@ -290,7 +301,12 @@ class YouTubeDownloader:
 
         return success, len(album.tracks)
 
-    def download_playlist(self, playlist: Playlist, download_lyrics: bool = False):
+    def download_playlist(
+            self, 
+            playlist: Playlist, 
+            download_lyrics: bool = False,
+            cover: bool = False,
+            nfo: bool = False):
         """Descarga una playlist completa y genera metadatos"""
 
         # Validación básica
@@ -310,10 +326,7 @@ class YouTubeDownloader:
         # Descarga de tracks
         for track in playlist.tracks:
             try:
-                # Asegurar que el track tenga el contexto de playlist
-                track.source_type = "playlist"
-                track.playlist_name = playlist.name
-
+                # Descargar URL de YouTube
                 _, updated_track = self.download_track(
                     track, download_lyrics=download_lyrics
                 )
@@ -324,9 +337,15 @@ class YouTubeDownloader:
                 logger.error(f"Error downloading track {track.name}: {e}")
 
         # Descargar portada (sólo si success)
-        if success and playlist.cover_url:
+        if success and playlist.cover_url and cover:
+            logger.info(f"Downloading cover for playlist: {playlist.name}")
             self._save_cover_album(playlist.cover_url, output_dir / "cover.jpg")
 
+        # Generar NFO (sólo si success)
+        if success and nfo:
+            logger.info(f"Generating NFO for playlist: {playlist.name}")
+            NFOGenerator.generate(playlist, output_dir)
+        
         # Log de resultados
         if failed_tracks:
             logger.warning(
