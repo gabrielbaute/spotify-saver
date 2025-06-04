@@ -1,4 +1,4 @@
-from spotifysaver.apis import SpotifyAPI, YoutubeMusicSearcher
+from spotifysaver.services import SpotifyAPI, YoutubeMusicSearcher
 from spotifysaver.downloader import YouTubeDownloader
 from spotifysaver.spotlog import get_logger
 

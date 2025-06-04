@@ -2,7 +2,7 @@ import requests
 from typing import Optional, Dict
 from spotifysaver.models import Track
 from spotifysaver.spotlog import get_logger
-from spotifysaver.apis.errors.errors import APIError
+from spotifysaver.services.errors.errors import APIError
 
 logger = get_logger("LrclibAPI")
 

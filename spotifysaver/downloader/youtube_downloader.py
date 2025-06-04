@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional
 from mutagen.mp4 import MP4, MP4Cover
 
-from spotifysaver.apis import YoutubeMusicSearcher, LrclibAPI
+from spotifysaver.services import YoutubeMusicSearcher, LrclibAPI
 from spotifysaver.metadata import NFOGenerator
 from spotifysaver.models import Track, Album, Playlist
 from spotifysaver.config import Config
