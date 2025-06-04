@@ -83,6 +83,8 @@ def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, format
         success, total = downloader.download_album_cli(
             album,
             download_lyrics=lyrics,
+            nfo=nfo,
+            cover=cover,
             progress_callback=update_progress
         )
 
