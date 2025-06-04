@@ -105,16 +105,15 @@ class YouTubeDownloader:
             
             # Metadatos básicos (usando claves estándar MP4)
             audio["\xa9nam"] = [track.name]  # Título (¡Debe ser una lista!)
-            audio["\xa9ART"] = [", ".join(track.artists)]  # Artista
+            audio["\xa9ART"] = [";".join(track.artists)]  # Artista
             audio["\xa9alb"] = [track.album_name]  # Álbum
             audio["\xa9day"] = [track.release_date[:4]]  # Solo el año
-            audio["\xa9gen"] = [", ".join(track.genres)] if track.genres else []  # Género
             audio["trkn"] = [(track.number, track.total_tracks)]  # Número de pista y total
             audio["disk"] = [(track.disc_number, 1)]  # Número de disco (asumiendo 1 disco)
             
             # Género (si existe en el track)
             if hasattr(track, "genres") and track.genres:
-                audio["\xa9gen"] = [", ".join(track.genres)]
+                audio["\xa9gen"] = [";".join(track.genres)]
             
             # Portada
             if cover_data:
