@@ -559,6 +559,21 @@ tomli = {version = ">=1.0.0", markers = "python_version < \"3.11\""}
 testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
 
 [[package]]
+name = "python-dotenv"
+version = "1.1.0"
+description = "Read key-value pairs from a .env file and set them as environment variables"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "python_dotenv-1.1.0-py3-none-any.whl", hash = "sha256:d7c01d9e2293916c18baf562d95698754b0dbbb5e74d457c45d4f6561fb9d55d"},
+    {file = "python_dotenv-1.1.0.tar.gz", hash = "sha256:41f90bc6f5f177fb41f53e87666db362025010eb28f60a01c9143bfa33a2b2d5"},
+]
+
+[package.extras]
+cli = ["click (>=5.0)"]
+
+[[package]]
 name = "redis"
 version = "6.1.0"
 description = "Python client for Redis database and key-value store"
@@ -748,4 +763,4 @@ requests = ">=2.22"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9 || ^3.10 || ^3.11 || ^3.12 || ^3.13"
-content-hash = "7991e016df70086b2896d2f4b2c614e7b3224881cd4491af29fab0e4bde2375c"
+content-hash = "a05b57f0a9a58677a80164f578708e6004d2e4b5e9a2fec88b64925a96aa407a"
