@@ -222,7 +222,7 @@ class YouTubeDownloader:
                 output_path.unlink()
             return None, None
 
-    def download_album(self, album: Album, download_lyrics: bool = False):
+    def download_album(self, album: Album, download_lyrics: bool = False, nfo: bool = False, cover: bool = False):
         """Descarga un álbum completo y genera metadatos"""
         for track in album.tracks:
             yt_url = self.searcher.search_track(track)
@@ -245,7 +245,9 @@ class YouTubeDownloader:
         self,
         album: Album,
         download_lyrics: bool = False,
-        progress_callback: Optional[callable] = None,  # Callback para progreso
+        nfo: bool = False,  # Generar NFO
+        cover: bool = False,  # Descargar portada
+        progress_callback: Optional[callable] = None  # Callback para progreso
     ) -> tuple[int, int]:  # Retorna (éxitos, total)
         """Descarga un álbum completo con soporte para progreso.
 
@@ -281,8 +283,9 @@ class YouTubeDownloader:
         # Generar metadatos solo si hay éxitos
         if success > 0:
             output_dir = self._get_album_dir(album)
-            NFOGenerator.generate(album, output_dir)
-            if album.cover_url:
+            if nfo:
+                NFOGenerator.generate(album, output_dir)
+            if cover and album.cover_url:
                 self._save_cover_album(album.cover_url, output_dir / "cover.jpg")
 
         return success, len(album.tracks)
@@ -337,7 +340,8 @@ class YouTubeDownloader:
         self,
         playlist: Playlist,
         download_lyrics: bool = False,
-        progress_callback: Optional[callable] = None,
+        cover: bool = False,
+        progress_callback: Optional[callable] = None
     ) -> tuple[int, int]:
         """Descarga una playlist completa con soporte para barra de progreso.
 
@@ -368,7 +372,10 @@ class YouTubeDownloader:
             except Exception as e:
                 logger.error(f"Error en {track.name}: {str(e)}")
 
-        if success > 0 and playlist.cover_url:
-            self._save_cover_album(playlist.cover_url, output_dir / "cover.jpg")
+        if success > 0 and cover and playlist.cover_url:
+            try:
+                self._save_cover_album(playlist.cover_url, output_dir / "cover.jpg")
+            except Exception as e:
+                logger.error(f"Error downloading playlist cover: {str(e)}")
 
         return success, len(playlist.tracks)

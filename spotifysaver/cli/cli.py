@@ -109,7 +109,11 @@ def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, format
             bar.update(1)
 
         success, total = downloader.download_album_cli(
-            album, download_lyrics=lyrics, progress_callback=update_progress
+            album,
+            download_lyrics=lyrics,
+            nfo=nfo,
+            cover=cover,
+            progress_callback=update_progress
         )
 
     # Mostrar resumen
@@ -166,7 +170,10 @@ def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, for
 
         # Delegar TODO al downloader
         success, total = downloader.download_playlist_cli(
-            playlist, download_lyrics=lyrics, progress_callback=update_progress
+            playlist, 
+            download_lyrics=lyrics,
+            cover=cover,
+            progress_callback=update_progress
         )
 
     # Resultados
