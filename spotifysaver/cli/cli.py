@@ -1,7 +1,7 @@
 import click
 from pathlib import Path
 from spotifysaver import __version__
-from spotifysaver.apis import SpotifyAPI, YoutubeMusicSearcher
+from spotifysaver.services import SpotifyAPI, YoutubeMusicSearcher
 from spotifysaver.downloader import YouTubeDownloader
 from spotifysaver.spotlog import LoggerConfig
 from spotifysaver.config import Config

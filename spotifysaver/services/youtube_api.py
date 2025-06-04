@@ -4,7 +4,7 @@ from functools import lru_cache
 
 from spotifysaver.models.track import Track
 from spotifysaver.spotlog import get_logger
-from spotifysaver.apis.errors.errors import YouTubeAPIError, AlbumNotFoundError, InvalidResultError
+from spotifysaver.services.errors.errors import YouTubeAPIError, AlbumNotFoundError, InvalidResultError
 
 logger = get_logger("YouTubeMusicSearcher")
 

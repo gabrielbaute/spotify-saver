@@ -1,4 +1,4 @@
-from spotifysaver.apis.spotify_api import SpotifyAPI
+from spotifysaver.services.spotify_api import SpotifyAPI
 
 def get_playlist_tracks(playlist_url: str):
     """Obtiene los tracks de una playlist y los imprime."""

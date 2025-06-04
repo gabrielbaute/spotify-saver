@@ -1,4 +1,4 @@
-from spotifysaver.apis.spotify_api import SpotifyAPI
+from spotifysaver.services.spotify_api import SpotifyAPI
 from spotifysaver.spotlog.logger import get_logger
 
 logger = get_logger("main")
