@@ -1,5 +1,9 @@
-import requests
+"""LRC Lib API Client."""
+
 from typing import Optional, Dict
+
+import requests
+
 from spotifysaver.models import Track
 from spotifysaver.spotlog import get_logger
 from spotifysaver.services.errors.errors import APIError

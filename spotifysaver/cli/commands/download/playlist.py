@@ -1,4 +1,7 @@
+"""SpotifySaver CLI - Download Playlist Command"""
+
 import click
+
 
 def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, format):
     playlist = spotify.get_playlist(url)
@@ -23,10 +26,10 @@ def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, for
 
         # Delegar TODO al downloader
         success, total = downloader.download_playlist_cli(
-            playlist, 
+            playlist,
             download_lyrics=lyrics,
             cover=cover,
-            progress_callback=update_progress
+            progress_callback=update_progress,
         )
 
     # Resultados

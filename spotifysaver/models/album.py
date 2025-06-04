@@ -1,5 +1,8 @@
+"""Album model for Spotify Saver."""
+
 from dataclasses import dataclass
 from typing import List
+
 from .track import Track
 
 

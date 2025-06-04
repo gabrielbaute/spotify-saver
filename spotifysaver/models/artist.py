@@ -1,3 +1,5 @@
+"""Artist model for Spotify Saver."""
+
 from dataclasses import dataclass
 from typing import List
 

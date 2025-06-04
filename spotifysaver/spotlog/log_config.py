@@ -1,8 +1,9 @@
 """Module for configuring logging in the Spotify Saver application."""
 
+from typing import Optional
+
 import logging
 import os
-from typing import Optional
 
 from spotifysaver.config import Config
 

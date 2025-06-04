@@ -1,3 +1,5 @@
+"""Track model for SpotifySaver."""
+
 from dataclasses import dataclass, replace
 from typing import List, Optional
 

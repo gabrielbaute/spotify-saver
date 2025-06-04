@@ -1,4 +1,7 @@
+"""Track download command module."""
+
 import click
+
 
 def process_track(spotify, searcher, downloader, url, lyrics, format):
     """Handle single track download"""

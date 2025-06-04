@@ -1,6 +1,4 @@
-"""Logger for SpotifySaver.
-This module provides a function to retrieve a pre-configured logger for the SpotifySaver application.
-"""
+"""Logger for SpotifySaver."""
 
 import logging
 
