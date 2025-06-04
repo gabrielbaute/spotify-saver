@@ -309,6 +309,7 @@ class YouTubeDownloader:
         self, 
         playlist: Playlist, 
         download_lyrics: bool = False,
+        cover: bool = False,
         progress_callback: Optional[callable] = None
     ) -> tuple[int, int]:
         """Descarga una playlist completa con soporte para barra de progreso.
@@ -338,7 +339,10 @@ class YouTubeDownloader:
             except Exception as e:
                 logger.error(f"Error en {track.name}: {str(e)}")
 
-        if success > 0 and playlist.cover_url:
-            self._save_cover_album(playlist.cover_url, output_dir / "cover.jpg")
+        if success > 0 and cover and playlist.cover_url:
+            try:
+                self._save_cover_album(playlist.cover_url, output_dir / "cover.jpg")
+            except Exception as e:
+                logger.error(f"Error downloading playlist cover: {str(e)}")
 
         return success, len(playlist.tracks)

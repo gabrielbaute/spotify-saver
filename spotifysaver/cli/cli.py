@@ -134,6 +134,7 @@ def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, for
         success, total = downloader.download_playlist_cli(
             playlist, 
             download_lyrics=lyrics,
+            cover=cover,
             progress_callback=update_progress
         )
 
