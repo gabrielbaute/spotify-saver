@@ -30,7 +30,7 @@ def check_ffmpeg_installed():
     """Check if ffmpeg is installed on the system."""
     try:
         subprocess.run(
-            ["ffmpeg", "-version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            ["ffmpeg", "-version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
         )
         return True
     except FileNotFoundError:
