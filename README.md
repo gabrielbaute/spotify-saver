@@ -25,6 +25,9 @@ Read this file in [Spanish](README_ES.md)
 - ✅ Automatic folder structure (Artist/Album)
 - ✅ Command-line interface (CLI)
 - ✅ Playlist support
+- 🚧 API
+- 🚧 MP3 Conversion
+- 🚧 Support for multiple bitrates (128, 180, 220, etc.)
 
 ### Requirements
 - Python 3.8+
@@ -57,6 +60,10 @@ The `YTDLP_COOKIES_PATH` variable will indicate the location of the file with th
 
 You can also check the .example.env file
 
+## 📚 Documentation
+
+We maintain a [documentation with Deepwiki] (https://deepwiki.com/gabrielbaute/spotify-saver), which constantly tree the repository. You can consult it at all times.
+
 ## 💻 Using the CLI
 
 ### Available Commands
@@ -82,7 +89,7 @@ You can also check the .example.env file
 
 | Option      | Description                             | Accepted Values ​​              |
 |-------------|-----------------------------------------|-------------------------------|
-| `--lines`   | Number of log lines to display          | `--lines 25` --> `int         |
+| `--lines`   | Number of log lines to display          | `--lines 25` --> `int`        |
 | `--level`   | Filter by log level                     | INFO, WARNING, DEBUG, ERROR   |
 | `--path`    | Displays the location of the log file   | Flag (no value)               |
 

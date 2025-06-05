@@ -25,6 +25,9 @@ Lee este archivo en [inglés](README.md)
 - ✅ Estructura automática de carpetas (Artista/Álbum)
 - ✅ Interfaz de línea de comandos (CLI)
 - ✅ Soporte para playlist
+- 🚧 API
+- 🚧 Conversión a mp3
+- 🚧 Soporte para varios bitrates (128, 180, 220, etc.)
 
 ### Requisitos
 - Python 3.8+
@@ -57,6 +60,10 @@ La variable `YTDLP_COOKIES_PATH` indicará la ubicación del archivo con las coo
 
 También puedes consultar el archivo .example.env
 
+## 📚 Documentación
+
+Mantenemos una [documentación con DeepWiki](https://deepwiki.com/gabrielbaute/spotify-saver), que trackea constantemente el repositorio. Pueden consultarla en todo momento.
+
 ## 💻 Uso de la CLI
 
 ### Comandos disponibles
@@ -82,7 +89,7 @@ También puedes consultar el archivo .example.env
 
 | Opción            | Descripción                              | Valores aceptados             |
 |-------------------|------------------------------------------|-------------------------------|
-| `--lines`         | Número de líneas del log que mostrar     | `--lines 25` --> `int         |
+| `--lines`         | Número de líneas del log que mostrar     | `--lines 25` --> `int`        |
 | `--level`         | Filtra por nivel de log                  | INFO, WARNING, DEBUG, ERROR   |
 | `--path`          | Muestra la ubicación del archivo de log  | Flag (sin valor)              |
 
