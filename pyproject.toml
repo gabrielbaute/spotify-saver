@@ -40,6 +40,8 @@ requests = "^2.32.3"
 click = "^8.1.8"
 pydantic = "^2.10.6"
 python-dotenv = "^1.1.0"
+fastapi = "^0.115.6"
+uvicorn = {extras = ["standard"], version = "^0.34.0"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.7.0"
@@ -48,6 +50,7 @@ mypy = "^1.5.1"
 
 [tool.poetry.scripts]
 spotifysaver = "spotifysaver.__main__:cli"
+spotifysaver-api = "spotifysaver.api.main:app"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
