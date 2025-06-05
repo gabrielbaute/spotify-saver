@@ -1,6 +1,7 @@
 """Youtube Downloader Module"""
 
 import logging
+import re
 from pathlib import Path
 from typing import Optional
 
@@ -19,10 +20,10 @@ logger = get_logger("YoutubeDownloader")
 
 class YouTubeDownloader:
     """Downloads tracks from YouTube Music and adds Spotify metadata.
-    
+
     This class handles the complete download process including audio download,
     metadata injection, lyrics fetching, and file organization.
-    
+
     Attributes:
         base_dir: Base directory for music downloads
         searcher: YouTube Music searcher instance
@@ -31,7 +32,7 @@ class YouTubeDownloader:
 
     def __init__(self, base_dir: str = "Music"):
         """Initialize the YouTube downloader.
-        
+
         Args:
             base_dir: Base directory where music will be downloaded
         """
@@ -42,10 +43,10 @@ class YouTubeDownloader:
 
     def _get_ydl_opts(self, output_path: Path) -> dict:
         """Get robust yt-dlp configuration with cookie support.
-        
+
         Args:
             output_path: Path where the file should be saved
-            
+
         Returns:
             dict: yt-dlp configuration options
         """
@@ -90,7 +91,7 @@ class YouTubeDownloader:
 
     def _get_ydl_logger(self):
         """Create a yt-dlp logger that integrates with the application logger.
-        
+
         Returns:
             YDLLogger: Custom logger for yt-dlp integration
         """
@@ -112,33 +113,40 @@ class YouTubeDownloader:
 
     def _get_output_path(self, track: Track, album_artist: str = None) -> Path:
         """Generate output paths: Music/Artist/Album (Year)/Track.m4a.
-        
+
         Args:
             track: Track object containing metadata
             album_artist: Artist name for album organization
-            
+
         Returns:
             Path: Complete file path where the track should be saved
         """
         if track.source_type == "playlist":
-            dir_path = self.base_dir / track.playlist_name
+            playlist_name = self._sanitize_filename(track.playlist_name or "Unknown Playlist")
+            dir_path = self.base_dir / playlist_name
         else:
-            artist_name = album_artist or track.artists[0] if track.artists else "Unknown Artist"
+            artist_name = (
+                album_artist or track.artists[0] if track.artists else "Unknown Artist"
+            )
+            artist_name = self._sanitize_filename(artist_name)
+            album_name = self._sanitize_filename(track.album_name or "Unknown Album")
+            year = track.release_date[:4] if track.release_date else "Unknown"
             dir_path = (
                 self.base_dir
-                / album_artist
-                / f"{track.album_name} ({track.release_date[:4]})"
+                / artist_name
+                / f"{album_name} ({year})"
             )
 
         dir_path.mkdir(parents=True, exist_ok=True)
-        return dir_path / f"{track.name}.m4a"
+        track_name = self._sanitize_filename(track.name or "Unknown Track")
+        return dir_path / f"{track_name}.m4a"
 
     def _download_cover(self, track: Track) -> Optional[bytes]:
         """Download cover art from Spotify.
-        
+
         Args:
             track: Track object containing cover URL
-            
+
         Returns:
             bytes: Cover art image data, or None if download failed
         """
@@ -153,12 +161,12 @@ class YouTubeDownloader:
 
     def _add_metadata(self, file_path: Path, track: Track, cover_data: Optional[bytes]):
         """Add metadata and cover art using Mutagen MP4 tags.
-        
+
         Args:
             file_path: Path to the audio file
             track: Track object with metadata
             cover_data: Cover art image data
-            
+
         Raises:
             Exception: If metadata addition fails
         """
@@ -173,9 +181,7 @@ class YouTubeDownloader:
             audio["trkn"] = [
                 (track.number, track.total_tracks)
             ]  # Número de pista y total
-            audio["disk"] = [
-                (track.disc_number, 1)
-            ]  # Disc number (assuming 1 disc)
+            audio["disk"] = [(track.disc_number, 1)]  # Disc number (assuming 1 disc)
 
             # Genre (if exists in track)
             if hasattr(track, "genres") and track.genres:
@@ -194,11 +200,11 @@ class YouTubeDownloader:
 
     def _save_lyrics(self, track: "Track", audio_path: Path) -> bool:
         """Save synchronized lyrics as .lrc file.
-        
+
         Args:
             track: Track object for lyrics search
             audio_path: Path to the audio file (used to determine .lrc path)
-            
+
         Returns:
             bool: True if lyrics were successfully saved, False otherwise
         """
@@ -222,10 +228,10 @@ class YouTubeDownloader:
 
     def _get_album_dir(self, album: "Album") -> Path:
         """Get the album directory path.
-        
+
         Args:
             album: Album object containing metadata
-            
+
         Returns:
             Path: Directory path for the album
         """
@@ -234,7 +240,7 @@ class YouTubeDownloader:
 
     def _save_cover_album(self, url: str, output_path: Path):
         """Download and save album cover art.
-        
+
         Args:
             url: URL of the cover image
             output_path: Path where the cover should be saved
@@ -248,6 +254,33 @@ class YouTubeDownloader:
                 output_path.write_bytes(response.content)
         except Exception as e:
             logger.error(f"Error downloading cover: {e}")
+
+    def _sanitize_filename(self, filename: str) -> str:
+        """Sanitize filename for Windows compatibility.
+
+        Args:
+            filename: Original filename
+
+        Returns:
+            str: Sanitized filename safe for Windows
+        """
+        # Replace problematic characters
+        filename = re.sub(r'[<>:"/\\|?*]', "_", filename)
+
+        # Replace em dash and en dash with regular dash
+        filename = filename.replace("–", "-").replace("—", "-")
+
+        # Remove multiple spaces and replace with single space
+        filename = re.sub(r"\s+", " ", filename)
+
+        # Trim whitespace and dots from start/end
+        filename = filename.strip(". ")
+
+        # Limit length to 200 characters to avoid Windows path limits
+        if len(filename) > 200:
+            filename = filename[:200].strip()
+
+        return filename
 
     def download_track(
         self,
@@ -308,7 +341,7 @@ class YouTubeDownloader:
         cover: bool = False,
     ):
         """Download a complete album and generate metadata.
-        
+
         Args:
             album: Album object to download
             download_lyrics: Whether to download lyrics for tracks
@@ -340,7 +373,8 @@ class YouTubeDownloader:
 
     def download_album_cli(
         self,
-        album: Album,        download_lyrics: bool = False,
+        album: Album,
+        download_lyrics: bool = False,
         nfo: bool = False,  # Generate NFO
         cover: bool = False,  # Download cover art
         progress_callback: Optional[callable] = None,  # Progress callback
@@ -401,13 +435,13 @@ class YouTubeDownloader:
         nfo: bool = False,
     ):
         """Download a complete playlist and generate metadata.
-        
+
         Args:
             playlist: Playlist object to download
             download_lyrics: Whether to download lyrics
             cover: Whether to download playlist cover
             nfo: Whether to generate NFO file
-            
+
         Returns:
             bool: True if at least one track was successfully downloaded
         """
@@ -437,7 +471,9 @@ class YouTubeDownloader:
                     success = True
             except Exception as e:
                 failed_tracks.append(track.name)
-                logger.error(f"Error downloading track {track.name}: {e}")        # Download cover art (only if successful)
+                logger.error(
+                    f"Error downloading track {track.name}: {e}"
+                )  # Download cover art (only if successful)
         if success and playlist.cover_url and cover:
             logger.info(f"Downloading cover for playlist: {playlist.name}")
             self._save_cover_album(playlist.cover_url, output_dir / "cover.jpg")
