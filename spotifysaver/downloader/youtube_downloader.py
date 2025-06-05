@@ -123,6 +123,7 @@ class YouTubeDownloader:
         if track.source_type == "playlist":
             dir_path = self.base_dir / track.playlist_name
         else:
+            artist_name = album_artist or track.artists[0] if track.artists else "Unknown Artist"
             dir_path = (
                 self.base_dir
                 / album_artist
