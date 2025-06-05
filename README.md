@@ -62,7 +62,7 @@ You can also check the .example.env file
 
 ## 📚 Documentation
 
-We maintain a [documentation with Deepwiki] (https://deepwiki.com/gabrielbaute/spotify-saver), which constantly tree the repository. You can consult it at all times.
+We maintain a [documentation with Deepwiki](https://deepwiki.com/gabrielbaute/spotify-saver), which constantly tree the repository. You can consult it at all times.
 
 ## 💻 Using the CLI
 
