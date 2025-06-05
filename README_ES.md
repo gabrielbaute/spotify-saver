@@ -8,6 +8,7 @@
 [![Spotify](https://img.shields.io/badge/Spotify-API-1ED760?logo=spotify)](https://developer.spotify.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Preguntale a DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/gabrielbaute/spotify-saver)
 
 > ⚠️ Este repositorio está bajo una fuerte etapa de desarrollo, espere cambios constantes. Si encuentra algún error o bug, por favor abra un issue.
 
