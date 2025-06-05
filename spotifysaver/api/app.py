@@ -9,7 +9,7 @@ from .config import APIConfig
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application.
-    
+
     Returns:
         FastAPI: Configured FastAPI application instance
     """
@@ -41,7 +41,7 @@ def create_app() -> FastAPI:
             "version": "0.3.0",
             "description": "Download music from Spotify via YouTube Music",
             "docs": "/docs",
-            "redoc": "/redoc"
+            "redoc": "/redoc",
         }
 
     @app.get("/health")

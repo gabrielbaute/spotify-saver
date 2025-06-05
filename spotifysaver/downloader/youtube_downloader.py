@@ -122,7 +122,9 @@ class YouTubeDownloader:
             Path: Complete file path where the track should be saved
         """
         if track.source_type == "playlist":
-            playlist_name = self._sanitize_filename(track.playlist_name or "Unknown Playlist")
+            playlist_name = self._sanitize_filename(
+                track.playlist_name or "Unknown Playlist"
+            )
             dir_path = self.base_dir / playlist_name
         else:
             artist_name = (
@@ -131,11 +133,7 @@ class YouTubeDownloader:
             artist_name = self._sanitize_filename(artist_name)
             album_name = self._sanitize_filename(track.album_name or "Unknown Album")
             year = track.release_date[:4] if track.release_date else "Unknown"
-            dir_path = (
-                self.base_dir
-                / artist_name
-                / f"{album_name} ({year})"
-            )
+            dir_path = self.base_dir / artist_name / f"{album_name} ({year})"
 
         dir_path.mkdir(parents=True, exist_ok=True)
         track_name = self._sanitize_filename(track.name or "Unknown Track")
