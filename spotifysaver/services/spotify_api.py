@@ -139,6 +139,7 @@ class SpotifyAPI:
 
         return Track(
             number=raw_data["track_number"],
+            total_tracks=1,  # Individual tracks have total_tracks = 1
             name=raw_data["name"],
             duration=raw_data["duration_ms"] // 1000,
             uri=raw_data["uri"],

@@ -20,3 +20,24 @@ metadata preservation.
 """
 
 __version__ = "0.3.0"
+
+
+# Verify if ffmpeg is installed
+import subprocess
+
+
+def check_ffmpeg_installed():
+    """Check if ffmpeg is installed on the system."""
+    try:
+        subprocess.run(
+            ["ffmpeg", "-version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
+        )
+        return True
+    except FileNotFoundError:
+        return False
+
+
+if not check_ffmpeg_installed():
+    raise EnvironmentError(
+        "ffmpeg is not installed. Please install ffmpeg to use SpotifySaver."
+    )
