@@ -7,7 +7,7 @@ license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/gabrielbaute/spotify-saver"
 repository = "https://github.com/gabrielbaute/spotify-saver"
-documentation = "https://github.com/gabrielbaute/spotify-saver#readme"
+documentation = "https://deepwiki.com/gabrielbaute/spotify-saver"
 keywords = [
     "spotify", 
     "youtube-music", 
