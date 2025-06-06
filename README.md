@@ -64,6 +64,8 @@ You can also check the .example.env file
 
 We maintain a [documentation with Deepwiki](https://deepwiki.com/gabrielbaute/spotify-saver), which constantly tree the repository. You can consult it at all times.
 
+The **documentation for using the API**, on the other hand, can be found in this same repository here: [API Documentation](API_IMPLEMENTATION_SUMMARY.md)
+
 ## 💻 Using the CLI
 
 ### Available Commands
@@ -114,7 +116,7 @@ To use the API, you need to have the API server running. You can start it with t
 spotifysaver-api
 ```
 
-The API server will run on `http://localhost:8000` by default.
+The server will run at `http://localhost:8000` by default. You can find the [API documentation here](API_IMPLEMENTATION_SUMMARY.md), which describes the technical aspects and usage in detail.
 
 
 ## 📂 Output Structure
