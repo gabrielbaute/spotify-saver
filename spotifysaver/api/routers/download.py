@@ -62,6 +62,8 @@ async def start_download(request: DownloadRequest, background_tasks: BackgroundT
             completed_tracks=0,
             failed_tracks=0,
             started_at=datetime.now().isoformat(),
+            output_format=request.output_format,
+            bit_rate=request.bit_rate,
         )
         tasks[task_id] = task_status
 

@@ -92,6 +92,8 @@ class DownloadStatus(BaseModel):
     completed_tracks: int = 0
     failed_tracks: int = 0
     output_directory: Optional[str] = None
+    output_format: str = "m4a"
+    bit_rate: Optional[int] = None
     error_message: Optional[str] = None
     started_at: Optional[str] = None
     completed_at: Optional[str] = None
