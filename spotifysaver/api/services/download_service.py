@@ -118,10 +118,10 @@ class DownloadService:
             self.downloader.download_album_cli,
             album,
             self.download_lyrics,
-            self.generate_nfo,
-            self.download_cover,
             self.output_format,
             self.bit_rate,
+            self.generate_nfo,
+            self.download_cover,
             sync_progress_callback,
         )
 
@@ -179,5 +179,5 @@ class DownloadService:
             return None, None
 
         return self.downloader.download_track(
-            track, yt_url, download_lyrics=self.download_lyrics, format=self.output_format, bitrate=self.bit_rate
+            track, yt_url, download_lyrics=self.download_lyrics, output_format=self.output_format, bitrate=self.bit_rate
         )
