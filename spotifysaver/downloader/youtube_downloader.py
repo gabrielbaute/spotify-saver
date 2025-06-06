@@ -7,10 +7,9 @@ from typing import Optional
 
 import requests
 import yt_dlp
-from mutagen.mp4 import MP4, MP4Cover
 
 from spotifysaver.services import YoutubeMusicSearcher, LrclibAPI
-from spotifysaver.metadata import NFOGenerator
+from spotifysaver.metadata import NFOGenerator, MusicFileMetadata
 from spotifysaver.models import Track, Album, Playlist
 from spotifysaver.config import Config
 from spotifysaver.spotlog import get_logger
@@ -166,85 +165,6 @@ class YouTubeDownloader:
             logger.error(f"Error downloading cover: {e}")
             return None
 
-    def _add_metadata(self, file_path: Path, track: Track, cover_data: Optional[bytes]):
-        """Add metadata and cover art using Mutagen MP4 tags.
-
-        Args:
-            file_path: Path to the audio file
-            track: Track object with metadata
-            cover_data: Cover art image data
-
-        Raises:
-            Exception: If metadata addition fails
-        """
-        try:
-            if file_path.suffix == ".mp3":
-                from mutagen.id3 import ID3, APIC, TIT2, TPE1, TALB, TDRC, TRCK, TPOS, TCON
-
-                audio = ID3(str(file_path))
-                audio["TIT2"] = TIT2(encoding=3, text=track.name)  # Título
-                audio["TPE1"] = TPE1(encoding=3, text=";".join(track.artists))  # Artista
-                audio["TALB"] = TALB(encoding=3, text=track.album_name)  # Álbum
-                audio["TDRC"] = TDRC(encoding=3, text=track.release_date[:4]) # Year only
-                audio["TRCK"] = TRCK(encoding=3, text=f"{track.number}/{track.total_tracks}")  # Track number
-                audio["TPOS"] = TPOS(encoding=3, text=str(track.disc_number))  # Disc number (assuming 1 disc)
-                
-                # Genre (if exists in track)
-                if hasattr(track, "genres") and track.genres:
-                    audio["TCON"] = TCON(encoding=3, text=";".join(track.genres))
-                
-                # Cover art
-                if cover_data:
-                    audio["APIC"] = APIC(
-                        encoding=3, 
-                        mime="image/jpeg", 
-                        type=3,  # 3 = front cover
-                        desc="Cover",
-                        data=cover_data
-                    )
-                
-                audio.save()
-
-            elif file_path.suffix == ".m4a":
-                audio = MP4(file_path)
-
-                # Basic metadata (using standard MP4 tags)
-                audio["\xa9nam"] = [track.name]  # Title
-                audio["\xa9ART"] = [";".join(track.artists)]  # Artista
-                audio["\xa9alb"] = [track.album_name]  # Álbum
-                audio["\xa9day"] = [track.release_date[:4]]  # Year only
-                audio["trkn"] = [
-                    (track.number, track.total_tracks)
-                ]  # Track number
-                audio["disk"] = [(track.disc_number, 1)]  # Disc number (assuming 1 disc)
-
-                # Genre (if exists in track)
-                if hasattr(track, "genres") and track.genres:
-                    audio["\xa9gen"] = [";".join(track.genres)]
-
-                # Cover art
-                if cover_data:
-                    audio["covr"] = [MP4Cover(cover_data, imageformat=MP4Cover.FORMAT_JPEG)]
-
-                audio.save()
-            elif file_path.suffix == ".opus":
-                from mutagen.oggopus import OggOpus
-                audio = OggOpus(file_path)
-
-                # Basic metadata (using standard Opus tags)
-                audio["title"] = track.name
-                audio["artist"] = ";".join(track.artists)
-                audio["album"] = track.album_name
-                audio["date"] = track.release_date[:4]
-                audio["tracknumber"] = f"{track.number}/{track.total_tracks}"
-                audio["discnumber"] = str(track.disc_number)  # Disc number (assuming 1 disc)
-
-            logger.info(f"Metadata added to {file_path}")
-
-        except Exception as e:
-            logger.error(f"Error adding metadata: {str(e)}")
-            raise
-
     def _save_lyrics(self, track: "Track", audio_path: Path) -> bool:
         """Save synchronized lyrics as .lrc file.
 
@@ -366,7 +286,10 @@ class YouTubeDownloader:
 
             # 2. Add metadata and cover art
             cover_data = self._download_cover(track)
-            self._add_metadata(output_path, track, cover_data)
+            metadata = MusicFileMetadata(
+                file_path=output_path, track=track, cover_data=cover_data
+            )
+            metadata.add_metadata()
 
             # 3. Lyrics handling
             updated_track = track
