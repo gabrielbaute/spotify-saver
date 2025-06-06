@@ -25,7 +25,7 @@ Read this file in [Spanish](README_ES.md)
 - ✅ Automatic folder structure (Artist/Album)
 - ✅ Command-line interface (CLI)
 - ✅ Playlist support
-- 🚧 API
+- ✅ API
 - ✅ MP3 Conversion
 - ✅ Support for multiple bitrates (128, 180, 220, etc.)
 
@@ -104,6 +104,18 @@ spotifysaver download "https://open.spotify.com/album/..." --nfo --cover
 # Download song in MP3 format (still in development 🚧)
 spotifysaver download "https://open.spotify.com/track/..." --format mp3
 ```
+
+## Usage with API
+
+To use the API, you need to have the API server running. You can start it with the following command:
+
+```bash
+# Start the API server
+spotifysaver-api
+```
+
+The API server will run on `http://localhost:8000` by default.
+
 
 ## 📂 Output Structure
 ```
