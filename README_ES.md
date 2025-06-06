@@ -25,7 +25,7 @@ Lee este archivo en [inglés](README.md)
 - ✅ Estructura automática de carpetas (Artista/Álbum)
 - ✅ Interfaz de línea de comandos (CLI)
 - ✅ Soporte para playlist
-- 🚧 API
+- ✅ API
 - ✅ Conversión a mp3
 - ✅ Soporte para varios bitrates (128, 180, 220, etc.)
 
@@ -104,6 +104,17 @@ spotifysaver download "https://open.spotify.com/album/..." --nfo --cover
 # Descargar canción en formato MP3 (aún en desarrollo 🚧)
 spotifysaver download "https://open.spotify.com/track/..." --format mp3
 ```
+
+## Usando la API
+
+Puedes usar la API de SpotifySaver para interactuar con la aplicación programáticamente. Aquí tienes un ejemplo básico de cómo hacerlo:
+
+```bash
+spotifysaver-api
+```
+
+El servidor estara ejecutándose en `http://localhost:8000` por defecto.
+
 
 ## 📂 Estructura de salida
 ```

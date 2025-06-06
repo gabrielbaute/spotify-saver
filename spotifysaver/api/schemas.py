@@ -10,7 +10,7 @@ class DownloadRequest(BaseModel):
     spotify_url: HttpUrl = Field(
         ...,
         description="Spotify URL for track, album, or playlist",
-        example="https://open.spotify.com/album/4aawyAB9vmqN3uQ7FjRGTy",
+        example="https://open.spotify.com/track/2kd0T6zgABT8P0s2h9QU5O",
     )
     download_lyrics: bool = Field(
         default=False, description="Whether to download synchronized lyrics"
@@ -32,7 +32,7 @@ class DownloadRequest(BaseModel):
         ge=64, le=320,  # Valid range for MP3 bit rates
     )
     output_dir: Optional[str] = Field(
-        default=None, description="Custom output directory (optional)"
+        default="Music", description="Custom output directory (optional)"
     )
 
 
@@ -92,6 +92,8 @@ class DownloadStatus(BaseModel):
     completed_tracks: int = 0
     failed_tracks: int = 0
     output_directory: Optional[str] = None
+    output_format: str = "m4a"
+    bit_rate: Optional[int] = None
     error_message: Optional[str] = None
     started_at: Optional[str] = None
     completed_at: Optional[str] = None
