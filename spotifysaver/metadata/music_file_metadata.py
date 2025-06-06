@@ -57,7 +57,7 @@ class MusicFileMetadata:
         # Text frames
         frames = [
             TIT2(encoding=3, text=self.track.name), # Title
-            TPE1(encoding=3, text="; ".join(self.track.artists)), # Artists
+            TPE1(encoding=3, text=";".join(self.track.artists)), # Artists
             TALB(encoding=3, text=self.track.album_name), # Album name
             TRCK(encoding=3, text=f"{self.track.number}/{self.track.total_tracks}"), # Track number
             TPOS(encoding=3, text=str(self.track.disc_number)) # Disc number
@@ -67,7 +67,7 @@ class MusicFileMetadata:
             frames.append(TDRC(encoding=3, text=self.track.release_date[:4])) # Release year
 
         if hasattr(self.track, 'genres') and self.track.genres:
-            frames.append(TCON(encoding=3, text="; ".join(self.track.genres))) # Genres
+            frames.append(TCON(encoding=3, text=";".join(self.track.genres))) # Genres
 
         # Add all frames
         for frame in frames:
@@ -90,7 +90,7 @@ class MusicFileMetadata:
 
         audio.update({
             '\xa9nam': [self.track.name],
-            '\xa9ART': ["; ".join(self.track.artists)],
+            '\xa9ART': [";".join(self.track.artists)],
             '\xa9alb': [self.track.album_name],
             '\xa9day': [self.track.release_date[:4]],
             'trkn': [(self.track.number, self.track.total_tracks)],
@@ -111,7 +111,7 @@ class MusicFileMetadata:
 
         audio.update({
             'title': self.track.name,
-            'artist': "; ".join(self.track.artists),
+            'artist': ";".join(self.track.artists),
             'album': self.track.album_name,
             'date': self.track.release_date[:4],
             'tracknumber': f"{self.track.number}/{self.track.total_tracks}",
@@ -119,6 +119,6 @@ class MusicFileMetadata:
         })
 
         if hasattr(self.track, 'genres') and self.track.genres:
-            audio['genre'] = "; ".join(self.track.genres)
+            audio['genre'] = ";".join(self.track.genres)
 
         audio.save()
