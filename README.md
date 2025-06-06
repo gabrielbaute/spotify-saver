@@ -26,8 +26,8 @@ Read this file in [Spanish](README_ES.md)
 - ✅ Command-line interface (CLI)
 - ✅ Playlist support
 - 🚧 API
-- 🚧 MP3 Conversion
-- 🚧 Support for multiple bitrates (128, 180, 220, etc.)
+- ✅ MP3 Conversion
+- ✅ Support for multiple bitrates (128, 180, 220, etc.)
 
 ### Requirements
 - Python 3.8+
