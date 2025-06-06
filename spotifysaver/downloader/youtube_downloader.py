@@ -40,7 +40,9 @@ class YouTubeDownloader:
         self.searcher = YoutubeMusicSearcher()
         self.lrc_client = LrclibAPI()
 
-    def _get_ydl_opts(self, output_path: Path, format: str = "m4a", bitrate: int = 128) -> dict:
+    def _get_ydl_opts(
+        self, output_path: Path, output_format: str = "m4a", bitrate: int = 128
+    ) -> dict:
         """Get robust yt-dlp configuration with cookie support.
 
         Args:
@@ -53,10 +55,10 @@ class YouTubeDownloader:
         """
         is_verbose = logger.getEffectiveLevel() <= logging.DEBUG
         ytm_base_url = "https://music.youtube.com"
-        
-        if format not in ("m4a", "mp3", "opus"):
-            format = "m4a"
-        
+
+        if output_format not in ("m4a", "mp3", "opus"):
+            output_format = "m4a"
+
         if bitrate not in (96, 128, 192, 256):
             bitrate = 128
 
@@ -66,7 +68,7 @@ class YouTubeDownloader:
             "postprocessors": [
                 {
                     "key": "FFmpegExtractAudio",
-                    "preferredcodec": format,
+                    "preferredcodec": output_format,
                     "preferredquality": str(bitrate),
                 }
             ],
@@ -119,7 +121,9 @@ class YouTubeDownloader:
 
         return YDLLogger()
 
-    def _get_output_path(self, track: Track, album_artist: str = None, format: str = "m4a") -> Path:
+    def _get_output_path(
+        self, track: Track, album_artist: str = None, output_format: str = "m4a"
+    ) -> Path:
         """Generate output paths: Music/Artist/Album (Year)/Track.m4a.
 
         Args:
@@ -145,7 +149,7 @@ class YouTubeDownloader:
 
         dir_path.mkdir(parents=True, exist_ok=True)
         track_name = self._sanitize_filename(track.name or "Unknown Track")
-        return dir_path / f"{track_name}.{format}"
+        return dir_path / f"{track_name}.{output_format}"
 
     def _download_cover(self, track: Track) -> Optional[bytes]:
         """Download cover art from Spotify.
@@ -253,7 +257,7 @@ class YouTubeDownloader:
         self,
         track: Track,
         yt_url: str,
-        format: str = "m4a",
+        output_format: str = "m4a",
         bitrate: int = 128,
         album_artist: str = None,
         download_lyrics: bool = False,
@@ -271,9 +275,9 @@ class YouTubeDownloader:
         Returns:
             tuple: (Downloaded file path, Updated track) or (None, None) on error
         """
-        output_path = self._get_output_path(track, album_artist, format)
+        output_path = self._get_output_path(track, album_artist, output_format)
         yt_url = self.searcher.search_track(track)
-        ydl_opts = self._get_ydl_opts(output_path, format, bitrate)
+        ydl_opts = self._get_ydl_opts(output_path, output_format, bitrate)
 
         if not yt_url:
             logger.error(f"No match found for: {track.name}")
@@ -329,7 +333,7 @@ class YouTubeDownloader:
             self.download_track(
                 track,
                 yt_url,
-                format=fortmart,
+                output_format=fortmart,
                 bitrate=bitrate,
                 album_artist=album.artists[0],
                 download_lyrics=download_lyrics,
@@ -353,7 +357,7 @@ class YouTubeDownloader:
         self,
         album: Album,
         download_lyrics: bool = False,
-        format: str = "m4a",
+        output_format: str = "m4a",
         bitrate: int = 128,
         nfo: bool = False,  # Generate NFO
         cover: bool = False,  # Download cover art
@@ -391,7 +395,7 @@ class YouTubeDownloader:
                     yt_url,
                     album_artist=album.artists[0],
                     download_lyrics=download_lyrics,
-                    format=format,
+                    output_format=output_format,
                     bitrate=bitrate,
                 )
                 if audio_path:
@@ -412,7 +416,7 @@ class YouTubeDownloader:
     def download_playlist(
         self,
         playlist: Playlist,
-        format: str = "m4a",
+        output_format: str = "m4a",
         bitrate: int = 128,
         download_lyrics: bool = False,
         cover: bool = False,
@@ -449,7 +453,10 @@ class YouTubeDownloader:
             try:
                 # Descargar URL de YouTube
                 _, updated_track = self.download_track(
-                    track, format=format, bitrate=bitrate, download_lyrics=download_lyrics
+                    track,
+                    output_format=output_format,
+                    bitrate=bitrate,
+                    download_lyrics=download_lyrics,
                 )
                 if updated_track:
                     success = True
@@ -479,7 +486,7 @@ class YouTubeDownloader:
     def download_playlist_cli(
         self,
         playlist: Playlist,
-        format: str = "m4a",
+        output_format: str = "m4a",
         bitrate: int = 128,
         download_lyrics: bool = False,
         cover: bool = False,
@@ -513,7 +520,11 @@ class YouTubeDownloader:
 
                 yt_url = self.searcher.search_track(track)
                 _, updated_track = self.download_track(
-                    track, yt_url, format=format, bitrate=bitrate, download_lyrics=download_lyrics
+                    track,
+                    yt_url,
+                    output_format=output_format,
+                    bitrate=bitrate,
+                    download_lyrics=download_lyrics,
                 )
                 if updated_track:
                     success += 1
