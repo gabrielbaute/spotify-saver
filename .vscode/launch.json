@@ -11,7 +11,7 @@
             "request": "launch",
             "module": "uvicorn",
             "args": [
-                "spotifysaver.api.main:app",
+                "spotifysaver.api.main:run_server",
                 "--reload"
             ],
             "jinja": true
