@@ -101,7 +101,7 @@ spotifysaver download "https://open.spotify.com/album/..." --lyrics
 # Download album with album cover and metadata file
 spotifysaver download "https://open.spotify.com/album/..." --nfo --cover
 
-# Download song in MP3 format (still in development 🚧)
+# Download song in MP3 format
 spotifysaver download "https://open.spotify.com/track/..." --format mp3
 ```
 
