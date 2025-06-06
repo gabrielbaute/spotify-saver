@@ -64,7 +64,7 @@ También puedes consultar el archivo .example.env
 
 Mantenemos una [documentación con DeepWiki](https://deepwiki.com/gabrielbaute/spotify-saver), que trackea constantemente el repositorio. Pueden consultarla en todo momento.
 
-La **documentación para el uso de la API, por su parte**, pueden ubicarla en este mismo repositorio aquí: [Documentación de la API](API_IMPLEMENTATION_SUMMARY.md)
+La **documentación para el uso de la API**, por su parte, pueden ubicarla en este mismo repositorio aquí: [Documentación de la API](API_IMPLEMENTATION_SUMMARY.md)
 
 ## 💻 Uso de la CLI
 
