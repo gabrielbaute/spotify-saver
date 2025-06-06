@@ -26,6 +26,11 @@ class DownloadRequest(BaseModel):
         description="Audio format for downloaded files",
         pattern="^(m4a|mp3)$",
     )
+    bit_rate: int = Field(
+        default=128,
+        description="Bit rate for audio files in kbps",
+        ge=64, le=320,  # Valid range for MP3 bit rates
+    )
     output_dir: Optional[str] = Field(
         default=None, description="Custom output directory (optional)"
     )

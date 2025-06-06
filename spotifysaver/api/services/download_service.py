@@ -22,6 +22,7 @@ class DownloadService:
         download_cover: bool = True,
         generate_nfo: bool = False,
         output_format: str = "m4a",
+        bit_rate: int = 128,
     ):
         """Initialize the download service.
 
@@ -37,6 +38,7 @@ class DownloadService:
         self.download_cover = download_cover
         self.generate_nfo = generate_nfo
         self.output_format = output_format
+        self.bit_rate = bit_rate
 
         # Initialize services
         self.spotify = SpotifyAPI()
@@ -118,6 +120,8 @@ class DownloadService:
             self.download_lyrics,
             self.generate_nfo,
             self.download_cover,
+            self.output_format,
+            self.bit_rate,
             sync_progress_callback,
         )
 
@@ -152,6 +156,8 @@ class DownloadService:
             playlist,
             self.download_lyrics,
             self.download_cover,
+            self.output_format,
+            self.bit_rate,
             sync_progress_callback,
         )
 
@@ -173,5 +179,5 @@ class DownloadService:
             return None, None
 
         return self.downloader.download_track(
-            track, yt_url, download_lyrics=self.download_lyrics
+            track, yt_url, download_lyrics=self.download_lyrics, format=self.output_format, bitrate=self.bit_rate
         )

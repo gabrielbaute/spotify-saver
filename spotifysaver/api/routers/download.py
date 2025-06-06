@@ -197,6 +197,7 @@ async def download_task(task_id: str, request: DownloadRequest):
             download_cover=request.download_cover,
             generate_nfo=request.generate_nfo,
             output_format=request.output_format,
+            bit_rate=request.bit_rate,
         )
 
         # Progress callback
