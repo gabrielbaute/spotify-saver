@@ -7,7 +7,7 @@ including YouTube Music search and metadata application.
 import click
 
 
-def process_track(spotify, searcher, downloader, url, lyrics, format):
+def process_track(spotify, searcher, downloader, url, lyrics, format, bitrate):
     """Process and download a single Spotify track.
     
     Downloads a single track from Spotify by finding a matching track on
@@ -29,7 +29,11 @@ def process_track(spotify, searcher, downloader, url, lyrics, format):
         return
 
     audio_path, updated_track = downloader.download_track(
-        track, yt_url, download_lyrics=lyrics
+        track, 
+        yt_url, 
+        format=format, 
+        bitrate=bitrate, 
+        download_lyrics=lyrics
     )
 
     if audio_path:

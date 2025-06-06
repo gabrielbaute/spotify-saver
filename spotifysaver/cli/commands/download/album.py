@@ -7,7 +7,7 @@ including progress tracking, metadata generation, and cover art download.
 import click
 
 
-def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, format):
+def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, format, bitrate):
     """Process and download a complete Spotify album with progress tracking.
     
     Downloads all tracks from a Spotify album, showing a progress bar and
@@ -45,6 +45,8 @@ def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, format
         success, total = downloader.download_album_cli(
             album,
             download_lyrics=lyrics,
+            format=format,
+            bitrate=bitrate,
             nfo=nfo,
             cover=cover,
             progress_callback=update_progress,

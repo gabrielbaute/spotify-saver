@@ -7,7 +7,7 @@ including progress tracking and optional metadata generation.
 import click
 
 
-def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, format):
+def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, format, bitrate):
     """Process and download a complete Spotify playlist with progress tracking.
     
     Downloads all tracks from a Spotify playlist, showing a progress bar and
@@ -48,6 +48,8 @@ def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, for
         success, total = downloader.download_playlist_cli(
             playlist,
             download_lyrics=lyrics,
+            format=format,
+            bitrate=bitrate,
             cover=cover,
             progress_callback=update_progress,
         )

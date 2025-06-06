@@ -41,25 +41,34 @@ class YouTubeDownloader:
         self.searcher = YoutubeMusicSearcher()
         self.lrc_client = LrclibAPI()
 
-    def _get_ydl_opts(self, output_path: Path) -> dict:
+    def _get_ydl_opts(self, output_path: Path, format: str = "m4a", bitrate: int = 128) -> dict:
         """Get robust yt-dlp configuration with cookie support.
 
         Args:
             output_path: Path where the file should be saved
+            format: Formato de audio (m4a, mp3, opus). Por defecto: m4a.
+            bitrate: Bitrate máximo en kbps (ej: 128, 192, 256).
 
         Returns:
             dict: yt-dlp configuration options
         """
         is_verbose = logger.getEffectiveLevel() <= logging.DEBUG
         ytm_base_url = "https://music.youtube.com"
+        
+        if format not in ("m4a", "mp3", "opus"):
+            format = "m4a"
+        
+        if bitrate not in (96, 128, 192, 256):
+            bitrate = 128
 
         opts = {
-            "format": "m4a/bestaudio[abr<=128]/best",
-            "outtmpl": str(output_path.with_suffix(".%(ext)s")),
+            "format": f"bestaudio[abr<={bitrate}]/best",
+            "outtmpl": str(output_path.with_suffix(f".%(ext)s")),
             "postprocessors": [
                 {
                     "key": "FFmpegExtractAudio",
-                    "preferredcodec": "m4a",
+                    "preferredcodec": format,
+                    "preferredquality": str(bitrate),
                 }
             ],
             "quiet": not is_verbose,
@@ -111,7 +120,7 @@ class YouTubeDownloader:
 
         return YDLLogger()
 
-    def _get_output_path(self, track: Track, album_artist: str = None) -> Path:
+    def _get_output_path(self, track: Track, album_artist: str = None, format: str = "m4a") -> Path:
         """Generate output paths: Music/Artist/Album (Year)/Track.m4a.
 
         Args:
@@ -137,7 +146,7 @@ class YouTubeDownloader:
 
         dir_path.mkdir(parents=True, exist_ok=True)
         track_name = self._sanitize_filename(track.name or "Unknown Track")
-        return dir_path / f"{track_name}.m4a"
+        return dir_path / f"{track_name}.{format}"
 
     def _download_cover(self, track: Track) -> Optional[bytes]:
         """Download cover art from Spotify.
@@ -169,27 +178,67 @@ class YouTubeDownloader:
             Exception: If metadata addition fails
         """
         try:
-            audio = MP4(file_path)
+            if file_path.suffix == ".mp3":
+                from mutagen.id3 import ID3, APIC, TIT2, TPE1, TALB, TDRC, TRCK, TPOS, TCON
 
-            # Basic metadata (using standard MP4 tags)
-            audio["\xa9nam"] = [track.name]  # Título (¡Debe ser una lista!)
-            audio["\xa9ART"] = [";".join(track.artists)]  # Artista
-            audio["\xa9alb"] = [track.album_name]  # Álbum
-            audio["\xa9day"] = [track.release_date[:4]]  # Year only
-            audio["trkn"] = [
-                (track.number, track.total_tracks)
-            ]  # Número de pista y total
-            audio["disk"] = [(track.disc_number, 1)]  # Disc number (assuming 1 disc)
+                audio = ID3(str(file_path))
+                audio["TIT2"] = TIT2(encoding=3, text=track.name)  # Título
+                audio["TPE1"] = TPE1(encoding=3, text=";".join(track.artists))  # Artista
+                audio["TALB"] = TALB(encoding=3, text=track.album_name)  # Álbum
+                audio["TDRC"] = TDRC(encoding=3, text=track.release_date[:4]) # Year only
+                audio["TRCK"] = TRCK(encoding=3, text=f"{track.number}/{track.total_tracks}")  # Track number
+                audio["TPOS"] = TPOS(encoding=3, text=str(track.disc_number))  # Disc number (assuming 1 disc)
+                
+                # Genre (if exists in track)
+                if hasattr(track, "genres") and track.genres:
+                    audio["TCON"] = TCON(encoding=3, text=";".join(track.genres))
+                
+                # Cover art
+                if cover_data:
+                    audio["APIC"] = APIC(
+                        encoding=3, 
+                        mime="image/jpeg", 
+                        type=3,  # 3 = front cover
+                        desc="Cover",
+                        data=cover_data
+                    )
+                
+                audio.save()
 
-            # Genre (if exists in track)
-            if hasattr(track, "genres") and track.genres:
-                audio["\xa9gen"] = [";".join(track.genres)]
+            elif file_path.suffix == ".m4a":
+                audio = MP4(file_path)
 
-            # Cover art
-            if cover_data:
-                audio["covr"] = [MP4Cover(cover_data, imageformat=MP4Cover.FORMAT_JPEG)]
+                # Basic metadata (using standard MP4 tags)
+                audio["\xa9nam"] = [track.name]  # Title
+                audio["\xa9ART"] = [";".join(track.artists)]  # Artista
+                audio["\xa9alb"] = [track.album_name]  # Álbum
+                audio["\xa9day"] = [track.release_date[:4]]  # Year only
+                audio["trkn"] = [
+                    (track.number, track.total_tracks)
+                ]  # Track number
+                audio["disk"] = [(track.disc_number, 1)]  # Disc number (assuming 1 disc)
 
-            audio.save()
+                # Genre (if exists in track)
+                if hasattr(track, "genres") and track.genres:
+                    audio["\xa9gen"] = [";".join(track.genres)]
+
+                # Cover art
+                if cover_data:
+                    audio["covr"] = [MP4Cover(cover_data, imageformat=MP4Cover.FORMAT_JPEG)]
+
+                audio.save()
+            elif file_path.suffix == ".opus":
+                from mutagen.oggopus import OggOpus
+                audio = OggOpus(file_path)
+
+                # Basic metadata (using standard Opus tags)
+                audio["title"] = track.name
+                audio["artist"] = ";".join(track.artists)
+                audio["album"] = track.album_name
+                audio["date"] = track.release_date[:4]
+                audio["tracknumber"] = f"{track.number}/{track.total_tracks}"
+                audio["discnumber"] = str(track.disc_number)  # Disc number (assuming 1 disc)
+
             logger.info(f"Metadata added to {file_path}")
 
         except Exception as e:
@@ -284,6 +333,8 @@ class YouTubeDownloader:
         self,
         track: Track,
         yt_url: str,
+        format: str = "m4a",
+        bitrate: int = 128,
         album_artist: str = None,
         download_lyrics: bool = False,
     ) -> tuple[Optional[Path], Optional[Track]]:
@@ -294,13 +345,15 @@ class YouTubeDownloader:
             yt_url: YouTube Music URL for the track
             album_artist: Artist name for file organization
             download_lyrics: Whether to download lyrics
+            format: Output format (m4a, mp3, opus).
+            bitrate: Audio bitrate in kbps (96, 128, 192, 256).
 
         Returns:
             tuple: (Downloaded file path, Updated track) or (None, None) on error
         """
-        output_path = self._get_output_path(track, album_artist)
+        output_path = self._get_output_path(track, album_artist, format)
         yt_url = self.searcher.search_track(track)
-        ydl_opts = self._get_ydl_opts(output_path)
+        ydl_opts = self._get_ydl_opts(output_path, format, bitrate)
 
         if not yt_url:
             logger.error(f"No match found for: {track.name}")
@@ -334,6 +387,8 @@ class YouTubeDownloader:
     def download_album(
         self,
         album: Album,
+        fortmart: str = "m4a",
+        bitrate: int = 128,
         download_lyrics: bool = False,
         nfo: bool = False,
         cover: bool = False,
@@ -351,6 +406,8 @@ class YouTubeDownloader:
             self.download_track(
                 track,
                 yt_url,
+                format=fortmart,
+                bitrate=bitrate,
                 album_artist=album.artists[0],
                 download_lyrics=download_lyrics,
             )
@@ -373,6 +430,8 @@ class YouTubeDownloader:
         self,
         album: Album,
         download_lyrics: bool = False,
+        format: str = "m4a",
+        bitrate: int = 128,
         nfo: bool = False,  # Generate NFO
         cover: bool = False,  # Download cover art
         progress_callback: Optional[callable] = None,  # Progress callback
@@ -409,6 +468,8 @@ class YouTubeDownloader:
                     yt_url,
                     album_artist=album.artists[0],
                     download_lyrics=download_lyrics,
+                    format=format,
+                    bitrate=bitrate,
                 )
                 if audio_path:
                     success += 1
@@ -428,6 +489,8 @@ class YouTubeDownloader:
     def download_playlist(
         self,
         playlist: Playlist,
+        format: str = "m4a",
+        bitrate: int = 128,
         download_lyrics: bool = False,
         cover: bool = False,
         nfo: bool = False,
@@ -463,7 +526,7 @@ class YouTubeDownloader:
             try:
                 # Descargar URL de YouTube
                 _, updated_track = self.download_track(
-                    track, download_lyrics=download_lyrics
+                    track, format=format, bitrate=bitrate, download_lyrics=download_lyrics
                 )
                 if updated_track:
                     success = True
@@ -493,6 +556,8 @@ class YouTubeDownloader:
     def download_playlist_cli(
         self,
         playlist: Playlist,
+        format: str = "m4a",
+        bitrate: int = 128,
         download_lyrics: bool = False,
         cover: bool = False,
         progress_callback: Optional[callable] = None,
@@ -525,7 +590,7 @@ class YouTubeDownloader:
 
                 yt_url = self.searcher.search_track(track)
                 _, updated_track = self.download_track(
-                    track, yt_url, download_lyrics=download_lyrics
+                    track, yt_url, format=format, bitrate=bitrate, download_lyrics=download_lyrics
                 )
                 if updated_track:
                     success += 1
