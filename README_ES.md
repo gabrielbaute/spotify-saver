@@ -26,8 +26,8 @@ Lee este archivo en [inglés](README.md)
 - ✅ Interfaz de línea de comandos (CLI)
 - ✅ Soporte para playlist
 - 🚧 API
-- 🚧 Conversión a mp3
-- 🚧 Soporte para varios bitrates (128, 180, 220, etc.)
+- ✅ Conversión a mp3
+- ✅ Soporte para varios bitrates (128, 180, 220, etc.)
 
 ### Requisitos
 - Python 3.8+
