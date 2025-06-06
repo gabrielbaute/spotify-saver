@@ -1,4 +1,5 @@
 annotated-types==0.7.0
+anyio==4.9.0
 black==23.12.1
 Brotli==1.1.0
 build==1.2.2.post1
@@ -9,6 +10,9 @@ click==8.1.8
 colorama==0.4.6
 docopt==0.6.2
 docutils==0.21.2
+fastapi==0.115.12
+h11==0.16.0
+httptools==0.6.4
 id==1.5.0
 idna==3.10
 iniconfig==2.1.0
@@ -37,6 +41,7 @@ pyproject_hooks==1.2.0
 pytest==7.4.4
 python-dotenv==1.1.0
 pywin32-ctypes==0.2.3
+PyYAML==6.0.2
 readme_renderer==44.0
 redis==6.1.0
 requests==2.32.3
@@ -44,12 +49,17 @@ requests-toolbelt==1.0.0
 rfc3986==2.0.0
 rich==14.0.0
 six==1.17.0
+sniffio==1.3.1
+-e git+ssh://git@github.com/gabrielbaute/spotify-saver.git@245d1f477e5ae57a500a93b7c2ec29467a12bada#egg=spotifysaver
 spotipy==2.23.0
+starlette==0.46.2
 toml==0.10.2
 twine==6.1.0
 typing_extensions==4.13.2
 urllib3==2.2.3
-websockets==13.1
+uvicorn==0.34.3
+watchfiles==1.0.5
+websockets==15.0.1
 yarg==0.1.10
 yt-dlp==2025.5.22
 ytmusicapi==1.7.5
