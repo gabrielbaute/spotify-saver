@@ -144,6 +144,7 @@ class SpotifyAPI:
             duration=raw_data["duration_ms"] // 1000,
             uri=raw_data["uri"],
             artists=[a["name"] for a in raw_data["artists"]],
+            album_artist=[a["name"] for a in raw_data["album"]["artist"]],
             album_name=raw_data["album"]["name"] if raw_data["album"] else None,
             release_date=(
                 raw_data["album"]["release_date"] if raw_data["album"] else "NA"
@@ -176,6 +177,7 @@ class SpotifyAPI:
                 duration=track["duration_ms"] // 1000,
                 uri=track["uri"],
                 artists=[a["name"] for a in track["artists"]],
+                album_artist=[a["name"] for a in raw_data["artists"]],
                 genres=raw_data.get("genres", []),
                 album_name=raw_data["name"],
                 release_date=raw_data["release_date"],
@@ -242,6 +244,7 @@ class SpotifyAPI:
                 duration=track["track"]["duration_ms"] // 1000,
                 uri=track["track"]["uri"],
                 artists=[a["name"] for a in track["track"]["artists"]],
+                album_artist=[a["name"] for a in track["album"]["artists"]],
                 album_name=(
                     track["track"]["album"]["name"] if track["track"]["album"] else None
                 ),

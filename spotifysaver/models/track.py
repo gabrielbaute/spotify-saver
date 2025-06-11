@@ -34,6 +34,7 @@ class Track:
     duration: int
     uri: str
     artists: List[str]
+    album_artist: List[str]
     release_date: str
     disc_number: int = 1
     source_type: str = "album"
