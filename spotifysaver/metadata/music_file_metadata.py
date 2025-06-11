@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Optional, NoReturn
 from dataclasses import dataclass
 from mutagen import File
-from mutagen.id3 import ID3, APIC, TIT2, TPE1, TALB, TDRC, TRCK, TPOS, TCON
+from mutagen.id3 import ID3, APIC, TIT2, TPE1, TPE2, TALB, TDRC, TRCK, TPOS, TCON
 from mutagen.mp4 import MP4, MP4Cover
 from mutagen.oggopus import OggOpus
 from spotifysaver.models import Track
@@ -57,7 +57,8 @@ class MusicFileMetadata:
         # Text frames
         frames = [
             TIT2(encoding=3, text=self.track.name), # Title
-            TPE1(encoding=3, text=";".join(self.track.artists)), # Artists
+            TPE1(encoding=3, text="/".join(self.track.artists)), # Artists
+            TPE2(encoding=3, text="/".join(self.track.album_artist)), # Album artists
             TALB(encoding=3, text=self.track.album_name), # Album name
             TRCK(encoding=3, text=f"{self.track.number}/{self.track.total_tracks}"), # Track number
             TPOS(encoding=3, text=str(self.track.disc_number)) # Disc number
@@ -72,7 +73,7 @@ class MusicFileMetadata:
         # Add all frames
         for frame in frames:
             audio.add(frame)
-
+        
         # Add cover art if available
         if self.cover_data:
             audio.add(APIC(
@@ -90,7 +91,8 @@ class MusicFileMetadata:
 
         audio.update({
             '\xa9nam': [self.track.name],
-            '\xa9ART': [";".join(self.track.artists)],
+            '\xa9ART': ["/".join(self.track.artists)],
+            'aART': ["/".join(self.track.album_artist)],
             '\xa9alb': [self.track.album_name],
             '\xa9day': [self.track.release_date[:4]],
             'trkn': [(self.track.number, self.track.total_tracks)],
@@ -111,7 +113,7 @@ class MusicFileMetadata:
 
         audio.update({
             'title': self.track.name,
-            'artist': ";".join(self.track.artists),
+            'artist': "/".join(self.track.artists),
             'album': self.track.album_name,
             'date': self.track.release_date[:4],
             'tracknumber': f"{self.track.number}/{self.track.total_tracks}",
