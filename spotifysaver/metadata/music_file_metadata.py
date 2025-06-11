@@ -68,7 +68,7 @@ class MusicFileMetadata:
             frames.append(TDRC(encoding=3, text=self.track.release_date[:4])) # Release year
 
         if hasattr(self.track, 'genres') and self.track.genres:
-            frames.append(TCON(encoding=3, text=";".join(self.track.genres))) # Genres
+            frames.append(TCON(encoding=3, text="/".join(self.track.genres))) # Genres
 
         # Add all frames
         for frame in frames:
@@ -100,7 +100,7 @@ class MusicFileMetadata:
         })
 
         if hasattr(self.track, 'genres') and self.track.genres:
-            audio['\xa9gen'] = ["; ".join(self.track.genres)]
+            audio['\xa9gen'] = ["/".join(self.track.genres)]
 
         if self.cover_data:
             audio['covr'] = [MP4Cover(self.cover_data, imageformat=MP4Cover.FORMAT_JPEG)]
