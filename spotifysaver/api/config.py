@@ -25,6 +25,11 @@ class APIConfig:
     ALLOWED_FORMATS: List[str] = ["m4a", "mp3"]
     DEFAULT_FORMAT: str = "m4a"
 
+    # Service settings
+    API_PORT: int = 8000
+    API_HOST: str = "0.0.0.0"
+    LOG_LEVEL: str = "info"
+
     @classmethod
     def get_output_dir(cls) -> str:
         """Get the output directory from environment or default."""
