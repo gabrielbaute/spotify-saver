@@ -2,6 +2,8 @@
 
 import uvicorn
 from spotifysaver.api import create_app
+from spotifysaver.api.config import APIConfig
+
 
 app = create_app()
 
@@ -9,10 +11,10 @@ def run_server():
     """Run the FastAPI server."""
     uvicorn.run(
         "spotifysaver.api.main:app",
-        host="0.0.0.0",
-        port=8000,
+        host=APIConfig.API_HOST,
+        port=APIConfig.API_PORT,
         reload=True,
-        log_level="info",
+        log_level=APIConfig.LOG_LEVEL,
     )
 
 if __name__ == "__main__":
