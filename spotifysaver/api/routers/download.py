@@ -121,10 +121,14 @@ async def list_downloads():
         return JSONResponse(
             status_code=204, content={"message": "No download tasks found"}
         )
-    tasks_completed = [task for task in tasks.values() if task.status in ["completed", "failed", "cancelled"]]
+    tasks_completed = [
+        task
+        for task in tasks.values()
+        if task.status in ["completed", "failed", "cancelled"]
+    ]
     tasks_pending = [task for task in tasks.values() if task.status == "pending"]
     tasks_processing = [task for task in tasks.values() if task.status == "processing"]
-    
+
     return {
         "completed": tasks_completed,
         "pending": tasks_pending,
