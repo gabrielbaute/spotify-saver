@@ -114,8 +114,26 @@ async def cancel_download(task_id: str):
 
 @router.get("/downloads")
 async def list_downloads():
-    """List all download tasks."""
-    return {"tasks": list(tasks.values())}
+    """List all download tasks with their statuses.
+    Returns a dictionary with keys for completed, pending, and processing tasks.
+    """
+    if not tasks:
+        return JSONResponse(
+            status_code=204, content={"message": "No download tasks found"}
+        )
+    tasks_completed = [
+        task
+        for task in tasks.values()
+        if task.status in ["completed", "failed", "cancelled"]
+    ]
+    tasks_pending = [task for task in tasks.values() if task.status == "pending"]
+    tasks_processing = [task for task in tasks.values() if task.status == "processing"]
+
+    return {
+        "completed": tasks_completed,
+        "pending": tasks_pending,
+        "processing": tasks_processing,
+    }
 
 
 @router.get("/inspect")
