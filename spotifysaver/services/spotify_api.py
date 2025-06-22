@@ -101,6 +101,26 @@ class SpotifyAPI:
             raise ValueError("Artist not found or invalid URL") from e
 
     @lru_cache(maxsize=32)
+    def fetch_artist_albums(self, artist_url: str) -> dict:
+        """Fetch raw artist data from the API.
+        
+        Args:
+            artist_url: Spotify URL or URI for the artist
+            
+        Returns:
+            dict: Raw artist data from Spotify API
+            
+        Raises:
+            ValueError: If artist is not found or URL is invalid
+        """
+        try:
+            logger.debug(f"Fetching artist albums: {artist_url}")
+            return self.sp.artist_albums(artist_url)
+        except spotipy.exceptions.SpotifyException as e:
+            logger.error(f"Error fetching artist albuns: {e}")
+            raise ValueError("Artist not found or invalid URL") from e
+
+    @lru_cache(maxsize=32)
     def _fetch_playlist_data(self, playlist_url: str) -> dict:
         """Fetch raw playlist data from the API.
         
@@ -217,6 +237,7 @@ class SpotifyAPI:
         return Artist(
             name=raw_data["name"],
             uri=raw_data["uri"],
+            cover=raw_data.get("images", ["url"]),
             genres=raw_data.get("genres", []),
             popularity=raw_data["popularity"],
             followers=raw_data["followers"]["total"],
