@@ -61,7 +61,8 @@ class MusicFileMetadata:
             TPE2(encoding=3, text="/".join(self.track.album_artist)), # Album artists
             TALB(encoding=3, text=self.track.album_name), # Album name
             TRCK(encoding=3, text=f"{self.track.number}/{self.track.total_tracks}"), # Track number
-            TPOS(encoding=3, text=str(self.track.disc_number)) # Disc number
+            TPOS(encoding=3, text=str(self.track.disc_number)), # Disc number
+            #TCON(encoding=3, text="Lo-Fi")
         ]
 
         if self.track.release_date:
