@@ -67,7 +67,7 @@ class LoggerConfig:
             level=log_level,
             format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
             handlers=[
-                logging.FileHandler(cls.LOG_FILE),
+                logging.FileHandler(cls.LOG_FILE, encoding='utf-8'),
                 (
                     logging.StreamHandler()
                     if log_level == logging.DEBUG
