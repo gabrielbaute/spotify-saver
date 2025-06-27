@@ -48,15 +48,25 @@ pip install git+https://github.com/gabrielbaute/spotify-saver.git
 
 ## ⚙️ Configuración
 
-Crear archivo `.env`:
+Una vez situado en el directorio de tu proyecto, ejecuta:
 
-```ini
-SPOTIFY_CLIENT_ID=tu_id
-SPOTIFY_CLIENT_SECRET=tu_secreto
-YTDLP_COOKIES_PATH="cookies.txt"  # Para casos en que youtube bloquee la app por "comportarse como bot" (guiño, guiño)
+```bash
+spotifysaver init
 ```
+Esto creará un archivo `.env` local con las variables de entorno que se solicitarán:
 
-La variable `YTDLP_COOKIES_PATH` indicará la ubicación del archivo con las cookies de Youtube Music, en caso de que tengamos problemas con restricciones a yt-dlp.
+| Variable                  | Descripción                                      | Valor por defecto                            |
+|---------------------------|--------------------------------------------------|----------------------------------------------|
+| `SPOTIFY_CLIENT_ID`       | ID de la app de spotify que creaste              | -                                            |
+| `SPOTIFY_CLIENT_SECRET`   | Clave secreta generada para tu app de spotify    | -                                            |
+| `SPOTIFY_REDIRECT_URI`    | Muestra la metadata de spotify (album, playlist) | `http://localhost:8888/callback`             |
+| `SPOTIFYSAVER_OUTPUT_DIR` | Ruta para directorio personalizado  (opcional)   | `./Music `                                   |
+| `YTDLP_COOKIES_PATH`      | Ruta para el archivo de cookies (opcional)       | -                                            |
+| `API_PORT`                | Puerto del servidor de la API (opcional)         | `8000`                                       |
+| `API_HOST`                | Host para la API (opcional)                      | `0.0.0.0`                                    |
+
+
+La variable `YTDLP_COOKIES_PATH` indicará la ubicación del archivo con las cookies de Youtube Music, en caso de que tengamos problemas con restricciones a yt-dlp, en concreto es para casos en que youtube bloquee la app por "comportarse como bot" (guiño, guiño)
 
 También puedes consultar el archivo .example.env
 
@@ -72,6 +82,7 @@ La **documentación para el uso de la API**, por su parte, pueden ubicarla en es
 
 | Comando                | Descripción                                      | Ejemplo                                      |
 |------------------------|--------------------------------------------------|----------------------------------------------|
+| `init`                 | Configura las variables de entorno               | `spotifysaver init"`                         |
 | `download [URL]`       | Descarga track/álbum de Spotify                  | `spotifysaver download "URL_SPOTIFY"`        |
 | `inspect`              | Muestra la metadata de spotify (album, playlist) | `spotifysaver inspect "URL_SPOTIFY"`         |
 | `show-log`             | Muestra el log de la aplicación                  | `spotifysaver show-log`                      |
@@ -97,6 +108,9 @@ La **documentación para el uso de la API**, por su parte, pueden ubicarla en es
 
 ## 💡 Ejemplos de uso
 ```bash
+# Establece la configuración para spotifysaver
+spotifysaver init
+
 # Descargar álbum con letras sincronizadas
 spotifysaver download "https://open.spotify.com/album/..." --lyrics
 

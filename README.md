@@ -48,15 +48,24 @@ pip install git+https://github.com/gabrielbaute/spotify-saver.git
 
 ## ⚙️ Configuration
 
-Create `.env` file:
+Once in your project directory, run:
 
-```ini
-SPOTIFY_CLIENT_ID=your_id
-SPOTIFY_CLIENT_SECRET=your_secret
-YTDLP_COOKIES_PATH="cookies.txt" # For cases where YouTube blocks the app for "behaving like a bot" (wink, wink)
+```bash
+spotifysaver init
 ```
+This will create a local `.env` file with the environment variables that will be requested:
 
-The `YTDLP_COOKIES_PATH` variable will indicate the location of the file with the YouTube Music cookies, in case we have problems with restrictions on yt-dlp.
+| Variable                  | Description                                | Default Value                     |
+|---------------------------|--------------------------------------------|-----------------------------------|
+| `SPOTIFY_CLIENT_ID`       | ID of the Spotify app you created          | -                                 |
+| `SPOTIFY_CLIENT_SECRET`   | Secret key generated for your Spotify app  | -                                 |
+| `SPOTIFY_REDIRECT_URI`    | Returns Spotify metadata (album, playlist) | `http://localhost:8888/callback`  |
+| `SPOTIFYSAVER_OUTPUT_DIR` | Custom directory path (optional)           | `./Music`                         |
+| `YTDLP_COOKIES_PATH`      | Cookie file path (optional)                | -                                 |
+| `API_PORT`                | API server port (optional)                 | `8000`                            |
+| `API_HOST`                | Host for the API (optional)                | `0.0.0.0`                         |
+
+The variable `YTDLP_COOKIES_PATH` will indicate the location of the file with the Youtube Music cookies, in case we have problems with restrictions to yt-dlp, specifically it is for cases in which youtube blocks the app for "behaving like a bot" (~~which is not entirely false lol~~)
 
 You can also check the .example.env file
 
@@ -72,6 +81,7 @@ The **documentation for using the API**, on the other hand, can be found in this
 
 | Command              | Description                                | Example                                    |
 |----------------------|--------------------------------------------|--------------------------------------------|
+| `init`               | Configure environment variables            | `spotifysaver init"`                       |
 | `download [URL]`     | Download track/album from Spotify          | `spotifysaver download "URL_SPOTIFY"`      |
 | `inspect`            | Shows Spotify metadata (album, playlist)   | `spotifysaver inspect "URL_SPOTIFY"`       |
 | `show-log`           | Shows the application log                  | `spotifysaver show-log`                    |
@@ -97,6 +107,9 @@ The **documentation for using the API**, on the other hand, can be found in this
 
 ## 💡 Usage Examples
 ```bash
+# Set spotifysaver configuration
+spotifysaver init
+
 # Download album with synchronized lyrics
 spotifysaver download "https://open.spotify.com/album/..." --lyrics
 
