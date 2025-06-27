@@ -21,7 +21,7 @@ Lee este archivo en [inglés](README.md)
 ## 🌟 Características
 - ✅ Descarga audio de YouTube Music con metadata de Spotify
 - ✅ Letras sincronizadas (.lrc) desde LRC Lib
-- ✅ Generación de archivos `.info` compatibles con Jellyfin
+- ✅ Generación de archivos `.info` compatibles con Jellyfin (aún hay cosas que mejorar aquí! ⚠️)
 - ✅ Estructura automática de carpetas (Artista/Álbum)
 - ✅ Interfaz de línea de comandos (CLI)
 - ✅ Soporte para playlist
@@ -53,10 +53,10 @@ Crear archivo `.env`:
 ```ini
 SPOTIFY_CLIENT_ID=tu_id
 SPOTIFY_CLIENT_SECRET=tu_secreto
-YTDLP_COOKIES_PATH="cookies.txt"  # Para contenido con restricción de edad
+YTDLP_COOKIES_PATH="cookies.txt"  # Para casos en que youtube bloquee la app por "comportarse como bot" (guiño, guiño)
 ```
 
-La variable `YTDLP_COOKIES_PATH` indicará la ubicación del archivo con las cookies de Youtube Music (importante, no usar las de Youtube, sino Youtube Music), en caso de que tengamos problemas con restricciones a yt-dlp.
+La variable `YTDLP_COOKIES_PATH` indicará la ubicación del archivo con las cookies de Youtube Music, en caso de que tengamos problemas con restricciones a yt-dlp.
 
 También puedes consultar el archivo .example.env
 

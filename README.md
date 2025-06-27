@@ -21,7 +21,7 @@ Read this file in [Spanish](README_ES.md)
 ## 🌟 Features
 - ✅ Download audio from YouTube Music with Spotify metadata
 - ✅ Synchronized lyrics (.lrc) from LRC Lib
-- ✅ Generation of Jellyfin-compatible `.info` files
+- ✅ Generation of Jellyfin-compatible `.info` files (Still some things to work on here! ⚠️)
 - ✅ Automatic folder structure (Artist/Album)
 - ✅ Command-line interface (CLI)
 - ✅ Playlist support
@@ -53,10 +53,10 @@ Create `.env` file:
 ```ini
 SPOTIFY_CLIENT_ID=your_id
 SPOTIFY_CLIENT_SECRET=your_secret
-YTDLP_COOKIES_PATH="cookies.txt" # For age-restricted content
+YTDLP_COOKIES_PATH="cookies.txt" # For cases where YouTube blocks the app for "behaving like a bot" (wink, wink)
 ```
 
-The `YTDLP_COOKIES_PATH` variable will indicate the location of the file with the YouTube Music cookies (important, don't use YouTube cookies, but YouTube Music), in case we have problems with restrictions on yt-dlp.
+The `YTDLP_COOKIES_PATH` variable will indicate the location of the file with the YouTube Music cookies, in case we have problems with restrictions on yt-dlp.
 
 You can also check the .example.env file
 
