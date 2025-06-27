@@ -67,6 +67,9 @@ API_HOST={api_host}
 
     with open(env_file, "w", encoding="utf-8") as f:
         f.write(env_content)
+    # Set restrictive permissions (chmod 600) to the .env file
+    import os
+    os.chmod(env_file, 0o600)
 
     click.echo(f"\n✅ Configuration saved to: {env_file}")
     click.echo("You can now run the SpotifySaver commands with your configured settings.")
