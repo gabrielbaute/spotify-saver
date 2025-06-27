@@ -59,7 +59,7 @@ Esto creará un archivo `.env` local con las variables de entorno que se solicit
 |---------------------------|--------------------------------------------------|----------------------------------------------|
 | `SPOTIFY_CLIENT_ID`       | ID de la app de spotify que creaste              | -                                            |
 | `SPOTIFY_CLIENT_SECRET`   | Clave secreta generada para tu app de spotify    | -                                            |
-| `SPOTIFY_REDIRECT_URI`    | Muestra la metadata de spotify (album, playlist) | `http://localhost:8888/callback`             |
+| `SPOTIFY_REDIRECT_URI`    | URI de validación de la API de Spotify           | `http://localhost:8888/callback`             |
 | `SPOTIFYSAVER_OUTPUT_DIR` | Ruta para directorio personalizado  (opcional)   | `./Music `                                   |
 | `YTDLP_COOKIES_PATH`      | Ruta para el archivo de cookies (opcional)       | -                                            |
 | `API_PORT`                | Puerto del servidor de la API (opcional)         | `8000`                                       |
