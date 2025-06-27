@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict, Optional, Callable, Any
 
 from ...services import SpotifyAPI, YoutubeMusicSearcher
-from ...downloader import YouTubeDownloader
+from ...downloader import YouTubeDownloader, AudioFormat, Bitrate
 from ...spotlog import get_logger
 from ..config import APIConfig
 
@@ -37,8 +37,9 @@ class DownloadService:
         self.download_lyrics = download_lyrics
         self.download_cover = download_cover
         self.generate_nfo = generate_nfo
-        self.output_format = output_format
-        self.bit_rate = bit_rate
+        # Convert string format to enum for internal use
+        self.output_format = YouTubeDownloader.string_to_audio_format(output_format)
+        self.bit_rate = YouTubeDownloader.int_to_bitrate(bit_rate)
 
         # Initialize services
         self.spotify = SpotifyAPI()
@@ -154,10 +155,10 @@ class DownloadService:
             None,
             self.downloader.download_playlist_cli,
             playlist,
-            self.download_lyrics,
-            self.download_cover,
             self.output_format,
             self.bit_rate,
+            self.download_lyrics,
+            self.download_cover,
             sync_progress_callback,
         )
 
@@ -173,11 +174,9 @@ class DownloadService:
 
     def _download_track_sync(self, track):
         """Synchronous track download helper."""
-        yt_url = self.searcher.search_track(track)
-        if not yt_url:
-            logger.error(f"No YouTube URL found for track: {track.name}")
-            return None, None
-
         return self.downloader.download_track(
-            track, yt_url, download_lyrics=self.download_lyrics, output_format=self.output_format, bitrate=self.bit_rate
+            track, 
+            output_format=self.output_format, 
+            bitrate=self.bit_rate,
+            download_lyrics=self.download_lyrics
         )

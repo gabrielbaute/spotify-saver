@@ -5,9 +5,10 @@ including progress tracking and optional metadata generation.
 """
 
 import click
+from spotifysaver.downloader.youtube_downloader import YouTubeDownloader
 
 
-def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, format, bitrate):
+def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, output_format, bitrate):
     """Process and download a complete Spotify playlist with progress tracking.
     
     Downloads all tracks from a Spotify playlist, showing a progress bar and
@@ -22,7 +23,7 @@ def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, for
         lyrics: Whether to download synchronized lyrics
         nfo: Whether to generate metadata files (in development)
         cover: Whether to download playlist cover art
-        format: Audio format for downloaded files
+        output_format: Audio format for downloaded files
     """
     playlist = spotify.get_playlist(url)
     click.secho(f"\nDownloading playlist: {playlist.name}", fg="magenta")
@@ -48,8 +49,8 @@ def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, for
         success, total = downloader.download_playlist_cli(
             playlist,
             download_lyrics=lyrics,
-            format=format,
-            bitrate=bitrate,
+            output_format=YouTubeDownloader.string_to_audio_format(output_format),
+            bitrate=YouTubeDownloader.int_to_bitrate(bitrate),
             cover=cover,
             progress_callback=update_progress,
         )

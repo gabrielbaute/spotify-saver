@@ -58,6 +58,59 @@ class YouTubeDownloader:
         self.searcher = YoutubeMusicSearcher()
         self.lrc_client = LrclibAPI()
 
+    @staticmethod
+    def string_to_audio_format(format_str: str) -> AudioFormat:
+        """Convert string format to AudioFormat enum.
+
+        Args:
+            format_str: String format ("m4a", "mp3", "opus")
+
+        Returns:
+            AudioFormat enum value
+
+        Raises:
+            ValueError: If format string is not supported
+        """
+        format_map = {
+            "m4a": AudioFormat.M4A,
+            "mp3": AudioFormat.MP3,
+            "opus": AudioFormat.OPUS,
+        }
+
+        if format_str.lower() not in format_map:
+            raise ValueError(
+                f"Unsupported format: {format_str}. Supported formats: {list(format_map.keys())}"
+            )
+
+        return format_map[format_str.lower()]
+
+    @staticmethod
+    def int_to_bitrate(bitrate_int: int) -> Bitrate:
+        """Convert integer bitrate to Bitrate enum.
+
+        Args:
+            bitrate_int: Integer bitrate (96, 128, 192, 256)
+
+        Returns:
+            Bitrate enum value
+
+        Raises:
+            ValueError: If bitrate is not supported
+        """
+        bitrate_map = {
+            96: Bitrate.B96,
+            128: Bitrate.B128,
+            192: Bitrate.B192,
+            256: Bitrate.B256,
+        }
+
+        if bitrate_int not in bitrate_map:
+            raise ValueError(
+                f"Unsupported bitrate: {bitrate_int}. Supported bitrates: {list(bitrate_map.keys())}"
+            )
+
+        return bitrate_map[bitrate_int]
+
     def _get_ydl_opts(
         self,
         output_path: Path,

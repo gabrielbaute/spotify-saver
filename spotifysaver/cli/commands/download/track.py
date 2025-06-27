@@ -5,9 +5,10 @@ including YouTube Music search and metadata application.
 """
 
 import click
+from spotifysaver.downloader.youtube_downloader import YouTubeDownloader
 
 
-def process_track(spotify, searcher, downloader, url, lyrics, format, bitrate):
+def process_track(spotify, searcher, downloader, url, lyrics, output_format, bitrate):
     """Process and download a single Spotify track.
     
     Downloads a single track from Spotify by finding a matching track on
@@ -19,20 +20,14 @@ def process_track(spotify, searcher, downloader, url, lyrics, format, bitrate):
         downloader: YouTubeDownloader for downloading and processing files
         url: Spotify track URL
         lyrics: Whether to download synchronized lyrics
-        format: Audio format for downloaded files
+        output_format: Audio format for downloaded files
     """
     track = spotify.get_track(url)
-    yt_url = searcher.search_track(track)
-
-    if not yt_url:
-        click.secho(f"No match found for: {track.name}", fg="yellow")
-        return
-
+    
     audio_path, updated_track = downloader.download_track(
         track, 
-        yt_url, 
-        format=format, 
-        bitrate=bitrate, 
+        output_format=YouTubeDownloader.string_to_audio_format(output_format), 
+        bitrate=YouTubeDownloader.int_to_bitrate(bitrate), 
         download_lyrics=lyrics
     )
 
@@ -41,3 +36,5 @@ def process_track(spotify, searcher, downloader, url, lyrics, format, bitrate):
         if lyrics and updated_track.has_lyrics:
             msg += " (+ lyrics)"
         click.secho(msg, fg="green")
+    else:
+        click.secho(f"Failed to download: {track.name}", fg="yellow")
