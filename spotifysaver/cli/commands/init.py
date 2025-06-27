@@ -6,7 +6,7 @@ from pathlib import Path
 import click
 
 
-@click.command()
+@click.command("init", short_help="Initialize SpotifySaver configuration")
 def init():
     """Initialize SpotifySaver configuration by setting up environment variables."""
 
@@ -39,7 +39,7 @@ def init():
 
     youtube_dl_cookies_path = click.prompt(
         "Enter YouTube DL cookies path (optional)",
-        default=None,
+        default="cookies.txt",
         type=str,
     )
 

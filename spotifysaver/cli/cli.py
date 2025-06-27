@@ -8,13 +8,19 @@ preservation and organization features.
 
 from click import group
 
-from spotifysaver.cli.commands import download, version, inspect, show_log
+from spotifysaver.cli.commands import (
+    download,
+    version,
+    inspect,
+    show_log,
+    init as init_command,
+)
 
 
 @group()
 def cli():
     """SpotifySaver - Download music from Spotify via YouTube Music.
-    
+
     A comprehensive tool for downloading Spotify tracks, albums, and playlists
     by finding equivalent content on YouTube Music. Features include metadata
     preservation, lyrics fetching, and organized file management.
@@ -27,3 +33,5 @@ cli.add_command(download)
 cli.add_command(inspect)
 cli.add_command(version)
 cli.add_command(show_log)
+cli.add_command(show_log)
+cli.add_command(init_command)
