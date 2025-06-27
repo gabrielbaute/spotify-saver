@@ -5,6 +5,7 @@ including progress tracking, metadata generation, and cover art download.
 """
 
 import click
+from spotifysaver.downloader.youtube_downloader import YouTubeDownloader
 
 
 def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, output_format, bitrate):
@@ -45,8 +46,8 @@ def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, output
         success, total = downloader.download_album_cli(
             album,
             download_lyrics=lyrics,
-            output_format=output_format,
-            bitrate=bitrate,
+            output_format=YouTubeDownloader.string_to_audio_format(output_format),
+            bitrate=YouTubeDownloader.int_to_bitrate(bitrate),
             nfo=nfo,
             cover=cover,
             progress_callback=update_progress,
