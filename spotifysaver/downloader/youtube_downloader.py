@@ -209,6 +209,23 @@ class YouTubeDownloader:
         artist_dir = self.base_dir / album.artists[0]
         return artist_dir / f"{album.name} ({album.release_date[:4]})"
 
+    def _save_artist_cover(self, url: str):
+        """Download and save artist cover art.
+
+        Args:
+            url: URL of the cover image
+        """
+        if not url:
+            return
+        
+        output_path = self.base_dir / "folder.jpg"
+        try:
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                output_path.write_bytes(response.content)
+        except Exception as e:
+            logger.error(f"Error downloading artist cover: {e}")
+
     def _save_cover_album(self, url: str, output_path: Path):
         """Download and save album cover art.
 
@@ -314,7 +331,7 @@ class YouTubeDownloader:
     def download_album(
         self,
         album: Album,
-        fortmart: str = "m4a",
+        output_format: str = "m4a",
         bitrate: int = 128,
         download_lyrics: bool = False,
         nfo: bool = False,
@@ -333,7 +350,7 @@ class YouTubeDownloader:
             self.download_track(
                 track,
                 yt_url,
-                output_format=fortmart,
+                output_format=output_format,
                 bitrate=bitrate,
                 album_artist=album.artists[0],
                 download_lyrics=download_lyrics,
@@ -402,7 +419,7 @@ class YouTubeDownloader:
                     success += 1
             except Exception as e:
                 logger.error(f"Error en track {track.name}: {str(e)}")
-
+        
         # Generar metadatos solo si hay éxitos
         if success > 0:
             output_dir = self._get_album_dir(album)
@@ -410,6 +427,9 @@ class YouTubeDownloader:
                 NFOGenerator.generate(album, output_dir)
             if cover and album.cover_url:
                 self._save_cover_album(album.cover_url, output_dir / "cover.jpg")
+
+            # Guarda el cover del artista
+            #self._save_artist_cover()
 
         return success, len(album.tracks)
 

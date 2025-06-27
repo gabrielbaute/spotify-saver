@@ -101,6 +101,26 @@ class SpotifyAPI:
             raise ValueError("Artist not found or invalid URL") from e
 
     @lru_cache(maxsize=32)
+    def fetch_artist_albums(self, artist_url: str) -> dict:
+        """Fetch raw artist data from the API.
+        
+        Args:
+            artist_url: Spotify URL or URI for the artist
+            
+        Returns:
+            dict: Raw artist data from Spotify API
+            
+        Raises:
+            ValueError: If artist is not found or URL is invalid
+        """
+        try:
+            logger.debug(f"Fetching artist albums: {artist_url}")
+            return self.sp.artist_albums(artist_url)
+        except spotipy.exceptions.SpotifyException as e:
+            logger.error(f"Error fetching artist albuns: {e}")
+            raise ValueError("Artist not found or invalid URL") from e
+
+    @lru_cache(maxsize=32)
     def _fetch_playlist_data(self, playlist_url: str) -> dict:
         """Fetch raw playlist data from the API.
         
@@ -144,6 +164,7 @@ class SpotifyAPI:
             duration=raw_data["duration_ms"] // 1000,
             uri=raw_data["uri"],
             artists=[a["name"] for a in raw_data["artists"]],
+            album_artist=[a["name"] for a in raw_data["album"]["artist"]],
             album_name=raw_data["album"]["name"] if raw_data["album"] else None,
             release_date=(
                 raw_data["album"]["release_date"] if raw_data["album"] else "NA"
@@ -176,6 +197,7 @@ class SpotifyAPI:
                 duration=track["duration_ms"] // 1000,
                 uri=track["uri"],
                 artists=[a["name"] for a in track["artists"]],
+                album_artist=[a["name"] for a in raw_data["artists"]],
                 genres=raw_data.get("genres", []),
                 album_name=raw_data["name"],
                 release_date=raw_data["release_date"],
@@ -215,6 +237,7 @@ class SpotifyAPI:
         return Artist(
             name=raw_data["name"],
             uri=raw_data["uri"],
+            cover=raw_data.get("images", ["url"]),
             genres=raw_data.get("genres", []),
             popularity=raw_data["popularity"],
             followers=raw_data["followers"]["total"],
@@ -242,6 +265,7 @@ class SpotifyAPI:
                 duration=track["track"]["duration_ms"] // 1000,
                 uri=track["track"]["uri"],
                 artists=[a["name"] for a in track["track"]["artists"]],
+                album_artist=[a["name"] for a in track["album"]["artists"]],
                 album_name=(
                     track["track"]["album"]["name"] if track["track"]["album"] else None
                 ),

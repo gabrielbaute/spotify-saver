@@ -22,6 +22,7 @@ class Artist:
 
     name: str
     uri: str
+    cover: str
     genres: List[str] = None
     popularity: int = None
     followers: int = None
