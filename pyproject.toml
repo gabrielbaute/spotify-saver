@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "spotifysaver"
-version = "0.4.1"
+version = "0.4.2"
 description = "Download Spotify tracks/albums with metadata via YouTube Music (Perfect for Jellyfin libraries!)"
 authors = ["Gabriel Baute <gabrielbaute@gmail.com>"]
 license = "MIT"
