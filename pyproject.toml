@@ -34,7 +34,7 @@ packages = [{include = "spotifysaver"}]
 python = "^3.9 || ^3.10 || ^3.11 || ^3.12 || ^3.13"
 mutagen = "^1.47.0"
 spotipy = "^2.25.1"
-yt-dlp = "^2025.6.9"
+yt-dlp = "^2025.6.30"
 ytmusicapi = "^1.10.3"
 requests = "^2.32.4"
 click = "^8.1.8"
