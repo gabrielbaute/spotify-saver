@@ -25,7 +25,7 @@ class SpotifySaverUI {
 
     async checkApiStatus() {
         try {
-            const response = await fetch(`${this.apiUrl}/health`);
+            const response = await fetch(this.apiUrlHealth);
             if (response.ok) {
                 this.updateStatus('API conectada y lista', 'success');
             } else {
@@ -121,7 +121,7 @@ class SpotifySaverUI {
 
     startProgressMonitoring(taskId) {
         // Monitorear progreso usando polling
-        const pollInterval = 2000; // 1 segundo
+        const pollInterval = 2000; // 2 segundo
         let progress = 0;
         
         const checkProgress = async () => {
