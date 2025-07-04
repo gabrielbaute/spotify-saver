@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpotifySaver - Descargador de Música</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎵 SpotifySaver</h1>
+            <p>Descarga música de Spotify con metadatos completos</p>
+        </header>
+
+        <main>
+            <div class="form-section">
+                <h2>Configuración de Descarga</h2>
+                
+                <div class="form-group">
+                    <label for="spotify-url">URL de Spotify:</label>
+                    <input 
+                        type="url" 
+                        id="spotify-url" 
+                        placeholder="https://open.spotify.com/playlist/..." 
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="output-dir">Directorio de Salida:</label>
+                    <input 
+                        type="text" 
+                        id="output-dir" 
+                        placeholder="Music" 
+                        value="Music">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="format">Formato de Audio:</label>
+                        <select id="format">
+                            <option value="m4a">M4A (Recomendado)</option>
+                            <option value="mp3">MP3</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bitrate">Bitrate:</label>
+                        <select id="bitrate">
+                            <option value="best">Mejor Calidad</option>
+                            <option value="256">256 kbps</option>
+                            <option value="192">192 kbps</option>
+                            <option value="128">128 kbps</option>
+                            <option value="96">96 kbps</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="include-lyrics" checked>
+                        Incluir Letras
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="create-nfo" checked>
+                        Crear archivos NFO (Jellyfin/Kodi)
+                    </label>
+                </div>
+
+                <button id="download-btn" class="download-btn">
+                    🎵 Iniciar Descarga
+                </button>
+            </div>
+
+            <div class="status-section">
+                <h2>Estado de la Descarga</h2>
+                <div id="status-container">
+                    <div id="status-message">Esperando...</div>
+                    <div id="progress-container" class="hidden">
+                        <div id="progress-bar">
+                            <div id="progress-fill"></div>
+                        </div>
+                        <div id="progress-text">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="log-section">
+                <h2>Registro de Actividad</h2>
+                <div id="log-container">
+                    <div id="log-content"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
