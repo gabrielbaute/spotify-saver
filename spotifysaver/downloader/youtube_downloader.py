@@ -135,7 +135,7 @@ class YouTubeDownloader:
         bitrate_value = bitrate.value
 
         opts = {
-            "format": f"bestaudio[abr<={bitrate_value}]/best" or "bestaudio/best",
+            "format": "bestaudio/best",
             "outtmpl": str(output_path.with_suffix(f".%(ext)s")),
             "postprocessors": [
                 {
@@ -167,6 +167,8 @@ class YouTubeDownloader:
             "retries": 5,
             "fragment_retries": 5,
             "skip_unavailable_fragments": True,
+            "allow_unplayable_formats": True,
+            "force_keyframes_at_cuts": True,
         }
 
         return opts
