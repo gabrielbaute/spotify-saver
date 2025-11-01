@@ -160,7 +160,7 @@ class YouTubeDownloader:
             ),
             "extractor_args": {
                 "youtube": {
-                    "player_client": ["web"],
+                    "player_client": ["android"],
                     "player_skip": ["configs"],
                 }
             },
