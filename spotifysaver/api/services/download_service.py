@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import Dict, Optional, Callable, Any
 
 from ...services import SpotifyAPI, YoutubeMusicSearcher
-from ...downloader import YouTubeDownloader, AudioFormat, Bitrate
+from ...downloader import YouTubeDownloader
+from ...enums import AudioFormat, Bitrate
 from ...spotlog import get_logger
 from ..config import APIConfig
 
