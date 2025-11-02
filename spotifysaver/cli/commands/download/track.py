@@ -16,7 +16,8 @@ def process_track(
         lyrics, 
         output_format, 
         bitrate, 
-        explain=False
+        explain=False,
+        dry_run=False
         ):
     """Process and download a single Spotify track.
     
@@ -30,36 +31,50 @@ def process_track(
         url: Spotify track URL
         lyrics: Whether to download synchronized lyrics
         output_format: Audio format for downloaded files
+        bitrate: Audio bitrate in kbps (96, 128, 192, 256)
+        explain: Whether to show score breakdown without downloading
     """
     track = spotify.get_track(url)
 
+    # Explain mode: show score breakdown without downloading
     if explain:
         scorer = ScoreMatchCalculator()
         click.secho(f"\n🔍 Explaining matches for track: {track.name}", fg="cyan")
-        for track in [track]:
-            click.secho(f"\n🎵 Track: {track.name}", fg="yellow")
-            results = searcher.search_raw(track)
-            
-            if not results:
-                click.echo("  ⚠ No candidates found.")
-                continue
-            
-            for result in results:
-                explanation = scorer.explain_score(result, track, strict=True)
-                click.echo(f"  - Candidate: {explanation['yt_title']}")
-                click.echo(f"    Video ID: {explanation['yt_videoId']}")
-                click.echo(f"    Duration: {explanation['duration_score']}")
-                click.echo(f"    Artist:   {explanation['artist_score']}")
-                click.echo(f"    Title:    {explanation['title_score']}")
-                click.echo(f"    Album:    {explanation['album_bonus']}")
-                click.echo(f"    → Total:  {explanation['total_score']} (passed: {explanation['passed']})")
-                click.echo("-" * 40)
+        
+        click.secho(f"\n🎵 Track: {track.name}", fg="yellow")
+        results = searcher.search_raw(track)
+        
+        if not results:
+            click.echo("  ⚠ No candidates found.")
+            return
+        
+        for result in results:
+            explanation = scorer.explain_score(result, track, strict=True)
+            click.echo(f"  - Candidate: {explanation['yt_title']}")
+            click.echo(f"    Video ID: {explanation['yt_videoId']}")
+            click.echo(f"    Duration: {explanation['duration_score']}")
+            click.echo(f"    Artist:   {explanation['artist_score']}")
+            click.echo(f"    Title:    {explanation['title_score']}")
+            click.echo(f"    Album:    {explanation['album_bonus']}")
+            click.echo(f"    → Total:  {explanation['total_score']} (passed: {explanation['passed']})")
+            click.echo("-" * 40)
 
-            best = max(results, key=lambda r: scorer.explain_score(r, track)["total_score"])
-            best_expl = scorer.explain_score(best, track)
-            click.secho(f"\n✅ Best candidate: {best_expl['yt_title']} (score: {best_expl['total_score']})", fg="green")
+        best = max(results, key=lambda r: scorer.explain_score(r, track)["total_score"])
+        best_expl = scorer.explain_score(best, track)
+        click.secho(f"\n✅ Best candidate: {best_expl['yt_title']} (score: {best_expl['total_score']})", fg="green")
         return
-    
+
+    # Dry run mode: explain matches without downloading
+    if dry_run:
+        scorer = ScoreMatchCalculator()
+        click.secho(f"\n🧪 Dry run for track: {track.name}", fg="cyan")
+        result = searcher.search_track(track)
+        explanation = scorer.explain_score(result, track, strict=True)
+        click.echo(f"  → Selected candidate: {explanation['yt_title']}")
+        click.echo(f"    Video ID: {explanation['yt_videoId']}")
+        click.echo(f"    Total score: {explanation['total_score']} (passed: {explanation['passed']})")
+        return
+
     audio_path, updated_track = downloader.download_track(
         track, 
         output_format=YouTubeDownloader.string_to_audio_format(output_format), 

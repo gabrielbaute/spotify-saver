@@ -27,6 +27,7 @@ from spotifysaver.cli.commands.download.track import process_track
 @click.option("--bitrate", type=int, default=128, help="Audio bitrate in kbps")
 @click.option("--verbose", is_flag=True, help="Show debug output")
 @click.option("--explain", is_flag=True, help="Show score breakdown for each track without downloading (for error analysis)")
+@click.option("--dry-run", is_flag=True, help="Simulate download without saving files")
 
 def download(
     spotify_url: str,
@@ -38,6 +39,7 @@ def download(
     bitrate: int,
     verbose: bool,
     explain: bool,
+    dry_run: bool,
 ):
     """Download music from Spotify URLs via YouTube Music with metadata.
     
@@ -65,14 +67,14 @@ def download(
 
         if "album" in spotify_url:
             process_album(
-                spotify, searcher, downloader, spotify_url, lyrics, nfo, cover, format, bitrate, explain
+                spotify, searcher, downloader, spotify_url, lyrics, nfo, cover, format, bitrate, explain, dry_run
             )
         elif "playlist" in spotify_url:
             process_playlist(
-                spotify, searcher, downloader, spotify_url, lyrics, nfo, cover, format, bitrate
+                spotify, searcher, downloader, spotify_url, lyrics, nfo, cover, format, bitrate, dry_run
             )
         else:
-            process_track(spotify, searcher, downloader, spotify_url, lyrics, format, bitrate, explain)
+            process_track(spotify, searcher, downloader, spotify_url, lyrics, format, bitrate, explain, dry_run)
 
     except Exception as e:
         click.secho(f"Error: {str(e)}", fg="red", err=True)

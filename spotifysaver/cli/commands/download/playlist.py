@@ -6,9 +6,21 @@ including progress tracking and optional metadata generation.
 
 import click
 from spotifysaver.downloader.youtube_downloader import YouTubeDownloader
+from spotifysaver.services import SpotifyAPI, YoutubeMusicSearcher, ScoreMatchCalculator
 
 
-def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, output_format, bitrate):
+def process_playlist(
+        spotify: SpotifyAPI, 
+        searcher: YoutubeMusicSearcher, 
+        downloader: YouTubeDownloader, 
+        url, 
+        lyrics, 
+        nfo, 
+        cover, 
+        output_format, 
+        bitrate,
+        dry_run=False
+        ):
     """Process and download a complete Spotify playlist with progress tracking.
     
     Downloads all tracks from a Spotify playlist, showing a progress bar and
@@ -27,6 +39,20 @@ def process_playlist(spotify, searcher, downloader, url, lyrics, nfo, cover, out
     """
     playlist = spotify.get_playlist(url)
     click.secho(f"\nDownloading playlist: {playlist.name}", fg="magenta")
+
+    # Dry run mode: explain matches without downloading
+    if dry_run:
+        scorer = ScoreMatchCalculator()
+        click.secho(f"\n🧪 Dry run for playlist: {playlist.name}", fg="magenta")
+
+        for track in playlist.tracks:
+            result = searcher.search_track(track)
+            explanation = scorer.explain_score(result, track, strict=True)
+            click.secho(f"\n🎵 Track: {track.name}", fg="yellow")
+            click.echo(f"  → Selected candidate: {explanation['yt_title']}")
+            click.echo(f"    Video ID: {explanation['yt_videoId']}")
+            click.echo(f"    Total score: {explanation['total_score']} (passed: {explanation['passed']})")
+        return
 
     # Configure progress bar
     with click.progressbar(

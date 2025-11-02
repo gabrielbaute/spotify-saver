@@ -19,7 +19,8 @@ def process_album(
         cover, 
         output_format, 
         bitrate, 
-        explain=False
+        explain=False,
+        dry_run=False
         ):
     """Process and download a complete Spotify album with progress tracking.
     
@@ -41,6 +42,7 @@ def process_album(
     album = spotify.get_album(url)
     click.secho(f"\nDownloading album: {album.name}", fg="cyan")
 
+    # Explain mode: show score breakdown without downloading
     if explain:
         scorer = ScoreMatchCalculator()
         click.secho(f"\n🔍 Explaining matches for album: {album.name}", fg="cyan")
@@ -69,6 +71,23 @@ def process_album(
             click.secho(f"\n✅ Best candidate: {best_expl['yt_title']} (score: {best_expl['total_score']})", fg="green")
 
         return
+
+    # Dry run mode: explain matches without downloading
+    if dry_run:
+        from spotifysaver.services.score_match_calculator import ScoreMatchCalculator
+
+        scorer = ScoreMatchCalculator()
+        click.secho(f"\n🧪 Dry run for album: {album.name}", fg="cyan")
+
+        for track in album.tracks:
+            result = searcher.search_track(track)
+            explanation = scorer.explain_score(result, track, strict=True)
+            click.secho(f"\n🎵 Track: {track.name}", fg="yellow")
+            click.echo(f"  → Selected candidate: {explanation['yt_title']}")
+            click.echo(f"    Video ID: {explanation['yt_videoId']}")
+            click.echo(f"    Total score: {explanation['total_score']} (passed: {explanation['passed']})")
+        return
+
 
     with click.progressbar(
         length=len(album.tracks),
