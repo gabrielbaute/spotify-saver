@@ -218,6 +218,11 @@ class YoutubeMusicSearcher:
         )
         return f"https://music.youtube.com/watch?v={best_match['videoId']}"
 
+    def search_raw(self, track: Track) -> List[Dict]:
+        """Return raw YouTube Music search results for a given track."""
+        query = f"{track.artists[0]} {track.name} {track.album_name or ''}"
+        return self.ytmusic.search(query, filter="songs")
+
     @lru_cache(maxsize=100)
     def search_track(self, track: Track) -> Optional[str]:
         """Search for a track with elegant error handling.
