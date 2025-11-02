@@ -48,6 +48,11 @@ def process_album(
         for track in album.tracks:
             click.secho(f"\n🎵 Track: {track.name}", fg="yellow")
             results = searcher.search_raw(track)
+            
+            if not results:
+                click.echo("  ⚠ No candidates found.")
+                continue
+            
             for result in results:
                 explanation = scorer.explain_score(result, track, strict=True)
                 click.echo(f"  - Candidate: {explanation['yt_title']}")
@@ -57,6 +62,12 @@ def process_album(
                 click.echo(f"    Title:    {explanation['title_score']}")
                 click.echo(f"    Album:    {explanation['album_bonus']}")
                 click.echo(f"    → Total:  {explanation['total_score']} (passed: {explanation['passed']})")
+                click.echo("-" * 40)
+        
+            best = max(results, key=lambda r: scorer.explain_score(r, track)["total_score"])
+            best_expl = scorer.explain_score(best, track)
+            click.secho(f"\n✅ Best candidate: {best_expl['yt_title']} (score: {best_expl['total_score']})", fg="green")
+
         return
 
     with click.progressbar(
