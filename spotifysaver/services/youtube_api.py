@@ -7,6 +7,7 @@ from ytmusicapi import YTMusic
 
 from spotifysaver.models.track import Track
 from spotifysaver.spotlog import get_logger
+from spotifysaver.services.score_match_calculator import ScoreMatchCalculator
 from spotifysaver.services.errors.errors import (
     YouTubeAPIError,
     AlbumNotFoundError,
@@ -32,6 +33,7 @@ class YoutubeMusicSearcher:
         Sets up the YTMusic client and configures retry behavior.
         """
         self.ytmusic = YTMusic()
+        self.scorer = ScoreMatchCalculator()
         self.max_retries = 3
         self.logger = get_logger(f"{self.__class__.__name__}")
 
@@ -200,99 +202,21 @@ class YoutubeMusicSearcher:
 
         scored_results = []
         for result in results:
-            yt_title = result.get("title", "Unknown")
-            yt_duration = result.get("duration", 0)
-            yt_video_id = result.get("videoId", "N/A")
-
-            # Normalización para comparación
-            normalized_yt_title = self._normalize(yt_title)
-            normalized_spotify_title = self._normalize(track.name)
-
-            # Logging detallado
-            self.logger.debug(f"Evaluating result: {yt_title} (duration: {yt_duration}s, videoId: {yt_video_id})")
-            self.logger.debug(f"Normalized titles: '{normalized_spotify_title}' vs '{normalized_yt_title}'")
-
-            score = self._calculate_match_score(result, track, strict)
-            self.logger.debug(f"→ Match score: {score}")
-
+            score = self.scorer._calculate_match_score(result, track, strict)
+            self.logger.debug(f"Score for {result.get('title', 'Unknown')} is {score}")
             if score > 0:
                 scored_results.append((score, result))
 
-
         if not scored_results:
-            self.logger.warning(
-                f"No valid matches found for {track.name} by {track.artists[0]}"
-            )
+            self.logger.warning(f"No valid matches found for {track.name} by {track.artists[0]}")
             return None
 
-        # Sort by descending score
         scored_results.sort(reverse=True, key=lambda x: x[0])
         best_match = scored_results[0][1]
         self.logger.info(
             f"Best match for {track.name} by {track.artists[0]}: {best_match.get('title', 'Unknown')} with score {scored_results[0][0]}"
         )
         return f"https://music.youtube.com/watch?v={best_match['videoId']}"
-
-    def _calculate_match_score(
-        self, yt_result: Dict, track: Track, strict: bool
-    ) -> float:
-        """Improved scoring system for matching results.
-        
-        Calculates a score based on duration, artist overlap, title similarity,
-        and album matching.
-        
-        Args:
-            yt_result: YouTube Music search result
-            track: Original track to score against
-            strict: Whether to use strict scoring thresholds
-            
-        Returns:
-            float: Match score between 0.0 and 1.0+
-        """
-        try:
-            
-            # 1. Duration match (30% of score)
-            duration_diff = abs(yt_result.get("duration_seconds", 0) - track.duration)
-            duration_score = max(
-                0, 1 - (duration_diff / 10)
-            )  # 1 if exact, 0 if >10s diff
-
-            # 2. Artist match (40% of score)
-            yt_artists = {
-                a["name"].lower()
-                for a in yt_result.get("artists", [])
-                if isinstance(a, dict)
-            }
-            sp_artists = {a.lower() for a in track.artists}
-            artist_overlap = len(yt_artists & sp_artists) / len(sp_artists)
-            artist_score = artist_overlap * 0.4
-
-            # 3. Title match (30% of score)
-            title_similarity = self._similar(
-                self._normalize(str(yt_result.get("title", ""))),
-                self._normalize(track.name)
-            )
-            title_score = title_similarity * 0.3
-
-            # 4. Album bonus (safe type handling)
-            bonus = 0
-            album_data = yt_result.get("album")
-            if album_data:
-                album_name = (
-                    album_data["name"].lower()
-                    if isinstance(album_data, dict)
-                    else str(album_data).lower()
-                )
-                if track.album_name.lower() in album_name:
-                    bonus += 0.1
-
-            total_score = duration_score + artist_score + title_score + bonus
-            return total_score if total_score >= (0.7 if strict else 0.6) else 0
-
-        except Exception as e:
-            self.logger.error(f"Error calculating score: {str(e)}")
-            self.logger.debug(f"Problematic result: {yt_result}")
-            return 0
 
     @lru_cache(maxsize=100)
     def search_track(self, track: Track) -> Optional[str]:
