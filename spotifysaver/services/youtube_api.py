@@ -13,8 +13,6 @@ from spotifysaver.services.errors.errors import (
     InvalidResultError,
 )
 
-logger = get_logger("YouTubeMusicSearcher")
-
 
 class YoutubeMusicSearcher:
     """YouTube Music search service for finding tracks.
@@ -35,6 +33,7 @@ class YoutubeMusicSearcher:
         """
         self.ytmusic = YTMusic()
         self.max_retries = 3
+        self.logger = get_logger(f"{self.__class__.__name__}")
 
     @staticmethod
     def _similar(a: str, b: str) -> float:
@@ -91,11 +90,11 @@ class YoutubeMusicSearcher:
 
         for strategy in search_strategies:
             if url := strategy(track):
-                logger.info(
+                self.logger.info(
                     f"Found track: {track.name} by {track.artists[0]} using {strategy.__name__}"
                 )
                 return url
-        logger.warning(f"No results found for {track.name} by {track.artists[0]}")
+        self.logger.warning(f"No results found for {track.name} by {track.artists[0]}")
         return None
 
     def _search_exact_match(self, track: Track) -> Optional[str]:
@@ -111,7 +110,7 @@ class YoutubeMusicSearcher:
         results = self.ytmusic.search(
             query=query, filter="songs", limit=5, ignore_spelling=True
         )
-        logger.debug(f"Exact match search results: {results}")
+        self.logger.debug(f"Exact match search results: {results}")
         return self._process_results(results, track, strict=True)
 
     def _search_album_context(self, track: Track) -> Optional[str]:
@@ -191,18 +190,18 @@ class YoutubeMusicSearcher:
             str: YouTube Music URL of the best match, None if no valid matches
         """
         if not results:
-            logger.warning(f"No results found for {track.name} by {track.artists[0]}")
+            self.logger.warning(f"No results found for {track.name} by {track.artists[0]}")
             return None
 
         scored_results = []
         for result in results:
             score = self._calculate_match_score(result, track, strict)
-            logger.debug(f"Score for {result.get('title', 'Unknown')} is {score}")
+            self.logger.debug(f"Score for {result.get('title', 'Unknown')} is {score}")
             if score > 0:
                 scored_results.append((score, result))
 
         if not scored_results:
-            logger.warning(
+            self.logger.warning(
                 f"No valid matches found for {track.name} by {track.artists[0]}"
             )
             return None
@@ -210,7 +209,7 @@ class YoutubeMusicSearcher:
         # Sort by descending score
         scored_results.sort(reverse=True, key=lambda x: x[0])
         best_match = scored_results[0][1]
-        logger.info(
+        self.logger.info(
             f"Best match for {track.name} by {track.artists[0]}: {best_match.get('title', 'Unknown')} with score {scored_results[0][0]}"
         )
         return f"https://music.youtube.com/watch?v={best_match['videoId']}"
@@ -269,8 +268,8 @@ class YoutubeMusicSearcher:
             return total_score if total_score >= (0.7 if strict else 0.6) else 0
 
         except Exception as e:
-            logger.error(f"Error calculating score: {str(e)}")
-            logger.debug(f"Problematic result: {yt_result}")
+            self.logger.error(f"Error calculating score: {str(e)}")
+            self.logger.debug(f"Problematic result: {yt_result}")
             return 0
 
     @lru_cache(maxsize=100)
@@ -292,16 +291,16 @@ class YoutubeMusicSearcher:
                 return self._search_with_fallback(track)
 
             except AlbumNotFoundError as e:
-                logger.warning(f"Attempt {attempt}: {str(e)}")
+                self.logger.warning(f"Attempt {attempt}: {str(e)}")
                 last_error = e
             except InvalidResultError as e:
-                logger.error(f"Attempt {attempt}: Invalid API response - {str(e)}")
+                self.logger.error(f"Attempt {attempt}: Invalid API response - {str(e)}")
                 last_error = e
             except Exception as e:
-                logger.error(f"Attempt {attempt}: Unexpected error - {str(e)}")
+                self.logger.error(f"Attempt {attempt}: Unexpected error - {str(e)}")
                 last_error = e
 
-        logger.error(f"All attempts failed for '{track.name}'")
+        self.logger.error(f"All attempts failed for '{track.name}'")
         if last_error:
-            logger.info(f"Last error details: {str(last_error)}")
+            self.logger.info(f"Last error details: {str(last_error)}")
         return None

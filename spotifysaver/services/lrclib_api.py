@@ -8,8 +8,6 @@ from spotifysaver.models import Track
 from spotifysaver.spotlog import get_logger
 from spotifysaver.services.errors.errors import APIError
 
-logger = get_logger("LrclibAPI")
-
 
 class LrclibAPI:
     """LRC Lib API client for fetching synchronized lyrics.
@@ -29,6 +27,7 @@ class LrclibAPI:
         Sets up the HTTP session with appropriate timeout settings.
         """
         self.session = requests.Session()
+        self.logger = get_logger(f"{self.__class__.__name__}")
         self.session.timeout = 10  # 10 seconds timeout
 
     def get_lyrics(self, track: Track, synced: bool = True) -> Optional[str]:
@@ -59,21 +58,21 @@ class LrclibAPI:
             )
 
             if response.status_code == 404:
-                logger.debug(f"Lyrics not found for: {track.name}")
+                self.logger.debug(f"Lyrics not found for: {track.name}")
                 return None
 
             response.raise_for_status()
             data = response.json()
 
             lyric_type = "syncedLyrics" if synced else "plainLyrics"
-            logger.info(f"Song lyrics obtained: {lyric_type}")
+            self.logger.info(f"Song lyrics obtained: {lyric_type}")
             return data.get(lyric_type)
 
         except requests.exceptions.RequestException as e:
-            logger.error(f"Error in the LRC Lib API: {str(e)}")
+            self.logger.error(f"Error in the LRC Lib API: {str(e)}")
             raise APIError(f"LRC Lib API error: {str(e)}")
         except Exception as e:
-            logger.error(f"Unexpected error: {str(e)}")
+            self.logger.error(f"Unexpected error: {str(e)}")
             raise APIError(f"Unexpected error: {str(e)}")
 
     def get_lyrics_with_fallback(self, track: Track) -> Optional[str]:

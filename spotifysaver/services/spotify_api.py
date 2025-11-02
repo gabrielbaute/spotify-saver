@@ -10,8 +10,6 @@ from spotifysaver.config import Config
 from spotifysaver.models import Album, Track, Artist, Playlist
 from spotifysaver.spotlog import get_logger
 
-logger = get_logger("SpotifyAPI")
-
 
 class SpotifyAPI:
     """Encapsulated class for interacting with the Spotify API.
@@ -39,6 +37,7 @@ class SpotifyAPI:
                 client_secret=Config.SPOTIFY_CLIENT_SECRET,
             )
         )
+        self.logger = get_logger(f"{self.__class__.__name__}")
 
     @lru_cache(maxsize=32)
     def _fetch_track_data(self, track_url: str) -> dict:
@@ -54,10 +53,10 @@ class SpotifyAPI:
             ValueError: If track is not found or URL is invalid
         """
         try:
-            logger.debug(f"Fetching track data: {track_url}")
+            self.logger.debug(f"Fetching track data: {track_url}")
             return self.sp.track(track_url)
         except spotipy.exceptions.SpotifyException as e:
-            logger.error(f"Error fetching track data: {e}")
+            self.logger.error(f"Error fetching track data: {e}")
             raise ValueError("Track not found or invalid URL") from e
 
     @lru_cache(maxsize=32)  # Cachea las últimas 32 llamadas
@@ -74,10 +73,10 @@ class SpotifyAPI:
             ValueError: If album is not found or URL is invalid
         """
         try:
-            logger.info(f"Fetching album data: {album_url}")
+            self.logger.info(f"Fetching album data: {album_url}")
             return self.sp.album(album_url)
         except spotipy.exceptions.SpotifyException as e:
-            logger.error(f"Error fetching album data: {e}")
+            self.logger.error(f"Error fetching album data: {e}")
             raise ValueError("Album not found or invalid URL") from e
 
     @lru_cache(maxsize=32)
@@ -94,10 +93,10 @@ class SpotifyAPI:
             ValueError: If artist is not found or URL is invalid
         """
         try:
-            logger.debug(f"Fetching artist data: {artist_url}")
+            self.logger.debug(f"Fetching artist data: {artist_url}")
             return self.sp.artist(artist_url)
         except spotipy.exceptions.SpotifyException as e:
-            logger.error(f"Error fetching artist data: {e}")
+            self.logger.error(f"Error fetching artist data: {e}")
             raise ValueError("Artist not found or invalid URL") from e
 
     @lru_cache(maxsize=32)
@@ -114,10 +113,10 @@ class SpotifyAPI:
             ValueError: If artist is not found or URL is invalid
         """
         try:
-            logger.debug(f"Fetching artist albums: {artist_url}")
+            self.logger.debug(f"Fetching artist albums: {artist_url}")
             return self.sp.artist_albums(artist_url)
         except spotipy.exceptions.SpotifyException as e:
-            logger.error(f"Error fetching artist albuns: {e}")
+            self.logger.error(f"Error fetching artist albuns: {e}")
             raise ValueError("Artist not found or invalid URL") from e
 
     @lru_cache(maxsize=32)
@@ -134,10 +133,10 @@ class SpotifyAPI:
             ValueError: If playlist is not found or URL is invalid
         """
         try:
-            logger.info(f"Fetching playlist data: {playlist_url}")
+            self.logger.info(f"Fetching playlist data: {playlist_url}")
             return self.sp.playlist(playlist_url)
         except spotipy.exceptions.SpotifyException as e:
-            logger.error(f"Error fetching playlist data: {e}")
+            self.logger.error(f"Error fetching playlist data: {e}")
             raise ValueError("Playlist not found or invalid URL") from e
 
     def get_track(self, track_url: str) -> Track:
@@ -154,7 +153,7 @@ class SpotifyAPI:
         """
         raw_data = self._fetch_track_data(track_url)
         if not raw_data:
-            logger.error(f"Track not found: {track_url}")
+            self.logger.error(f"Track not found: {track_url}")
             raise ValueError("Track not found")
 
         return Track(
@@ -231,7 +230,7 @@ class SpotifyAPI:
         """
         raw_data = self._fetch_artist_data(artist_url)
         if not raw_data:
-            logger.error(f"Artist not found: {artist_url}")
+            self.logger.error(f"Artist not found: {artist_url}")
             raise ValueError("Artist not found")
 
         return Artist(
