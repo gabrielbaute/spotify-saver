@@ -2,34 +2,17 @@
 
 import logging
 import re
-from pathlib import Path
-from typing import Optional
-from enum import Enum
-
 import requests
 import yt_dlp
+from pathlib import Path
+from typing import Optional
 
 from spotifysaver.services import YoutubeMusicSearcher, LrclibAPI
 from spotifysaver.metadata import NFOGenerator, MusicFileMetadata
 from spotifysaver.models import Track, Album, Playlist
+from spotifysaver.enums import AudioFormat, Bitrate
 from spotifysaver.config import Config
 from spotifysaver.spotlog import get_logger
-
-class AudioFormat(Enum):
-    """Enum for supported audio formats."""
-
-    M4A = "m4a"
-    MP3 = "mp3"
-    OPUS = "opus"
-
-
-class Bitrate(Enum):
-    """Enum for supported audio bitrates."""
-
-    B96 = 96
-    B128 = 128
-    B192 = 192
-    B256 = 256
 
 
 class YouTubeDownloader:
