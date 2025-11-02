@@ -26,6 +26,8 @@ from spotifysaver.cli.commands.download.track import process_track
 @click.option("--format", type=click.Choice(["m4a", "mp3", "opus"]), default="m4a")
 @click.option("--bitrate", type=int, default=128, help="Audio bitrate in kbps")
 @click.option("--verbose", is_flag=True, help="Show debug output")
+@click.option("--explain", is_flag=True, help="Show score breakdown for each track without downloading (for error analysis)")
+
 def download(
     spotify_url: str,
     lyrics: bool,
@@ -35,6 +37,7 @@ def download(
     format: str,
     bitrate: int,
     verbose: bool,
+    explain: bool,
 ):
     """Download music from Spotify URLs via YouTube Music with metadata.
     
@@ -51,6 +54,7 @@ def download(
         format: Audio format for downloaded files
         bitrate: Audio bitrate in kbps (96, 128, 192, 256)
         verbose: Whether to show detailed debug information
+        explain: Whether to show score breakdown for each track without downloading
     """
     LoggerConfig.setup(level="DEBUG" if verbose else "INFO")
 
@@ -61,14 +65,14 @@ def download(
 
         if "album" in spotify_url:
             process_album(
-                spotify, searcher, downloader, spotify_url, lyrics, nfo, cover, format, bitrate
+                spotify, searcher, downloader, spotify_url, lyrics, nfo, cover, format, bitrate, explain
             )
         elif "playlist" in spotify_url:
             process_playlist(
                 spotify, searcher, downloader, spotify_url, lyrics, nfo, cover, format, bitrate
             )
         else:
-            process_track(spotify, searcher, downloader, spotify_url, lyrics, format, bitrate)
+            process_track(spotify, searcher, downloader, spotify_url, lyrics, format, bitrate, explain)
 
     except Exception as e:
         click.secho(f"Error: {str(e)}", fg="red", err=True)
