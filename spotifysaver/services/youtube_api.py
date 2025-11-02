@@ -106,9 +106,12 @@ class YoutubeMusicSearcher:
         Returns:
             str: YouTube Music URL if found, None otherwise
         """
-        query = f"{track.artists[0]} {track.name} {track.album_name}"
+        query = self._normalize(f"{track.artists[0]} {track.name} {track.album_name}")
         results = self.ytmusic.search(
-            query=query, filter="songs", limit=5, ignore_spelling=True
+            query=query,
+            filter="songs",
+            limit=5,
+            ignore_spelling=True
         )
         self.logger.debug(f"Exact match search results: {results}")
         return self._process_results(results, track, strict=True)
@@ -129,7 +132,9 @@ class YoutubeMusicSearcher:
         try:
             # Búsqueda del álbum
             album_results = self.ytmusic.search(
-                query=f"{track.album_name} {track.artists[0]}", filter="albums", limit=1
+                query=self._normalize(f"{track.artists[0]} {track.name} {track.album_name}"),
+                filter="albums",
+                limit=1
             )
 
             if not album_results:
@@ -169,7 +174,7 @@ class YoutubeMusicSearcher:
             str: YouTube Music URL if found, None otherwise
         """
         results = self.ytmusic.search(
-            query=f"{track.artists[0]} {track.name}",
+            query=self._normalize(f"{track.artists[0]} {track.name} {track.album_name}"),
             filter="songs",
             limit=10,
             ignore_spelling=False,  # Allow spelling corrections
@@ -195,10 +200,24 @@ class YoutubeMusicSearcher:
 
         scored_results = []
         for result in results:
+            yt_title = result.get("title", "Unknown")
+            yt_duration = result.get("duration", 0)
+            yt_video_id = result.get("videoId", "N/A")
+
+            # Normalización para comparación
+            normalized_yt_title = self._normalize(yt_title)
+            normalized_spotify_title = self._normalize(track.name)
+
+            # Logging detallado
+            self.logger.debug(f"Evaluating result: {yt_title} (duration: {yt_duration}s, videoId: {yt_video_id})")
+            self.logger.debug(f"Normalized titles: '{normalized_spotify_title}' vs '{normalized_yt_title}'")
+
             score = self._calculate_match_score(result, track, strict)
-            self.logger.debug(f"Score for {result.get('title', 'Unknown')} is {score}")
+            self.logger.debug(f"→ Match score: {score}")
+
             if score > 0:
                 scored_results.append((score, result))
+
 
         if not scored_results:
             self.logger.warning(
@@ -230,7 +249,9 @@ class YoutubeMusicSearcher:
         Returns:
             float: Match score between 0.0 and 1.0+
         """
-        try:            # 1. Duration match (30% of score)
+        try:
+            
+            # 1. Duration match (30% of score)
             duration_diff = abs(yt_result.get("duration_seconds", 0) - track.duration)
             duration_score = max(
                 0, 1 - (duration_diff / 10)
@@ -248,7 +269,8 @@ class YoutubeMusicSearcher:
 
             # 3. Title match (30% of score)
             title_similarity = self._similar(
-                str(yt_result.get("title", "")).lower(), track.name.lower()
+                self._normalize(str(yt_result.get("title", ""))),
+                self._normalize(track.name)
             )
             title_score = title_similarity * 0.3
 
