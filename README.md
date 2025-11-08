@@ -131,6 +131,36 @@ spotifysaver-api
 
 The server will run at `http://localhost:8000` by default. You can find the [API documentation here](API_IMPLEMENTATION_SUMMARY.md), which describes the technical aspects and usage in detail.
 
+## 🖥️ Web Interface (UI)
+
+SpotifySaver now includes a modern web interface that makes it easy to download music without using the command line:
+
+```bash
+# Start the web interface (includes API server)
+spotifysaver-ui
+```
+
+This will start both the API server and a web interface that you can access at `http://localhost:3000`. The web interface provides:
+
+- **Easy URL input**: Simply paste any Spotify URL (track, album, or playlist)
+- **Full configuration**: All download options available through an intuitive interface
+- **Real-time progress**: Monitor download progress and see detailed logs
+- **Responsive design**: Works on desktop and mobile devices
+- **Automatic browser opening**: Opens your default browser automatically
+
+### Web Interface Features:
+- ✅ URL validation for Spotify links
+- ✅ Configurable audio format (M4A/MP3) and bitrate
+- ✅ Toggle lyrics and NFO file generation
+- ✅ Custom output directory
+- ✅ Real-time download progress
+- ✅ Activity log with timestamps
+- ✅ Error handling and user feedback
+
+**Default Ports:**
+- Web Interface: `http://localhost:3000`
+- API Endpoint: `http://localhost:8000`
+
 
 ## 📂 Output Structure
 ```
