@@ -96,6 +96,8 @@ The **documentation for using the API**, on the other hand, can be found in this
 | `--format FORMAT` | Audio format                                          | `m4a` (default), `mp3`  |
 | `--cover`         | Saves the cover album in de directoy (.jpg)           | Flag (no value)         |
 | `--nfo`           | Generates a .nfo metadata file in the JellyFin format | Flag (no value)         |
+| `--explain`       | Show score breakdown for each track without downloading (for error analysis) | Flag (no value)         |
+| `--dry-run`       | Simulate download without saving files                | Flag (no value)         |
 
 ### show-log Options
 
