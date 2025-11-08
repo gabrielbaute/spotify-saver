@@ -19,7 +19,7 @@ to source the actual audio files, ensuring high-quality downloads with complete
 metadata preservation.
 """
 
-__version__ = "0.5.7"
+__version__ = "0.6.0"
 
 
 # Verify if ffmpeg is installed
