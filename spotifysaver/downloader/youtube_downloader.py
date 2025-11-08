@@ -2,37 +2,17 @@
 
 import logging
 import re
-from pathlib import Path
-from typing import Optional
-from enum import Enum
-
 import requests
 import yt_dlp
+from pathlib import Path
+from typing import Optional
 
 from spotifysaver.services import YoutubeMusicSearcher, LrclibAPI
 from spotifysaver.metadata import NFOGenerator, MusicFileMetadata
 from spotifysaver.models import Track, Album, Playlist
+from spotifysaver.enums import AudioFormat, Bitrate
 from spotifysaver.config import Config
 from spotifysaver.spotlog import get_logger
-
-logger = get_logger("YoutubeDownloader")
-
-
-class AudioFormat(Enum):
-    """Enum for supported audio formats."""
-
-    M4A = "m4a"
-    MP3 = "mp3"
-    OPUS = "opus"
-
-
-class Bitrate(Enum):
-    """Enum for supported audio bitrates."""
-
-    B96 = 96
-    B128 = 128
-    B192 = 192
-    B256 = 256
 
 
 class YouTubeDownloader:
@@ -53,6 +33,7 @@ class YouTubeDownloader:
         Args:
             base_dir: Base directory where music will be downloaded
         """
+        self.logger = get_logger(f"{self.__class__.__name__}")
         self.base_dir = Path(base_dir)
         self.base_dir.mkdir(exist_ok=True)
         self.searcher = YoutubeMusicSearcher()
@@ -127,7 +108,7 @@ class YouTubeDownloader:
         Returns:
             dict: yt-dlp configuration options
         """
-        is_verbose = logger.getEffectiveLevel() <= logging.DEBUG
+        is_verbose = self.logger.getEffectiveLevel() <= logging.DEBUG
         ytm_base_url = "https://music.youtube.com"
 
         # Use enum values instead of hardcoded validation
@@ -179,20 +160,7 @@ class YouTubeDownloader:
         Returns:
             YDLLogger: Custom logger for yt-dlp integration
         """
-
-        class YDLLogger:
-            def debug(self, msg):
-                logger.debug(f"[yt-dlp] {msg}")
-
-            def info(self, msg):
-                logger.info(f"[yt-dlp] {msg}")
-
-            def warning(self, msg):
-                logger.warning(f"[yt-dlp] {msg}")
-
-            def error(self, msg):
-                logger.error(f"[yt-dlp] {msg}")
-
+        from spotifysaver.spotlog import YDLLogger
         return YDLLogger()
 
     def _get_output_path(
@@ -244,7 +212,7 @@ class YouTubeDownloader:
             response = requests.get(track.cover_url, timeout=10)
             return response.content if response.status_code == 200 else None
         except Exception as e:
-            logger.error(f"Error downloading cover: {e}")
+            self.logger.error(f"Error downloading cover: {e}")
             return None
 
     def _save_lyrics(self, track: "Track", audio_path: Path) -> bool:
@@ -266,13 +234,13 @@ class YouTubeDownloader:
             lrc_path.write_text(lyrics, encoding="utf-8")
 
             if lrc_path.stat().st_size > 0:
-                logger.info(f"Lyrics saved in: {lrc_path}")
+                self.logger.info(f"Lyrics saved in: {lrc_path}")
                 return True
 
             return False
 
         except Exception as e:
-            logger.error(f"Error saving song lyrics: {str(e)}", exc_info=True)
+            self.logger.error(f"Error saving song lyrics: {str(e)}", exc_info=True)
             return False
 
     def _get_album_dir(self, album: "Album") -> Path:
@@ -302,7 +270,7 @@ class YouTubeDownloader:
             if response.status_code == 200:
                 output_path.write_bytes(response.content)
         except Exception as e:
-            logger.error(f"Error downloading artist cover: {e}")
+            self.logger.error(f"Error downloading artist cover: {e}")
 
     def _save_cover_album(self, url: str, output_path: Path):
         """Download and save album cover art.
@@ -319,7 +287,7 @@ class YouTubeDownloader:
             if response.status_code == 200:
                 output_path.write_bytes(response.content)
         except Exception as e:
-            logger.error(f"Error downloading cover: {e}")
+            self.logger.error(f"Error downloading cover: {e}")
 
     def _sanitize_filename(self, filename: str) -> str:
         """Sanitize filename for Windows compatibility.
@@ -374,7 +342,7 @@ class YouTubeDownloader:
         ydl_opts = self._get_ydl_opts(output_path, output_format, bitrate)
 
         if not yt_url:
-            logger.error(f"No match found for: {track.name}")
+            self.logger.error(f"No match found for: {track.name}")
             return None, None
 
         try:
@@ -395,13 +363,13 @@ class YouTubeDownloader:
                 success = self._save_lyrics(track, output_path)
                 updated_track = track.with_lyrics_status(success)
 
-            logger.info(f"Download completed: {output_path}")
+            self.logger.info(f"Download completed: {output_path}")
             return output_path, updated_track
 
         except Exception as e:
-            logger.error(f"Error downloading {track.name}: {e}", exc_info=True)
+            self.logger.error(f"Error downloading {track.name}: {e}", exc_info=True)
             if output_path.exists():
-                logger.debug(f"Removing corrupt file: {output_path}")
+                self.logger.debug(f"Removing corrupt file: {output_path}")
                 output_path.unlink()
             return None, None
 
@@ -437,12 +405,12 @@ class YouTubeDownloader:
 
         # Generar NFO después de descargar todos los tracks
         if nfo:
-            logger.info(f"Generating NFO for album: {album.name}")
+            self.logger.info(f"Generating NFO for album: {album.name}")
             NFOGenerator.generate(album, output_dir)
 
         # Download cover art
         if cover and album.cover_url:
-            logger.info(f"Downloading cover for album: {album.name}")
+            self.logger.info(f"Downloading cover for album: {album.name}")
             self._save_cover_album(album.cover_url, output_dir / "cover.jpg")
 
         pass
@@ -473,7 +441,7 @@ class YouTubeDownloader:
             tuple: (successful_downloads, total_tracks)
         """
         if not album.tracks:
-            logger.error("Álbum no contiene tracks.")
+            self.logger.error("Álbum no contiene tracks.")
             return 0, 0
 
         success = 0
@@ -496,7 +464,7 @@ class YouTubeDownloader:
                 if audio_path:
                     success += 1
             except Exception as e:
-                logger.error(f"Error en track {track.name}: {str(e)}")
+                self.logger.error(f"Error en track {track.name}: {str(e)}")
 
         # Generar metadatos solo si hay éxitos
         if success > 0:
@@ -536,10 +504,10 @@ class YouTubeDownloader:
 
         # Validación básica
         if not playlist.name:
-            logger.error("Playlist name is empty. Cannot create directory.")
+            self.logger.error("Playlist name is empty. Cannot create directory.")
             return False
         if not playlist.tracks:
-            logger.warning(f"Playlist '{playlist.name}' has no tracks.")
+            self.logger.warning(f"Playlist '{playlist.name}' has no tracks.")
             return False
 
         # Configuración inicial
@@ -562,21 +530,21 @@ class YouTubeDownloader:
                     success = True
             except Exception as e:
                 failed_tracks.append(track.name)
-                logger.error(
+                self.logger.error(
                     f"Error downloading track {track.name}: {e}"
                 )  # Download cover art (only if successful)
         if success and playlist.cover_url and cover:
-            logger.info(f"Downloading cover for playlist: {playlist.name}")
+            self.logger.info(f"Downloading cover for playlist: {playlist.name}")
             self._save_cover_album(playlist.cover_url, output_dir / "cover.jpg")
 
         # Generate NFO (only if successful)
         if success and nfo:
-            logger.info(f"Generating NFO for playlist: {playlist.name}")
+            self.logger.info(f"Generating NFO for playlist: {playlist.name}")
             NFOGenerator.generate(playlist, output_dir)
 
         # Log results
         if failed_tracks:
-            logger.warning(
+            self.logger.warning(
                 f"Failed downloads in playlist '{playlist.name}': {len(failed_tracks)}/{len(playlist.tracks)}. "
                 f"Ejemplos: {', '.join(failed_tracks[:3])}{'...' if len(failed_tracks) > 3 else ''}"
             )
@@ -607,7 +575,7 @@ class YouTubeDownloader:
             tuple: (successful_downloads, total_tracks)
         """
         if not playlist.name or not playlist.tracks:
-            logger.error("Playlist inválida: sin nombre o tracks vacíos")
+            self.logger.error("Playlist inválida: sin nombre o tracks vacíos")
             return 0, 0
 
         output_dir = self.base_dir / playlist.name
@@ -629,12 +597,12 @@ class YouTubeDownloader:
                 if updated_track:
                     success += 1
             except Exception as e:
-                logger.error(f"Error en {track.name}: {str(e)}")
+                self.logger.error(f"Error en {track.name}: {str(e)}")
 
         if success > 0 and cover and playlist.cover_url:
             try:
                 self._save_cover_album(playlist.cover_url, output_dir / "cover.jpg")
             except Exception as e:
-                logger.error(f"Error downloading playlist cover: {str(e)}")
+                self.logger.error(f"Error downloading playlist cover: {str(e)}")
 
         return success, len(playlist.tracks)

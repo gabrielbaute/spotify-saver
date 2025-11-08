@@ -7,13 +7,12 @@ from ytmusicapi import YTMusic
 
 from spotifysaver.models.track import Track
 from spotifysaver.spotlog import get_logger
+from spotifysaver.services.score_match_calculator import ScoreMatchCalculator
 from spotifysaver.services.errors.errors import (
     YouTubeAPIError,
     AlbumNotFoundError,
     InvalidResultError,
 )
-
-logger = get_logger("YouTubeMusicSearcher")
 
 
 class YoutubeMusicSearcher:
@@ -34,7 +33,9 @@ class YoutubeMusicSearcher:
         Sets up the YTMusic client and configures retry behavior.
         """
         self.ytmusic = YTMusic()
+        self.scorer = ScoreMatchCalculator()
         self.max_retries = 3
+        self.logger = get_logger(f"{self.__class__.__name__}")
 
     @staticmethod
     def _similar(a: str, b: str) -> float:
@@ -91,11 +92,11 @@ class YoutubeMusicSearcher:
 
         for strategy in search_strategies:
             if url := strategy(track):
-                logger.info(
+                self.logger.info(
                     f"Found track: {track.name} by {track.artists[0]} using {strategy.__name__}"
                 )
                 return url
-        logger.warning(f"No results found for {track.name} by {track.artists[0]}")
+        self.logger.warning(f"No results found for {track.name} by {track.artists[0]}")
         return None
 
     def _search_exact_match(self, track: Track) -> Optional[str]:
@@ -107,11 +108,14 @@ class YoutubeMusicSearcher:
         Returns:
             str: YouTube Music URL if found, None otherwise
         """
-        query = f"{track.artists[0]} {track.name} {track.album_name}"
+        query = self._normalize(f"{track.artists[0]} {track.name} {track.album_name}")
         results = self.ytmusic.search(
-            query=query, filter="songs", limit=5, ignore_spelling=True
+            query=query,
+            filter="songs",
+            limit=5,
+            ignore_spelling=True
         )
-        logger.debug(f"Exact match search results: {results}")
+        self.logger.debug(f"Exact match search results: {results}")
         return self._process_results(results, track, strict=True)
 
     def _search_album_context(self, track: Track) -> Optional[str]:
@@ -130,7 +134,9 @@ class YoutubeMusicSearcher:
         try:
             # Búsqueda del álbum
             album_results = self.ytmusic.search(
-                query=f"{track.album_name} {track.artists[0]}", filter="albums", limit=1
+                query=self._normalize(f"{track.artists[0]} {track.name} {track.album_name}"),
+                filter="albums",
+                limit=1
             )
 
             if not album_results:
@@ -170,7 +176,7 @@ class YoutubeMusicSearcher:
             str: YouTube Music URL if found, None otherwise
         """
         results = self.ytmusic.search(
-            query=f"{track.artists[0]} {track.name}",
+            query=self._normalize(f"{track.artists[0]} {track.name} {track.album_name}"),
             filter="songs",
             limit=10,
             ignore_spelling=False,  # Allow spelling corrections
@@ -191,87 +197,31 @@ class YoutubeMusicSearcher:
             str: YouTube Music URL of the best match, None if no valid matches
         """
         if not results:
-            logger.warning(f"No results found for {track.name} by {track.artists[0]}")
+            self.logger.warning(f"No results found for {track.name} by {track.artists[0]}")
             return None
 
         scored_results = []
         for result in results:
-            score = self._calculate_match_score(result, track, strict)
-            logger.debug(f"Score for {result.get('title', 'Unknown')} is {score}")
+            score = self.scorer._calculate_match_score(result, track, strict)
+            self.logger.debug(f"Score for {result.get('title', 'Unknown')} is {score}")
             if score > 0:
                 scored_results.append((score, result))
 
         if not scored_results:
-            logger.warning(
-                f"No valid matches found for {track.name} by {track.artists[0]}"
-            )
+            self.logger.warning(f"No valid matches found for {track.name} by {track.artists[0]}")
             return None
 
-        # Sort by descending score
         scored_results.sort(reverse=True, key=lambda x: x[0])
         best_match = scored_results[0][1]
-        logger.info(
+        self.logger.info(
             f"Best match for {track.name} by {track.artists[0]}: {best_match.get('title', 'Unknown')} with score {scored_results[0][0]}"
         )
         return f"https://music.youtube.com/watch?v={best_match['videoId']}"
 
-    def _calculate_match_score(
-        self, yt_result: Dict, track: Track, strict: bool
-    ) -> float:
-        """Improved scoring system for matching results.
-        
-        Calculates a score based on duration, artist overlap, title similarity,
-        and album matching.
-        
-        Args:
-            yt_result: YouTube Music search result
-            track: Original track to score against
-            strict: Whether to use strict scoring thresholds
-            
-        Returns:
-            float: Match score between 0.0 and 1.0+
-        """
-        try:            # 1. Duration match (30% of score)
-            duration_diff = abs(yt_result.get("duration_seconds", 0) - track.duration)
-            duration_score = max(
-                0, 1 - (duration_diff / 10)
-            )  # 1 if exact, 0 if >10s diff
-
-            # 2. Artist match (40% of score)
-            yt_artists = {
-                a["name"].lower()
-                for a in yt_result.get("artists", [])
-                if isinstance(a, dict)
-            }
-            sp_artists = {a.lower() for a in track.artists}
-            artist_overlap = len(yt_artists & sp_artists) / len(sp_artists)
-            artist_score = artist_overlap * 0.4
-
-            # 3. Title match (30% of score)
-            title_similarity = self._similar(
-                str(yt_result.get("title", "")).lower(), track.name.lower()
-            )
-            title_score = title_similarity * 0.3
-
-            # 4. Album bonus (safe type handling)
-            bonus = 0
-            album_data = yt_result.get("album")
-            if album_data:
-                album_name = (
-                    album_data["name"].lower()
-                    if isinstance(album_data, dict)
-                    else str(album_data).lower()
-                )
-                if track.album_name.lower() in album_name:
-                    bonus += 0.1
-
-            total_score = duration_score + artist_score + title_score + bonus
-            return total_score if total_score >= (0.7 if strict else 0.6) else 0
-
-        except Exception as e:
-            logger.error(f"Error calculating score: {str(e)}")
-            logger.debug(f"Problematic result: {yt_result}")
-            return 0
+    def search_raw(self, track: Track) -> List[Dict]:
+        """Return raw YouTube Music search results for a given track."""
+        query = f"{track.artists[0]} {track.name} {track.album_name or ''}"
+        return self.ytmusic.search(query, filter="songs")
 
     @lru_cache(maxsize=100)
     def search_track(self, track: Track) -> Optional[str]:
@@ -292,16 +242,16 @@ class YoutubeMusicSearcher:
                 return self._search_with_fallback(track)
 
             except AlbumNotFoundError as e:
-                logger.warning(f"Attempt {attempt}: {str(e)}")
+                self.logger.warning(f"Attempt {attempt}: {str(e)}")
                 last_error = e
             except InvalidResultError as e:
-                logger.error(f"Attempt {attempt}: Invalid API response - {str(e)}")
+                self.logger.error(f"Attempt {attempt}: Invalid API response - {str(e)}")
                 last_error = e
             except Exception as e:
-                logger.error(f"Attempt {attempt}: Unexpected error - {str(e)}")
+                self.logger.error(f"Attempt {attempt}: Unexpected error - {str(e)}")
                 last_error = e
 
-        logger.error(f"All attempts failed for '{track.name}'")
+        self.logger.error(f"All attempts failed for '{track.name}'")
         if last_error:
-            logger.info(f"Last error details: {str(last_error)}")
+            self.logger.info(f"Last error details: {str(last_error)}")
         return None

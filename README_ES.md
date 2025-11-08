@@ -95,8 +95,10 @@ La **documentación para el uso de la API**, por su parte, pueden ubicarla en es
 | `--lyrics`           | Descargar letras sincronizadas (.lrc)    | Flag (sin valor)             |
 | `--output DIR`       | Directorio de salida                     | Ruta válida                  |
 | `--format FORMATO`   | Formato de audio                         | `m4a` (default), `mp3`       |
-| `--cover`            | Descarga la portada del album (.jpg)     | Flag (no value)              |
-| `--nfo`              | Genera un archivo .nfo con la metadata (para Jellyfin)| Flag (no value) |
+| `--cover`            | Descarga la portada del album (.jpg)     | Flag (sin valor)              |
+| `--nfo`              | Genera un archivo .nfo con la metadata (para Jellyfin)| Flag (sin valor) |
+| `--explain`          | Muestra (sin descargar) los puntajes de cada opción en youtube| Flag (sin valor) |
+| `--dry-run`          | Simula la descarga de un link de spotify sin descargar nada| Flag (sin valor) |
 
 ### Opciones de show-log
 

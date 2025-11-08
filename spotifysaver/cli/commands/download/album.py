@@ -6,9 +6,22 @@ including progress tracking, metadata generation, and cover art download.
 
 import click
 from spotifysaver.downloader.youtube_downloader import YouTubeDownloader
+from spotifysaver.services import SpotifyAPI, YoutubeMusicSearcher, ScoreMatchCalculator
 
 
-def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, output_format, bitrate):
+def process_album(
+        spotify: SpotifyAPI, 
+        searcher: YoutubeMusicSearcher, 
+        downloader: YouTubeDownloader, 
+        url, 
+        lyrics, 
+        nfo, 
+        cover, 
+        output_format, 
+        bitrate, 
+        explain=False,
+        dry_run=False
+        ):
     """Process and download a complete Spotify album with progress tracking.
     
     Downloads all tracks from a Spotify album, showing a progress bar and
@@ -23,9 +36,58 @@ def process_album(spotify, searcher, downloader, url, lyrics, nfo, cover, output
         nfo: Whether to generate Jellyfin metadata files
         cover: Whether to download album cover art
         format: Audio format for downloaded files
+        bitrate: Audio bitrate in kbps (96, 128, 192, 256)
+        explain: Whether to show score breakdown for each track without downloading
     """
     album = spotify.get_album(url)
     click.secho(f"\nDownloading album: {album.name}", fg="cyan")
+
+    # Explain mode: show score breakdown without downloading
+    if explain:
+        scorer = ScoreMatchCalculator()
+        click.secho(f"\n🔍 Explaining matches for album: {album.name}", fg="cyan")
+
+        for track in album.tracks:
+            click.secho(f"\n🎵 Track: {track.name}", fg="yellow")
+            results = searcher.search_raw(track)
+            
+            if not results:
+                click.echo("  ⚠ No candidates found.")
+                continue
+            
+            for result in results:
+                explanation = scorer.explain_score(result, track, strict=True)
+                click.echo(f"  - Candidate: {explanation['yt_title']}")
+                click.echo(f"    Video ID: {explanation['yt_videoId']}")
+                click.echo(f"    Duration: {explanation['duration_score']}")
+                click.echo(f"    Artist:   {explanation['artist_score']}")
+                click.echo(f"    Title:    {explanation['title_score']}")
+                click.echo(f"    Album:    {explanation['album_bonus']}")
+                click.echo(f"    → Total:  {explanation['total_score']} (passed: {explanation['passed']})")
+                click.echo("-" * 40)
+        
+            best = max(results, key=lambda r: scorer.explain_score(r, track)["total_score"])
+            best_expl = scorer.explain_score(best, track)
+            click.secho(f"\n✅ Best candidate: {best_expl['yt_title']} (score: {best_expl['total_score']})", fg="green")
+
+        return
+
+    # Dry run mode: explain matches without downloading
+    if dry_run:
+        from spotifysaver.services.score_match_calculator import ScoreMatchCalculator
+
+        scorer = ScoreMatchCalculator()
+        click.secho(f"\n🧪 Dry run for album: {album.name}", fg="cyan")
+
+        for track in album.tracks:
+            result = searcher.search_track(track)
+            explanation = scorer.explain_score(result, track, strict=True)
+            click.secho(f"\n🎵 Track: {track.name}", fg="yellow")
+            click.echo(f"  → Selected candidate: {explanation['yt_title']}")
+            click.echo(f"    Video ID: {explanation['yt_videoId']}")
+            click.echo(f"    Total score: {explanation['total_score']} (passed: {explanation['passed']})")
+        return
+
 
     with click.progressbar(
         length=len(album.tracks),

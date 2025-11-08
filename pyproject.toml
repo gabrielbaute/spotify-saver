@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "spotifysaver"
-version = "0.5.7"
+version = "0.6.0"
 description = "Download Spotify tracks/albums with metadata via YouTube Music (Perfect for Jellyfin libraries!)"
 authors = ["Gabriel Baute <gabrielbaute@gmail.com>"]
 license = "MIT"
@@ -29,6 +29,10 @@ classifiers = [
     "Environment :: Console",
 ]
 packages = [{include = "spotifysaver"}]
+include = [
+    { path = "spotifysaver/ui/frontend/*", format = "sdist" },
+    { path = "spotifysaver/ui/frontend/*", format = "wheel" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.9 || ^3.10 || ^3.11 || ^3.12 || ^3.13"
@@ -51,6 +55,7 @@ mypy = "^1.5.1"
 [tool.poetry.scripts]
 spotifysaver = "spotifysaver.__main__:cli"
 spotifysaver-api = "spotifysaver.api.main:run_server"
+spotifysaver-ui = "spotifysaver.ui.main:run_ui_server"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
