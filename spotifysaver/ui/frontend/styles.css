@@ -12,7 +12,7 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 80%;
     margin: 0 auto;
     padding: 20px;
 }
@@ -227,6 +227,20 @@ select:focus {
     color: #3182ce;
 }
 
+.dashboard {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    align-items: start;
+}
+
+.right-column {
+    display: grid;
+    grid-template-rows: auto 1fr; /* status arriba, log ocupando el resto */
+    gap: 30px;
+}
+
+/* Responsivo */
 @media (max-width: 768px) {
     .container {
         padding: 10px;
@@ -244,5 +258,14 @@ select:focus {
     .status-section,
     .log-section {
         padding: 20px;
+    }
+
+    .dashboard {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .right-column {
+        grid-template-rows: auto auto;
+        gap: 20px;
     }
 }

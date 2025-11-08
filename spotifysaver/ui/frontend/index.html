@@ -13,7 +13,9 @@
             <p>Descarga música de Spotify con metadatos completos</p>
         </header>
 
-        <main>
+        <main class="dashboard">
+            <!-- Columna izquierda -->
+            <!-- Sección de configuración de descargas -->
             <div class="form-section">
                 <h2>Configuración de Descarga</h2>
                 
@@ -75,24 +77,31 @@
                 </button>
             </div>
 
-            <div class="status-section">
-                <h2>Estado de la Descarga</h2>
-                <div id="status-container">
-                    <div id="status-message">Esperando...</div>
-                    <div id="progress-container" class="hidden">
-                        <div id="progress-bar">
-                            <div id="progress-fill"></div>
+            <!-- Columna derecha -->
+            <div class="right-column">
+
+                <!-- Sección de estado de la descarga -->
+                <div class="status-section">
+                    <h2>Estado de la Descarga</h2>
+                    <div id="status-container">
+                        <div id="status-message">Esperando...</div>
+                        <div id="progress-container" class="hidden">
+                            <div id="progress-bar">
+                                <div id="progress-fill"></div>
+                            </div>
+                            <div id="progress-text">0%</div>
                         </div>
-                        <div id="progress-text">0%</div>
                     </div>
                 </div>
-            </div>
 
-            <div class="log-section">
-                <h2>Registro de Actividad</h2>
-                <div id="log-container">
-                    <div id="log-content"></div>
+                <!-- Sección de registro de actividad -->
+                <div class="log-section">
+                    <h2>Registro de Actividad</h2>
+                    <div id="log-container">
+                        <div id="log-content"></div>
+                    </div>
                 </div>
+
             </div>
         </main>
     </div>
