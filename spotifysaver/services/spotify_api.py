@@ -264,7 +264,7 @@ class SpotifyAPI:
                 duration=track["track"]["duration_ms"] // 1000,
                 uri=track["track"]["uri"],
                 artists=[a["name"] for a in track["track"]["artists"]],
-                album_artist=[a["name"] for a in track["album"]["artists"]],
+                album_artist=[a["name"] for a in track["track"]["album"]["artists"]],
                 album_name=(
                     track["track"]["album"]["name"] if track["track"]["album"] else None
                 ),
