@@ -163,7 +163,7 @@ class SpotifyAPI:
             duration=raw_data["duration_ms"] // 1000,
             uri=raw_data["uri"],
             artists=[a["name"] for a in raw_data["artists"]],
-            album_artist=[a["name"] for a in raw_data["album"]["artist"]],
+            album_artist=[a["name"] for a in raw_data["album"]["artists"]],
             album_name=raw_data["album"]["name"] if raw_data["album"] else None,
             release_date=(
                 raw_data["album"]["release_date"] if raw_data["album"] else "NA"
