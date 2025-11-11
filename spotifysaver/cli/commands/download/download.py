@@ -10,7 +10,7 @@ from pathlib import Path
 import click
 
 from spotifysaver.services import SpotifyAPI, YoutubeMusicSearcher
-from spotifysaver.downloader import YouTubeDownloader
+from spotifysaver.downloader import YouTubeDownloaderForCLI
 from spotifysaver.spotlog import LoggerConfig
 from spotifysaver.cli.commands.download.album import process_album
 from spotifysaver.cli.commands.download.playlist import process_playlist
@@ -63,7 +63,7 @@ def download(
     try:
         spotify = SpotifyAPI()
         searcher = YoutubeMusicSearcher()
-        downloader = YouTubeDownloader(base_dir=output)
+        downloader = YouTubeDownloaderForCLI(base_dir=output)
 
         if "album" in spotify_url:
             process_album(

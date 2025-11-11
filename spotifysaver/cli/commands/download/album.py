@@ -5,14 +5,14 @@ including progress tracking, metadata generation, and cover art download.
 """
 
 import click
-from spotifysaver.downloader.youtube_downloader import YouTubeDownloader
+from spotifysaver.downloader import YouTubeDownloader, YouTubeDownloaderForCLI
 from spotifysaver.services import SpotifyAPI, YoutubeMusicSearcher, ScoreMatchCalculator
 
 
 def process_album(
         spotify: SpotifyAPI, 
         searcher: YoutubeMusicSearcher, 
-        downloader: YouTubeDownloader, 
+        downloader: YouTubeDownloaderForCLI, 
         url, 
         lyrics, 
         nfo, 
