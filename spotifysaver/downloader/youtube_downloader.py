@@ -9,6 +9,7 @@ from typing import Optional
 
 from spotifysaver.services import YoutubeMusicSearcher, LrclibAPI
 from spotifysaver.metadata import NFOGenerator, MusicFileMetadata
+from spotifysaver.downloader.image_downloader import ImageDownloader
 from spotifysaver.models import Track, Album, Playlist
 from spotifysaver.enums import AudioFormat, Bitrate
 from spotifysaver.config import Config
@@ -38,6 +39,7 @@ class YouTubeDownloader:
         self.base_dir.mkdir(exist_ok=True)
         self.searcher = YoutubeMusicSearcher()
         self.lrc_client = LrclibAPI()
+        self.image_downloader = ImageDownloader()
 
     @staticmethod
     def string_to_audio_format(format_str: str) -> AudioFormat:
@@ -208,12 +210,7 @@ class YouTubeDownloader:
         """
         if not track.cover_url:
             return None
-        try:
-            response = requests.get(track.cover_url, timeout=10)
-            return response.content if response.status_code == 200 else None
-        except Exception as e:
-            self.logger.error(f"Error downloading cover: {e}")
-            return None
+        return self.image_downloader.get_image_from_url(track.cover_url)
 
     def _save_lyrics(self, track: "Track", audio_path: Path) -> bool:
         """Save synchronized lyrics as .lrc file.
@@ -266,9 +263,9 @@ class YouTubeDownloader:
 
         output_path = self.base_dir / "folder.jpg"
         try:
-            response = requests.get(url, timeout=10)
-            if response.status_code == 200:
-                output_path.write_bytes(response.content)
+            image = self.image_downloader.download_image(url, output_path)
+            if image:
+                self.logger.info(f"Artist cover saved in: {output_path}")
         except Exception as e:
             self.logger.error(f"Error downloading artist cover: {e}")
 
@@ -283,9 +280,9 @@ class YouTubeDownloader:
             return
 
         try:
-            response = requests.get(url, timeout=10)
-            if response.status_code == 200:
-                output_path.write_bytes(response.content)
+            image = self.image_downloader.download_image(url, output_path)
+            if image:
+                self.logger.info(f"Cover saved in: {output_path}")
         except Exception as e:
             self.logger.error(f"Error downloading cover: {e}")
 
