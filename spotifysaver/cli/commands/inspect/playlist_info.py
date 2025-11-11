@@ -23,9 +23,13 @@ def show_playlist_info(playlist: Playlist, verbose: bool):
                        cover URL and additional metadata
     """
     click.secho(f"\n🎧 Playlist: {playlist.name}", fg="green", bold=True)
-    click.echo(f"🛠 Creador: {playlist.owner}")
-    click.echo(f"📝 Descripción: {playlist.description or 'N/A'}")
+    click.echo(f"🛠 Creator: {playlist.owner}")
+    click.echo(f"📝 Description: {playlist.description or 'N/A'}")
     click.echo(f"🎵 Tracks: {len(playlist.tracks)}")
+    
+    click.echo("Tracklist:")
+    for track in playlist.tracks:
+        click.echo(f"  - {track.name} by {', '.join(track.artists)} ({track.duration // 60}:{track.duration % 60:02d})")
 
     if verbose:
         click.echo(f"\n🔍 Detalles técnicos:")
