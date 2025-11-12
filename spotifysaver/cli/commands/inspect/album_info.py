@@ -23,8 +23,8 @@ def show_album_info(album: Album, verbose: bool):
                        genres and additional metadata
     """
     click.secho(f"\n💿 Álbum: {album.name}", fg="magenta", bold=True)
-    click.echo(f"👥 Artista(s): {', '.join(album.artists)}")
-    click.echo(f"📅 Fecha de lanzamiento: {album.release_date}")
+    click.echo(f"👥 Artist(s): {', '.join(album.artists)}")
+    click.echo(f"📅 Release date: {album.release_date}")
     click.echo(f"🎶 Tracks: {len(album.tracks)}")
 
     click.echo("Tracklist:")

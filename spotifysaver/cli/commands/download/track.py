@@ -5,13 +5,13 @@ including YouTube Music search and metadata application.
 """
 
 import click
-from spotifysaver.downloader.youtube_downloader import YouTubeDownloader
+from spotifysaver.downloader import YouTubeDownloaderForCLI, YouTubeDownloader
 from spotifysaver.services import SpotifyAPI, YoutubeMusicSearcher, ScoreMatchCalculator
 
 def process_track(
         spotify: SpotifyAPI, 
         searcher: YoutubeMusicSearcher, 
-        downloader: YouTubeDownloader, 
+        downloader: YouTubeDownloaderForCLI, 
         url, 
         lyrics, 
         output_format, 
@@ -75,12 +75,30 @@ def process_track(
         click.echo(f"    Total score: {explanation['total_score']} (passed: {explanation['passed']})")
         return
 
-    audio_path, updated_track = downloader.download_track(
-        track, 
-        output_format=YouTubeDownloader.string_to_audio_format(output_format), 
-        bitrate=YouTubeDownloader.int_to_bitrate(bitrate), 
-        download_lyrics=lyrics
-    )
+    with click.progressbar(
+        length=1,
+        label="  Processing",
+        fill_char="█",
+        show_percent=True,
+        item_show_func=lambda t: t.name[:25] + "..." if t else "",
+    ) as bar:
+
+        def update_progress(idx, total, name):
+            bar.label = (
+                f"  Downloading: {name[:20]}..."
+                if len(name) > 20
+                else f"  Downloading: {name}"
+            )
+            bar.update(1)
+
+        audio_path, updated_track = downloader.download_track_cli(
+            track,
+            output_format=YouTubeDownloader.string_to_audio_format(output_format),
+            bitrate=YouTubeDownloader.int_to_bitrate(bitrate),
+            download_lyrics=lyrics,
+            progress_callback=update_progress,
+        )
+
 
     if audio_path:
         msg = f"Downloaded: {track.name}"
