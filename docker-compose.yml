@@ -13,7 +13,7 @@ services:
       - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
       - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI}
     volumes:
-      - /Users/mralexsaavedra/Downloads/SpotifySaver:/music
+      - ./music:/music
       - ./config:/config
     command: ["spotifysaver-ui"]
     restart: unless-stopped
