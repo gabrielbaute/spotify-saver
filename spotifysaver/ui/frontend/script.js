@@ -1,7 +1,7 @@
 class SpotifySaverUI {
     constructor() {
-        this.apiUrl = 'http://localhost:8000/api/v1';
-        this.apiUrlHealth = 'http://localhost:8000/health';
+        this.apiUrl = `${window.location.protocol}//${window.location.hostname}:8000/api/v1`;
+        this.apiUrlHealth = `${window.location.protocol}//${window.location.hostname}:8000/health`;
         this.downloadInProgress = false;
         this.eventSource = null;
 
