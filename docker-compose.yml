@@ -1,0 +1,19 @@
+services:
+  spotifysaver:
+    build:
+      context: .
+      args:
+        HOST: 0.0.0.0
+    container_name: spotifysaver
+    ports:
+      - "3000:3000"
+      - "8000:8000"
+    environment:
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+      - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI}
+    volumes:
+      - /Users/mralexsaavedra/Downloads/SpotifySaver:/music
+      - ./config:/config
+    command: ["spotifysaver-ui"]
+    restart: unless-stopped
