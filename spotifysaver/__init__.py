@@ -19,7 +19,7 @@ to source the actual audio files, ensuring high-quality downloads with complete
 metadata preservation.
 """
 
-__version__ = "0.6.2"
+__version__ = "0.6.3"
 
 
 # Verify if ffmpeg is installed
@@ -30,7 +30,10 @@ def check_ffmpeg_installed():
     """Check if ffmpeg is installed on the system."""
     try:
         subprocess.run(
-            ["ffmpeg", "-version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
+            ["ffmpeg", "-version"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True,
         )
         return True
     except FileNotFoundError:
