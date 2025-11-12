@@ -1,10 +1,7 @@
 services:
   spotifysaver:
-    build:
-      context: .
-      args:
-        HOST: 0.0.0.0
     container_name: spotifysaver
+    image: gabrielbaute/spotifysaver:latest
     ports:
       - "3000:3000"
       - "8000:8000"
