@@ -53,6 +53,9 @@ class Config:
     # YouTube cookies file for bypassing age restrictions
     YTDLP_COOKIES_PATH = os.getenv("YTDLP_COOKIES_PATH", None)
 
+    # Downloader configuration
+    DOWNLOAD_TIMEOUT = os.getenv("DOWNLOAD_TIMEOUT", 10)
+
     @classmethod
     def validate(cls):
         """Validate that critical environment variables are configured.

@@ -5,14 +5,14 @@ including progress tracking and optional metadata generation.
 """
 
 import click
-from spotifysaver.downloader.youtube_downloader import YouTubeDownloader
+from spotifysaver.downloader import YouTubeDownloader, YouTubeDownloaderForCLI
 from spotifysaver.services import SpotifyAPI, YoutubeMusicSearcher, ScoreMatchCalculator
 
 
 def process_playlist(
         spotify: SpotifyAPI, 
         searcher: YoutubeMusicSearcher, 
-        downloader: YouTubeDownloader, 
+        downloader: YouTubeDownloaderForCLI, 
         url, 
         lyrics, 
         nfo, 

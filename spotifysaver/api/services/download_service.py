@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict, Optional, Callable, Any
 
 from ...services import SpotifyAPI, YoutubeMusicSearcher
-from ...downloader import YouTubeDownloader
+from ...downloader import YouTubeDownloader, YouTubeDownloaderForCLI
 from ...enums import AudioFormat, Bitrate
 from ...spotlog import get_logger
 from ..config import APIConfig
@@ -45,7 +45,7 @@ class DownloadService:
         # Initialize services
         self.spotify = SpotifyAPI()
         self.searcher = YoutubeMusicSearcher()
-        self.downloader = YouTubeDownloader(base_dir=self.output_dir)
+        self.downloader = YouTubeDownloaderForCLI(base_dir=self.output_dir)
 
     async def download_from_url(
         self,
@@ -175,7 +175,7 @@ class DownloadService:
 
     def _download_track_sync(self, track):
         """Synchronous track download helper."""
-        return self.downloader.download_track(
+        return self.downloader.download_track_cli(
             track, 
             output_format=self.output_format, 
             bitrate=self.bit_rate,

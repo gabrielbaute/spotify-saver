@@ -1,26 +1,29 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpotifySaver - Descargador de Música</title>
+    <title>SpotifySaver - Save your music...</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🎵 SpotifySaver</h1>
-            <p>Descarga música de Spotify con metadatos completos</p>
-        </header>
+    <!-- Header -->
+    <header>
+        <h1>🎵 SpotifySaver</h1>
+        <p>Download your music directly to your Jellyfin directory (or your preferred self-hosted music service)</p>
+    </header>
 
+    <!-- Main content -->
+    <div class="container">
         <main class="dashboard">
-            <!-- Columna izquierda -->
-            <!-- Sección de configuración de descargas -->
+            <!-- Left column -->
+            
+            <!-- Settings download section -->
             <div class="form-section">
-                <h2>Configuración de Descarga</h2>
+                <h2>Download Settings</h2>
                 
                 <div class="form-group">
-                    <label for="spotify-url">URL de Spotify:</label>
+                    <label for="spotify-url">Spotify URL:</label>
                     <input 
                         type="url" 
                         id="spotify-url" 
@@ -29,7 +32,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="output-dir">Directorio de Salida:</label>
+                    <label for="output-dir">Output Directory:</label>
                     <input 
                         type="text" 
                         id="output-dir" 
@@ -39,17 +42,18 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="format">Formato de Audio:</label>
+                        <label for="format">Audio Format:</label>
                         <select id="format">
-                            <option value="m4a">M4A (Recomendado)</option>
+                            <option value="m4a">M4A (Recommended)</option>
                             <option value="mp3">MP3</option>
+                            <option value="opus">OPUS</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label for="bitrate">Bitrate:</label>
                         <select id="bitrate">
-                            <option value="best">Mejor Calidad</option>
+                            <option value="best">Best Quality (Recommended)</option>
                             <option value="256">256 kbps</option>
                             <option value="192">192 kbps</option>
                             <option value="128">128 kbps</option>
@@ -61,30 +65,30 @@
                 <div class="form-group">
                     <label class="checkbox-label">
                         <input type="checkbox" id="include-lyrics" checked>
-                        Incluir Letras
+                        Include Lyrics
                     </label>
                 </div>
 
                 <div class="form-group">
                     <label class="checkbox-label">
                         <input type="checkbox" id="create-nfo" checked>
-                        Crear archivos NFO (Jellyfin/Kodi)
+                        Create NFO files (Jellyfin/Kodi)
                     </label>
                 </div>
 
                 <button id="download-btn" class="download-btn">
-                    🎵 Iniciar Descarga
+                    🎵 Start Download
                 </button>
             </div>
 
-            <!-- Columna derecha -->
+            <!-- Right column -->
             <div class="right-column">
 
-                <!-- Sección de estado de la descarga -->
+                <!-- Download progress section -->
                 <div class="status-section">
-                    <h2>Estado de la Descarga</h2>
+                    <h2>Download Status</h2>
                     <div id="status-container">
-                        <div id="status-message">Esperando...</div>
+                        <div id="status-message">Waiting...</div>
                         <div id="progress-container" class="hidden">
                             <div id="progress-bar">
                                 <div id="progress-fill"></div>
@@ -94,9 +98,18 @@
                     </div>
                 </div>
 
-                <!-- Sección de registro de actividad -->
+                <!-- Sección de inspección -->
+                <div class="inspect-section">
+                    <h2>Details</h2>
+                    <div id="inspect-container">
+                        <div id="inspect-message">Awaiting inspection...</div>
+                        <div id="inspect-details" class="hidden"></div>
+                    </div>
+                </div>
+
+                <!-- Log section -->
                 <div class="log-section">
-                    <h2>Registro de Actividad</h2>
+                    <h2>Activity Log</h2>
                     <div id="log-container">
                         <div id="log-content"></div>
                     </div>
@@ -106,6 +119,10 @@
         </main>
     </div>
 
+    <!-- Footer -->
+    <footer class="main-footer">
+        <p> 100% Open Source - Check our repo: <a href="https://github.com/gabrielbaute/spotify-saver">SpotifySaver</a></p>
+    </footer>
     <script src="script.js"></script>
 </body>
 </html>
