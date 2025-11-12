@@ -9,6 +9,8 @@ services:
       - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
       - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
       - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI}
+      - SPOTIFYSAVER_API_HOST=0.0.0.0
+      - SPOTIFYSAVER_UI_HOST=0.0.0.0
     volumes:
       - ./music:/music
       - ./config:/config
