@@ -240,6 +240,33 @@ select:focus {
     gap: 30px;
 }
 
+/* Inspection section */
+.inspect-section {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    min-height: 100px;
+}
+
+#inspect-details ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+#inspect-message {
+    color: #4a5568;
+    font-size: 14px;
+}
+
+
+#inspect-details li {
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #2d3748;
+}
+
+
 /* Responsivo */
 @media (max-width: 768px) {
     .container {

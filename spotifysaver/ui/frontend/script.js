@@ -27,12 +27,12 @@ class SpotifySaverUI {
         try {
             const response = await fetch(this.apiUrlHealth);
             if (response.ok) {
-                this.updateStatus('API conectada y lista', 'success');
+                this.updateStatus('API connected and ready', 'success');
             } else {
-                this.updateStatus('Error de conexión con la API', 'error');
+                this.updateStatus('API connection error', 'error');
             }
         } catch (error) {
-            this.updateStatus('API no disponible. Asegúrate de que esté ejecutándose.', 'error');
+            this.updateStatus('API not available. Make sure it is running.', 'error');
         }
     }
 
@@ -55,12 +55,12 @@ class SpotifySaverUI {
         const formData = this.getFormData();
         
         if (!formData.spotify_url) {
-            this.updateStatus('Por favor, ingresa una URL de Spotify', 'error');
+            this.updateStatus('Please enter a valid Spotify URL', 'error');
             return false;
         }
         
         if (!formData.spotify_url.includes('spotify.com')) {
-            this.updateStatus('La URL debe ser de Spotify', 'error');
+            this.updateStatus('The URL must be from Spotify.', 'error');
             return false;
         }
         
@@ -79,38 +79,50 @@ class SpotifySaverUI {
         this.downloadInProgress = true;
         this.updateUI(true);
         this.clearLog();
+        this.clearInspect();
         
         const formData = this.getFormData();
         
         try {
-            this.updateStatus('Iniciando descarga...', 'info');
-            this.addLogEntry('Enviando solicitud de descarga...', 'info');
-            
+            // Paso 1: inspección
+            this.updateStatus('Inspecting URL...', 'info');
+            const inspectResponse = await fetch(`${this.apiUrl}/inspect?spotify_url=${encodeURIComponent(formData.spotify_url)}`);
+            if (!inspectResponse.ok) {
+                throw new Error('Error inspecting URL');
+            }
+            const inspectData = await inspectResponse.json();
+            this.renderInspectData(inspectData);
+        
+            // Esperar un segundo antes de iniciar la descarga
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Paso 2: iniciar descarga
+            this.updateStatus('Starting download...', 'info');
+            this.addLogEntry('Sending download request...', 'info');
+
             const response = await fetch(`${this.apiUrl}/download`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.detail || 'Error en la descarga');
+                throw new Error(errorData.detail || 'Download error');
             }
 
             const result = await response.json();
-            
+
             if (result.task_id) {
-                this.addLogEntry(`Descarga iniciada con ID: ${result.task_id}`, 'success');
+                this.addLogEntry(`Download started with ID: ${result.task_id}`, 'success');
                 this.startProgressMonitoring(result.task_id);
             } else {
-                this.updateStatus('Descarga completada exitosamente', 'success');
-                this.addLogEntry('Descarga completada', 'success');
+                this.updateStatus('Download completed successfully', 'success');
+                this.addLogEntry('Download complete', 'success');
                 this.downloadInProgress = false;
                 this.updateUI(false);
             }
-            
+
         } catch (error) {
             this.updateStatus(`Error: ${error.message}`, 'error');
             this.addLogEntry(`Error: ${error.message}`, 'error');
@@ -132,24 +144,24 @@ class SpotifySaverUI {
                     
                     if (status.status === 'completed') {
                         this.updateProgress(100);
-                        this.updateStatus('Descarga completada exitosamente', 'success');
-                        this.addLogEntry('Descarga completada', 'success');
+                        this.updateStatus('Download completed successfully', 'success');
+                        this.addLogEntry('Download complete', 'success');
                         this.downloadInProgress = false;
                         this.updateUI(false);
                         return;
                     } else if (status.status === 'failed') {
-                        this.updateStatus(`Error: ${status.message || 'Descarga fallida'}`, 'error');
-                        this.addLogEntry(`Error: ${status.message || 'Descarga fallida'}`, 'error');
+                        this.updateStatus(`Error: ${status.message || 'Download failed'}`, 'error');
+                        this.addLogEntry(`Error: ${status.message || 'Download failed'}`, 'error');
                         this.downloadInProgress = false;
                         this.updateUI(false);
                         return;
                     } else if (status.status === 'processing') {
                         const currentProgress = status.progress || 0;
                         this.updateProgress(currentProgress);
-                        this.updateStatus(`Descargando... ${Math.round(currentProgress)}%`, 'info');
+                        this.updateStatus(`Downloading... ${Math.round(currentProgress)}%`, 'info');
                         
                         if (status.current_track) {
-                            this.addLogEntry(`Descargando: ${status.current_track}`, 'info');
+                            this.addLogEntry(`Downloading: ${status.current_track}`, 'info');
                         }
                     }
                     
@@ -178,14 +190,14 @@ class SpotifySaverUI {
             if (progress >= 100) {
                 progress = 100;
                 this.updateProgress(progress);
-                this.updateStatus('Descarga completada exitosamente', 'success');
-                this.addLogEntry('Descarga completada', 'success');
+                this.updateStatus('Download completed successfully', 'success');
+                this.addLogEntry('Download complete', 'success');
                 this.downloadInProgress = false;
                 this.updateUI(false);
                 clearInterval(interval);
             } else {
                 this.updateProgress(progress);
-                this.updateStatus(`Descargando... ${Math.round(progress)}%`, 'info');
+                this.updateStatus(`Downloading... ${Math.round(progress)}%`, 'info');
                 
                 // Simular mensajes de progreso
                 if (Math.random() > 0.7) {
@@ -248,6 +260,45 @@ class SpotifySaverUI {
         const logContent = document.getElementById('log-content');
         logContent.innerHTML = '';
     }
+
+    renderInspectData(data) {
+        const container = document.getElementById('inspect-details');
+        const message = document.getElementById('inspect-message');
+        container.innerHTML = '';
+
+        if (data.tracks) {
+            const header = document.createElement('h3');
+            header.textContent = `${data.name} (${data.total_tracks} tracks)`;
+            container.appendChild(header);
+
+            const list = document.createElement('ul');
+            data.tracks.forEach(t => {
+                const li = document.createElement('li');
+                li.textContent = `${t.number}. ${t.name} — ${t.artists.join(', ')} [${Math.floor(t.duration/60)}:${(t.duration%60).toString().padStart(2,'0')}]`;
+                list.appendChild(li);
+            });
+            container.appendChild(list);
+        } else if (data.name && data.artists) {
+            container.innerHTML = `
+                <p><strong>${data.name}</strong> — ${data.artists.join(', ')}</p>
+                <p>Álbum: ${data.album_name}</p>
+                <p>Duración: ${Math.floor(data.duration/60)}:${(data.duration%60).toString().padStart(2,'0')}</p>
+            `;
+        }
+
+        message.classList.add('hidden');
+        container.classList.remove('hidden');
+    }
+
+    clearInspect() {
+        const container = document.getElementById('inspect-details');
+        const message = document.getElementById('inspect-message');
+        container.innerHTML = '';
+        message.textContent = 'Esperando inspección...';
+        message.classList.remove('hidden');
+        container.classList.add('hidden');
+    }
+
 }
 
 // Inicializar la aplicación cuando se carga la página
