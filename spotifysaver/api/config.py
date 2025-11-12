@@ -8,14 +8,7 @@ class APIConfig:
     """Configuration settings for the FastAPI application."""
 
     # CORS settings
-    ALLOWED_ORIGINS: List[str] = [
-        "http://localhost",
-        "http://localhost:3000",
-        "http://localhost:8080",
-        "http://127.0.0.1",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:8080",
-    ]
+    ALLOWED_ORIGINS: List[str] = ["*"]
 
     # API settings
     DEFAULT_OUTPUT_DIR: str = "Music"
