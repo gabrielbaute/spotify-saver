@@ -2,6 +2,8 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![PyPI Version](https://img.shields.io/pypi/v/spotifysaver?color=blue&logo=pypi&logoColor=white)](https://pypi.org/project/spotifysaver/)
+[![Docker](https://img.shields.io/badge/Docker-Available-blue?logo=docker&logoColor=white)](https://github.com/gabrielbaute/spotify-saver/pkgs/container/spotify-saver)
+[![GitHub Container Registry](https://img.shields.io/badge/ghcr.io-Auto--Build-green?logo=github)](https://github.com/gabrielbaute/spotify-saver/pkgs/container/spotify-saver)
 [![FFmpeg](https://img.shields.io/badge/FFmpeg-Required-orange?logo=ffmpeg&logoColor=white)](https://ffmpeg.org/)
 [![yt-dlp](https://img.shields.io/badge/yt--dlp-2023.7.6%2B-red)](https://github.com/yt-dlp/yt-dlp)
 [![YouTube Music](https://img.shields.io/badge/YouTube_Music-API-yellow)](https://ytmusicapi.readthedocs.io/)
@@ -24,8 +26,10 @@ Read this file in [Spanish](README_ES.md)
 - ✅ Generation of Jellyfin-compatible `.info` files (Still some things to work on here! ⚠️)
 - ✅ Automatic folder structure (Artist/Album)
 - ✅ Command-line interface (CLI)
+- ✅ Web interface (UI) with real-time progress
+- ✅ RESTful API for integrations
+- ✅ Docker support with auto-builds
 - ✅ Playlist support
-- ✅ API
 - ✅ MP3 Conversion
 - ✅ Support for multiple bitrates (128, 180, 220, etc.)
 
@@ -162,6 +166,129 @@ This will start both the API server and a web interface that you can access at `
 **Default Ports:**
 - Web Interface: `http://localhost:3000`
 - API Endpoint: `http://localhost:8000`
+
+## 🐳 Docker Support
+
+SpotifySaver is available as a Docker container with full web interface support. Choose between GitHub Container Registry or building locally.
+
+### 🚀 Quick Start with Docker Compose
+
+1. **Create configuration files:**
+```bash
+# Create directories
+mkdir -p music config
+
+# Create environment file
+cat > .env << EOF
+SPOTIFY_CLIENT_ID=your_client_id_here
+SPOTIFY_CLIENT_SECRET=your_client_secret_here
+SPOTIFY_REDIRECT_URI=http://localhost:8000/callback
+EOF
+```
+
+2. **Run with Docker Compose:**
+```bash
+# Using pre-built image from GitHub Registry
+docker compose up -d
+
+# Or build locally
+docker compose up --build
+```
+
+3. **Access the web interface:**
+   - 🌐 **Web UI**: http://localhost:3000
+   - 🔧 **API**: http://localhost:8000
+
+### 📦 Using GitHub Container Registry
+
+**Pull and run directly:**
+```bash
+# Pull latest version
+docker pull ghcr.io/gabrielbaute/spotify-saver:latest
+
+# Run container
+docker run -d \
+  --name spotifysaver \
+  -p 3000:3000 \
+  -p 8000:8000 \
+  -v ./music:/music \
+  -v ./config:/config \
+  -e SPOTIFY_CLIENT_ID=your_client_id \
+  -e SPOTIFY_CLIENT_SECRET=your_client_secret \
+  ghcr.io/gabrielbaute/spotify-saver:latest
+```
+
+**Available tags:**
+- `latest` - Latest stable release
+- `0.6.3-test-2` - Specific version
+- `0.6` - Major.minor version
+
+### 🔧 Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SPOTIFY_CLIENT_ID` | Spotify API Client ID | **Required** |
+| `SPOTIFY_CLIENT_SECRET` | Spotify API Client Secret | **Required** |
+| `SPOTIFY_REDIRECT_URI` | Callback URL | `http://localhost:8000/callback` |
+| `UI_PORT` | Web interface port | `3000` |
+| `API_PORT` | API server port | `8000` |
+| `MUSIC_DIR` | Host music directory | `./music` |
+| `CONFIG_DIR` | Host config directory | `./config` |
+| `LOG_LEVEL` | Logging level | `INFO` |
+
+### 🛠️ Custom Docker Compose Configuration
+
+```yaml
+services:
+  spotifysaver:
+    container_name: spotifysaver
+    image: ghcr.io/gabrielbaute/spotify-saver:latest
+    ports:
+      - "${UI_PORT:-3000}:3000"
+      - "${API_PORT:-8000}:8000"
+    environment:
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+      - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI:-http://localhost:8000/callback}
+      - SPOTIFYSAVER_LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ${MUSIC_DIR:-./music}:/music
+      - ${CONFIG_DIR:-./config}:/config
+      - spotifysaver_logs:/logs
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  spotifysaver_logs:
+```
+
+### 🔨 Building Locally
+
+```bash
+# Clone repository
+git clone https://github.com/gabrielbaute/spotify-saver.git
+cd spotify-saver
+
+# Build image
+docker build -t spotify-saver .
+
+# Run container
+docker run -d \
+  --name spotifysaver \
+  -p 3000:3000 \
+  -p 8000:8000 \
+  -v ./music:/music \
+  -v ./config:/config \
+  -e SPOTIFY_CLIENT_ID=your_client_id \
+  -e SPOTIFY_CLIENT_SECRET=your_client_secret \
+  spotify-saver
+```
 
 
 ## 📂 Output Structure
