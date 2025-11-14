@@ -1,16 +1,39 @@
 services:
   spotifysaver:
     container_name: spotifysaver
-    image: gabrielbaute/spotifysaver:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "3000:3000"
-      - "8000:8000"
+      - "${UI_PORT:-3000}:3000"
+      - "${API_PORT:-8000}:8000"
     environment:
+      # Spotify API (requerido)
       - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
       - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
-      - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI}
+      - SPOTIFY_REDIRECT_URI=${SPOTIFY_REDIRECT_URI:-http://localhost:8000/callback}
+      # Configuración de la app
+      - SPOTIFYSAVER_LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - YTDLP_FORMAT=${YTDLP_FORMAT:-best[ext=m4a]/best}
+      # Configurar cookies en directorio escribible
+      - YTDLP_COOKIES_PATH=/config/cookies.txt
     volumes:
-      - ./music:/music
-      - ./config:/config
+      - ${MUSIC_DIR:-./music}:/music
+      - ${CONFIG_DIR:-./config}:/config
+      - spotifysaver_logs:/logs
     command: ["spotifysaver-ui"]
     restart: unless-stopped
+    # Configuración de seguridad
+    security_opt:
+      - no-new-privileges:true
+    # Healthcheck
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+# Volúmenes
+volumes:
+  spotifysaver_logs:
