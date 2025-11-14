@@ -3,9 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     tags:
-      - '*'  # Triggers on version tags like v1.0.0
-  release:
-    types: [published]
+      - '*'  # Triggers on any tag
 
 env:
   REGISTRY: ghcr.io
