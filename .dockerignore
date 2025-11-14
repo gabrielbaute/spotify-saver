@@ -9,3 +9,33 @@ __pycache__/
 *.DS_Store
 node_modules/
 .dockerignore
+# Python virtual environments
+venv/
+env/
+.venv/
+.env/
+# Logs and temporary files
+logs/
+*.log
+.pytest_cache/
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+# OS files
+Thumbs.db
+# Development files
+.coverage
+.tox/
+dist/
+build/
+*.egg-info/
+# Docker files
+docker-compose.override.yml
+# Music and config directories (should be mounted)
+music/
+Music/
+config/
+test_output/
+string/
