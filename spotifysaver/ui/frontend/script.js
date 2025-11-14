@@ -1,12 +1,13 @@
 class SpotifySaverUI {
     constructor() {
-        this.apiUrl = 'http://localhost:8000/api/v1';
-        this.apiUrlHealth = 'http://localhost:8000/health';
+        this.apiUrl = `${window.location.protocol}//${window.location.hostname}:8000/api/v1`;
+        this.apiUrlHealth = `${window.location.protocol}//${window.location.hostname}:8000/health`;
         this.downloadInProgress = false;
         this.eventSource = null;
-        
+
         this.initializeEventListeners();
         this.checkApiStatus();
+        this.setDefaultOutputDir();
     }
 
     initializeEventListeners() {
@@ -36,13 +37,28 @@ class SpotifySaverUI {
         }
     }
 
+    async setDefaultOutputDir() {
+        try {
+            const response = await fetch(`${this.apiUrl}/config/output_dir`);
+            if (response.ok) {
+                const data = await response.json();
+                const outputDirInput = document.getElementById('output-dir');
+                if (outputDirInput && data.output_dir) {
+                    outputDirInput.value = data.output_dir;
+                }
+            }
+        } catch (error) {
+            outputDirInput.value = 'Music';
+        }
+    }
+
     getFormData() {
         const bitrateValue = document.getElementById('bitrate').value;
         const bitrate = bitrateValue === 'best' ? 256 : parseInt(bitrateValue);
         
         return {
             spotify_url: document.getElementById('spotify-url').value,
-            output_dir: document.getElementById('output-dir').value || 'Music',
+            output_dir: document.getElementById('output-dir').value,
             output_format: document.getElementById('format').value,
             bit_rate: bitrate,
             download_lyrics: document.getElementById('include-lyrics').checked,

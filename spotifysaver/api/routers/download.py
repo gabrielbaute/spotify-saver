@@ -20,6 +20,8 @@ from ..schemas import (
 from ..services import DownloadService
 from ...services import SpotifyAPI
 from ...spotlog import get_logger
+from ..config import APIConfig
+
 
 logger = get_logger("API")
 router = APIRouter()
@@ -248,3 +250,9 @@ async def download_task(task_id: str, request: DownloadRequest):
         task.status = "failed"
         task.error_message = str(e)
         task.completed_at = datetime.now().isoformat()
+
+
+@router.get("/config/output_dir")
+async def get_default_output_dir():
+    """Returns the default value of the output directory."""
+    return {"output_dir": APIConfig.get_output_dir()}

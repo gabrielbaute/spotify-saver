@@ -1,0 +1,9 @@
+services:
+  spotifysaver:
+    build:
+      context: .
+    image: spotifysaver:dev
+    volumes:
+      - ./music:/music
+    environment:
+      - LOG_LEVEL="DEBUG"
