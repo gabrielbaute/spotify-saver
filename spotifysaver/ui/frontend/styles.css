@@ -248,7 +248,11 @@ select:focus {
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     min-height: 100px;
 }
-
+#inspect-container {
+    margin-top: 20px;
+    height: 300px;
+    overflow-y: auto;
+}
 #inspect-details ul {
     list-style: none;
     padding-left: 0;
