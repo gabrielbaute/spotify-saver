@@ -1,10 +1,8 @@
-name: Functionality request
-type: issue
+name: ✨ Functionality request
 description: Suggest an improvement or new feature
 title: "[FEAT] Brief description of functionality"
-milestone: ''
-labels: enhancement
-assignees: ''
+labels: ["feature", "enhancement"]
+assignees: []
 
 body:
   - type: markdown

@@ -1,0 +1,46 @@
+name: 🔗 Integration Request
+description: Propose integration with an external service or API
+title: "[INTEGRATION] Brief description of service"
+labels: ["integration", "enhancement"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please provide details about the service you want to integrate.
+
+  - type: input
+    id: service_name
+    attributes:
+      label: Service Name
+      description: Name of the service to be integrated.
+      placeholder: "e.g., Spotify, Last.fm, Goodreads..."
+
+  - type: input
+    id: service_api
+    attributes:
+      label: Official API/Link
+      description: Provide the official API documentation or link.
+      placeholder: "https://developer.spotify.com/documentation/web-api/"
+
+  - type: textarea
+    id: service_features
+    attributes:
+      label: Main Features
+      description: What are the main features of this service?
+      placeholder: "List the features relevant to integration..."
+
+  - type: textarea
+    id: justification
+    attributes:
+      label: Justification
+      description: Why would this integration be useful?
+      placeholder: "Explain the value or benefit of integrating this service..."
+
+  - type: textarea
+    id: technical_considerations
+    attributes:
+      label: Technical Considerations
+      description: Dependencies, anticipated changes, or risks.
+      placeholder: "Mention new dependencies, architectural changes, or other considerations..."

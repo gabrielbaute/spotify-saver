@@ -1,0 +1,42 @@
+name: 💬 Discussion
+description: Start a discussion about a topic, proposal, or idea
+title: "[DISCUSSION] Brief description of topic"
+labels: ["discussion"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to start a discussion. Provide context and raise questions for the community.
+
+  - type: input
+    id: topic
+    attributes:
+      label: Discussion Topic
+      description: Briefly describe the topic or proposal.
+      placeholder: "Summarize the idea or issue to discuss..."
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why is this discussion relevant? What problem or improvement does it address?
+      placeholder: "Explain the reason for raising this discussion..."
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Include documentation, links, examples, or diagrams if necessary.
+      placeholder: "Provide supporting details, references, or examples..."
+
+  - type: textarea
+    id: questions
+    attributes:
+      label: Questions Raised
+      description: What questions should be considered in this discussion?
+      placeholder: |
+        - What alternatives exist?
+        - Does it affect the architecture?
+        - Does it require significant changes?
