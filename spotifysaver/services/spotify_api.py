@@ -3,7 +3,9 @@
 from functools import lru_cache
 from typing import Dict, List, Optional
 
+import re
 import spotipy
+from urllib.parse import urlparse
 from spotipy.oauth2 import SpotifyClientCredentials
 
 from spotifysaver.config import Config
@@ -38,6 +40,36 @@ class SpotifyAPI:
             )
         )
         self.logger = get_logger(f"{self.__class__.__name__}")
+
+    def _extract_spotify_id(self, url: str) -> Optional[str]:
+        """
+        Extrack the ID from a Spotify URL. It uses regex.
+
+        Args:
+            url (str): Spotify URL of a Track, Artist, Album or Playlist
+        
+        Returns:
+            id (Optional[str]): id of the item or None if not found
+        """
+        pattern = r"(?:track|artist|album|playlist)/([A-Za-z0-9]+)"
+        match = re.search(pattern, url)
+        return match.group(1) if match else None
+    
+    def _parse_spotify_url(self, url: str) -> Optional[str]:
+        """
+        Parse the spotify url and gets the item ID. Uses urlparse from urllib.
+
+        Args:
+            url (str): Spotify URL of a Track, Artist, Album or Playlist
+        
+        Returns:
+            id (Optional[str]): id of the item or None if not found        
+        """
+        path_parts = urlparse(url).path.split("/")
+        for i, part in enumerate(path_parts):
+            if part in {"track", "artist", "album", "playlist"}:
+                return path_parts[i+1] if i+1 < len(path_parts) else None
+        return None
 
     @lru_cache(maxsize=32)
     def _fetch_track_data(self, track_url: str) -> dict:
