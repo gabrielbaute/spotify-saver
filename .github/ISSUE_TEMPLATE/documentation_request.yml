@@ -1,0 +1,32 @@
+name: 📚 Documentation Request
+description: Suggest missing documentation or improvements to existing docs
+title: "[DOC] Brief description of the request"
+labels: ["documentation"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping us improve the documentation. Please complete the following fields.
+
+  - type: textarea
+    id: request_description
+    attributes:
+      label: Request Description
+      description: Describe what documentation is missing or could be improved.
+      placeholder: "Explain the gap or improvement needed..."
+
+  - type: input
+    id: affected_module
+    attributes:
+      label: Affected Module/Feature
+      description: Which part of the repository does this refer to?
+      placeholder: "e.g., CLI downloader, API client, frontend dashboard..."
+
+  - type: textarea
+    id: expected_content
+    attributes:
+      label: Sample Expected Content
+      description: Add examples, screenshots, links, or details of what should be included.
+      placeholder: "Provide examples, screenshots, or links to clarify..."
