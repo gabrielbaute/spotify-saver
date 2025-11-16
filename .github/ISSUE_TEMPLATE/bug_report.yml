@@ -1,9 +1,8 @@
 name: 🐛 Bug report
 description: Report a bug you've found
 title: "[BUG] Brief description of the error"
-milestone: ''
-labels: bug
-assignees: ''
+labels: ["bug"]
+assignees: []
 
 body:
   - type: markdown
