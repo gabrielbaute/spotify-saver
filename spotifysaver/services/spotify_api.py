@@ -86,7 +86,10 @@ class SpotifyAPI:
         """
         try:
             self.logger.debug(f"Fetching track data: {track_url}")
-            return self.sp.track(track_url)
+            track_id = self._extract_spotify_id(track_url)
+            if not track_id:
+                raise ValueError("Invalid track URL")
+            return self.sp.track(track_id)
         except spotipy.exceptions.SpotifyException as e:
             self.logger.error(f"Error fetching track data: {e}")
             raise ValueError("Track not found or invalid URL") from e
@@ -106,7 +109,10 @@ class SpotifyAPI:
         """
         try:
             self.logger.info(f"Fetching album data: {album_url}")
-            return self.sp.album(album_url)
+            album_id = self._extract_spotify_id(album_url)
+            if not album_id:
+                raise ValueError("Invalid album URL")
+            return self.sp.album(album_id)
         except spotipy.exceptions.SpotifyException as e:
             self.logger.error(f"Error fetching album data: {e}")
             raise ValueError("Album not found or invalid URL") from e
@@ -126,29 +132,12 @@ class SpotifyAPI:
         """
         try:
             self.logger.debug(f"Fetching artist data: {artist_url}")
-            return self.sp.artist(artist_url)
+            artist_id = self._extract_spotify_id(artist_url)
+            if not artist_id:
+                raise ValueError("Invalid artist URL")
+            return self.sp.artist(artist_id)
         except spotipy.exceptions.SpotifyException as e:
             self.logger.error(f"Error fetching artist data: {e}")
-            raise ValueError("Artist not found or invalid URL") from e
-
-    @lru_cache(maxsize=32)
-    def fetch_artist_albums(self, artist_url: str) -> dict:
-        """Fetch raw artist data from the API.
-        
-        Args:
-            artist_url: Spotify URL or URI for the artist
-            
-        Returns:
-            dict: Raw artist data from Spotify API
-            
-        Raises:
-            ValueError: If artist is not found or URL is invalid
-        """
-        try:
-            self.logger.debug(f"Fetching artist albums: {artist_url}")
-            return self.sp.artist_albums(artist_url)
-        except spotipy.exceptions.SpotifyException as e:
-            self.logger.error(f"Error fetching artist albuns: {e}")
             raise ValueError("Artist not found or invalid URL") from e
 
     @lru_cache(maxsize=32)
@@ -166,10 +155,36 @@ class SpotifyAPI:
         """
         try:
             self.logger.info(f"Fetching playlist data: {playlist_url}")
-            return self.sp.playlist(playlist_url)
+            playlist_id = self._extract_spotify_id(playlist_url)
+            if not playlist_id:
+                raise ValueError("Invalid playlist URL")
+            return self.sp.playlist(playlist_id)
         except spotipy.exceptions.SpotifyException as e:
             self.logger.error(f"Error fetching playlist data: {e}")
             raise ValueError("Playlist not found or invalid URL") from e
+
+    @lru_cache(maxsize=32)
+    def fetch_artist_albums(self, artist_url: str) -> dict:
+        """Fetch raw artist data from the API.
+        
+        Args:
+            artist_url: Spotify URL or URI for the artist
+            
+        Returns:
+            dict: Raw artist data from Spotify API
+            
+        Raises:
+            ValueError: If artist is not found or URL is invalid
+        """
+        try:
+            self.logger.debug(f"Fetching artist albums: {artist_url}")
+            artist_id = self._extract_spotify_id(artist_url)
+            if not artist_id:
+                raise ValueError("Invalid artist URL")
+            return self.sp.artist_albums(artist_id)
+        except spotipy.exceptions.SpotifyException as e:
+            self.logger.error(f"Error fetching artist albuns: {e}")
+            raise ValueError("Artist not found or invalid URL") from e
 
     def get_track(self, track_url: str) -> Track:
         """Get an individual track (for singles or specific searches).
@@ -315,7 +330,6 @@ class SpotifyAPI:
             if track["track"]
         ]
 
-        # Construye objeto Playlist
         return Playlist(
             name=raw_data["name"],
             description=raw_data.get("description", ""),
