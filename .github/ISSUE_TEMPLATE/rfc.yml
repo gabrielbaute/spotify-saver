@@ -1,0 +1,46 @@
+name: 📄 RFC (Request for Comments)
+description: Propose a significant technical or architectural change for review
+title: "[RFC] Brief description of proposal"
+labels: ["rfc", "discussion"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please provide details for your RFC proposal. This template helps us evaluate technical changes.
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Briefly describe the technical proposal.
+      placeholder: "Summarize the change you are suggesting..."
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why do you believe this change is necessary?
+      placeholder: "Explain the problem or need driving this proposal..."
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Mention other options and why they were discarded.
+      placeholder: "List alternatives and reasons for rejection..."
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Notes on migrations, backward compatibility, etc.
+      placeholder: "Describe potential impacts on users, data, or compatibility..."
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implementation Proposal
+      description: Brief action plan for implementing the change.
+      placeholder: "Outline steps, phases, or tasks for implementation..."
