@@ -2,6 +2,7 @@ class SpotifySaverUI {
     constructor() {
         this.apiUrl = `${window.location.protocol}//${window.location.hostname}:8000/api/v1`;
         this.apiUrlHealth = `${window.location.protocol}//${window.location.hostname}:8000/health`;
+        this.apiUrlVersion = `${window.location.protocol}//${window.location.hostname}:8000/version`;
         this.downloadInProgress = false;
         this.eventSource = null;
         this.currentTaskId = null;
@@ -28,6 +29,7 @@ class SpotifySaverUI {
             
             if (apiAvailable) {
                 await this.setDefaultOutputDir();
+                await this.loadAppVersion();
             }
             
             this.isInitialized = true;
@@ -265,6 +267,37 @@ class SpotifySaverUI {
                 outputDirInput.value = 'Music';
             }
             console.warn('Could not fetch default output directory, using fallback:', error);
+        }
+    }
+
+    async loadAppVersion() {
+        const versionElement = document.getElementById('app-version');
+        
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+            
+            const response = await fetch(this.apiUrlVersion, {
+                signal: controller.signal,
+                method: 'GET',
+                mode: 'cors',
+                cache: 'no-cache'
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (versionElement && data.version) {
+                    versionElement.textContent = `v${data.version}`;
+                }
+            } else {
+                // If API call fails, keep default
+                console.warn('Could not fetch app version from API');
+            }
+        } catch (error) {
+            // If any error occurs, keep default
+            console.warn('Could not fetch app version, using fallback:', error);
         }
     }
 
