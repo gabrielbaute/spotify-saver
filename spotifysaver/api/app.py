@@ -38,7 +38,7 @@ def create_app() -> FastAPI:
         """Root endpoint with API information."""
         return {
             "name": "SpotifySaver API",
-            "version": "0.3.0",
+            "version": __version__,
             "description": "Download music from Spotify via YouTube Music",
             "docs": "/docs",
             "redoc": "/redoc",
