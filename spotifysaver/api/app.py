@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .routers import download
 from .config import APIConfig
-
+from .. import __version__
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application.
@@ -16,7 +16,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="SpotifySaver API",
         description="Download music from Spotify via YouTube Music with metadata preservation",
-        version="0.3.0",
+        version=__version__,
         docs_url="/docs",
         redoc_url="/redoc",
     )
@@ -48,5 +48,10 @@ def create_app() -> FastAPI:
     async def health_check():
         """Health check endpoint."""
         return {"status": "healthy", "service": "SpotifySaver API"}
+
+    @app.get("/version")
+    async def get_version():
+        """Get the current version of the API."""
+        return {"version": __version__}
 
     return app
