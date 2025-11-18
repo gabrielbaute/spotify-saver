@@ -12,7 +12,7 @@ body {
 }
 
 .container {
-    max-width: 80%;
+    max-width: 94%;
     margin: 0 auto;
     padding: 20px;
 }
@@ -36,11 +36,12 @@ header p {
 
 main {
     display: grid;
-    gap: 30px;
+    gap: 20px;
 }
 
 .form-section,
 .status-section,
+.inspect-section,
 .log-section {
     background: white;
     padding: 30px;
@@ -50,10 +51,41 @@ main {
 
 .form-section h2,
 .status-section h2,
+.inspect-section h2,
 .log-section h2 {
     color: #4a5568;
     margin-bottom: 20px;
     font-size: 1.5em;
+}
+
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.log-header h2 {
+    margin-bottom: 0;
+}
+
+.clear-btn {
+    background: #e53e3e;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.clear-btn:hover {
+    background: #c53030;
+}
+
+.clear-btn:active {
+    transform: translateY(1px);
 }
 
 .form-group {
@@ -230,14 +262,20 @@ select:focus {
 .dashboard {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 30px;
+    gap: 20px;
     align-items: start;
+}
+
+.left-column {
+    display: grid;
+    grid-template-rows: auto 1fr; /* form arriba, status abajo */
+    gap: 20px;
 }
 
 .right-column {
     display: grid;
     grid-template-rows: auto 1fr; /* status arriba, log ocupando el resto */
-    gap: 30px;
+    gap: 20px;
 }
 
 /* Inspection section */
@@ -249,7 +287,6 @@ select:focus {
     min-height: 100px;
 }
 #inspect-container {
-    margin-top: 20px;
     height: 300px;
     overflow-y: auto;
 }
@@ -299,4 +336,42 @@ select:focus {
         grid-template-rows: auto auto;
         gap: 20px;
     }
+}
+
+/* Estilos para iconos de estado de canciones */
+.track-icon {
+    display: inline-block;
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.track-state-waiting {
+    opacity: 0.6;
+}
+
+.track-state-downloading {
+    background-color: rgba(255, 193, 7, 0.2);
+    animation: pulse 1.5s ease-in-out infinite alternate;
+}
+
+.track-state-completed {
+    background-color: rgba(40, 167, 69, 0.2);
+}
+
+.track-state-error {
+    background-color: rgba(220, 53, 69, 0.2);
+}
+
+@keyframes pulse {
+    from {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+    to {
+        background-color: rgba(255, 193, 7, 0.3);
+    }
+}
+
+.track-info {
+    vertical-align: middle;
 }
