@@ -31,7 +31,13 @@ class TheAudioDBService():
             response = requests.get(f"{self.url_base}search.php?s={artist_name}")
             if response.status_code == 200:
                 raw = response.json()
-                return raw.get("artists", [{}])[0]
+                artist_data = raw.get("artists", [{}])[0]
+                if artist_data and isinstance(artist_data, dict):
+                    return artist_data
+                else:
+                    self.logger.warning(f"No artist found for {artist_name}")
+                    return None
+                
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Error: {e}")
             return None
@@ -52,7 +58,13 @@ class TheAudioDBService():
             response = requests.get(f"{self.url_base}searchalbum.php?s={artist_name}&a={album_name}")
             if response.status_code == 200:
                 raw = response.json()
-                return raw.get("album", [{}])[0]
+                album_data = raw.get("album", [{}])[0]
+                if album_data and isinstance(album_data, dict):
+                    return album_data
+                else:
+                    self.logger.warning(f"No album found for {artist_name} - {album_name}")
+                    return None
+                
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Error: {e}")
             return None
@@ -73,7 +85,13 @@ class TheAudioDBService():
             response = requests.get(f"{self.url_base}searchtrack.php?s={artist_name}&t={track_name}")
             if response.status_code == 200:
                 raw = response.json()
-                return raw.get("track", [{}])[0]
+                track_data = raw.get("track", [{}])[0]
+                if track_data and isinstance(track_data, dict):
+                    return track_data
+                else:
+                    self.logger.warning(f"No track found for {artist_name} - {track_name}")
+                    return None
+                
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Error: {e}")
             return None
@@ -93,7 +111,13 @@ class TheAudioDBService():
             response = requests.get(f"{self.url_base}track.php?m={album_id}")
             if response.status_code == 200:
                 raw = response.json()
-                return raw.get("track", [{}])
+                tracks = raw.get("track", [{}])
+                if tracks and isinstance(tracks, dict):
+                    return tracks
+                else:
+                    self.logger.warning(f"No tracks found for album: {album_id}")
+                    return None
+                
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Error: {e}")
             return None
@@ -113,7 +137,13 @@ class TheAudioDBService():
             response = requests.get(f"{self.url_base}track.php?i={track_id}")
             if response.status_code == 200:
                 raw = response.json()
-                return raw.get("track", [{}])[0]
+                track_data = raw.get("track", [{}])[0]
+                if track_data and isinstance(track_data, dict):
+                    return track_data
+                else:
+                    self.logger.warning(f"No track found for ID: {track_id}")
+                    return None
+                
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Error: {e}")
             return None
