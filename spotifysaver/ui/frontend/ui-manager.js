@@ -11,11 +11,11 @@ class UIManager {
         
         if (downloading) {
             downloadBtn.disabled = true;
-            downloadBtn.textContent = '⏳ Descargando...';
+            downloadBtn.textContent = '⏳ Downloading...';
             progressContainer.classList.remove('hidden');
         } else {
             downloadBtn.disabled = false;
-            downloadBtn.textContent = '🎵 Iniciar Descarga';
+            downloadBtn.textContent = '🎵 Start Download';
             progressContainer.classList.add('hidden');
             this.updateProgress(0);
         }
@@ -208,7 +208,7 @@ class UIManager {
         const container = document.getElementById('inspect-details');
         const message = document.getElementById('inspect-message');
         container.innerHTML = '';
-        message.textContent = 'Esperando inspección...';
+        message.textContent = 'Waiting for inspection...';
         message.classList.remove('hidden');
         container.classList.add('hidden');
     }

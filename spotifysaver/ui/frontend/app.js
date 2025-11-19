@@ -56,13 +56,13 @@ class SpotifySaverUI {
 
         // Botón para limpiar logs y estado
         clearLogsBtn.addEventListener('click', () => {
-            if (confirm('¿Estás seguro de que quieres limpiar todos los logs y resetear el estado?')) {
+            if (confirm('Are you sure you want to clear logs and state? This cannot be undone.')) {
                 this.uiManager.clearLog();
                 this.uiManager.clearInspect();
                 this.downloadManager.clearStates();
                 this.stateManager.clearPersistedState();
-                this.uiManager.updateStatus('Estado limpiado', 'info');
-                this.uiManager.addLogEntry('Logs y estado limpiados manualmente', 'info');
+                this.uiManager.updateStatus('State cleaned', 'info');
+                this.uiManager.addLogEntry('Logs and state manually cleared', 'info');
             }
         });
     }
