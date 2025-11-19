@@ -61,7 +61,7 @@ class SpotifySaverUI {
                 this.uiManager.clearInspect();
                 this.downloadManager.clearStates();
                 this.stateManager.clearPersistedState();
-                this.uiManager.updateStatus('State cleaned', 'info');
+                this.uiManager.updateStatus('API connected and ready', 'info');
                 this.uiManager.addLogEntry('Logs and state manually cleared', 'info');
             }
         });
