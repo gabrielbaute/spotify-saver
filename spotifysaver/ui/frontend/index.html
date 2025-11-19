@@ -17,72 +17,7 @@
     <div class="container">
         <main class="dashboard">
             <!-- Left column -->
-            
-            <!-- Settings download section -->
-            <div class="form-section">
-                <h2>Download Settings</h2>
-                
-                <div class="form-group">
-                    <label for="spotify-url">Spotify URL:</label>
-                    <input 
-                        type="url" 
-                        id="spotify-url" 
-                        placeholder="https://open.spotify.com/playlist/..." 
-                        required>
-                </div>
-
-                <div class="form-group">
-                    <label for="output-dir">Output Directory:</label>
-                    <input 
-                        type="text" 
-                        id="output-dir" 
-                        placeholder="Music">
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="format">Audio Format:</label>
-                        <select id="format">
-                            <option value="m4a">M4A (Recommended)</option>
-                            <option value="mp3">MP3</option>
-                            <option value="opus">OPUS</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="bitrate">Bitrate:</label>
-                        <select id="bitrate">
-                            <option value="best">Best Quality (Recommended)</option>
-                            <option value="256">256 kbps</option>
-                            <option value="192">192 kbps</option>
-                            <option value="128">128 kbps</option>
-                            <option value="96">96 kbps</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="include-lyrics" checked>
-                        Include Lyrics
-                    </label>
-                </div>
-
-                <div class="form-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="create-nfo" checked>
-                        Create NFO files (Jellyfin/Kodi)
-                    </label>
-                </div>
-
-                <button id="download-btn" class="download-btn">
-                    🎵 Start Download
-                </button>
-            </div>
-
-            <!-- Right column -->
-            <div class="right-column">
-
+            <div class="left-column">
                 <!-- Download progress section -->
                 <div class="status-section">
                     <h2>Download Status</h2>
@@ -96,6 +31,74 @@
                         </div>
                     </div>
                 </div>
+            
+                <!-- Settings download section -->
+                <div class="form-section">
+                    <h2>Download Settings</h2>
+                    
+                    <div class="form-group">
+                        <label for="spotify-url">Spotify URL:</label>
+                        <input 
+                            type="url" 
+                            id="spotify-url" 
+                            placeholder="https://open.spotify.com/playlist/..." 
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="output-dir">Output Directory:</label>
+                        <input 
+                            type="text" 
+                            id="output-dir" 
+                            placeholder="Music">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="format">Audio Format:</label>
+                            <select id="format">
+                                <option value="m4a">M4A (Recommended)</option>
+                                <option value="mp3">MP3</option>
+                                <option value="opus">OPUS</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bitrate">Bitrate:</label>
+                            <select id="bitrate">
+                                <option value="best">Best Quality (Recommended)</option>
+                                <option value="256">256 kbps</option>
+                                <option value="192">192 kbps</option>
+                                <option value="128">128 kbps</option>
+                                <option value="96">96 kbps</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="include-lyrics" checked>
+                            Include Lyrics
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="create-nfo" checked>
+                            Create NFO files (Jellyfin/Kodi)
+                        </label>
+                    </div>
+
+                    <button id="download-btn" class="download-btn">
+                        🎵 Start Download
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right column -->
+            <div class="right-column">
+
+                
 
                 <!-- Sección de inspección -->
                 <div class="inspect-section">
@@ -108,7 +111,10 @@
 
                 <!-- Log section -->
                 <div class="log-section">
-                    <h2>Activity Log</h2>
+                    <div class="log-header">
+                        <h2>Activity Log</h2>
+                        <button id="clear-logs-btn" class="clear-btn" title="Clear logs and reset state">🗑️ Clear</button>
+                    </div>
                     <div id="log-container">
                         <div id="log-content"></div>
                     </div>
@@ -120,7 +126,30 @@
 
     <!-- Footer -->
     <footer class="main-footer">
-        <p> 100% Open Source - Check our repo: <a href="https://github.com/gabrielbaute/spotify-saver">SpotifySaver</a></p>
+        <div class="footer-content">
+            <div class="footer-info">
+                <div class="app-version">
+                    <span class="version-label">🎵 SpotifySaver</span>
+                    <span class="version-number" id="app-version">v0.6.0</span>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/gabrielbaute/spotify-saver" target="_blank" rel="noopener">
+                        💾 GitHub
+                    </a>
+                    <span class="separator">•</span>
+                    <a href="https://github.com/gabrielbaute/spotify-saver/releases" target="_blank" rel="noopener">
+                        📦 Releases
+                    </a>
+                    <span class="separator">•</span>
+                    <a href="https://github.com/gabrielbaute/spotify-saver/issues" target="_blank" rel="noopener">
+                        🐛 Issues
+                    </a>
+                </div>
+            </div>
+            <div class="footer-badge">
+                <span class="open-source-badge">✨ 100% Open Source</span>
+            </div>
+        </div>
     </footer>
     <script src="script.js"></script>
 </body>
