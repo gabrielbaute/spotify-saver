@@ -7,6 +7,7 @@ class DownloadManager {
         this.currentTaskId = null;
         this.downloadStartTime = null;
         this.lastLoggedTrack = null;
+        this.lastLoggedTrackState = null; // Track the state of the last logged track
         this.trackStates = new Map();
         this.currentTrackData = null;
     }
@@ -67,6 +68,7 @@ class DownloadManager {
         
         // Resetear estado de logging para nueva descarga
         this.lastLoggedTrack = null;
+        this.lastLoggedTrackState = null;
         this.trackStates.clear();
         
         const formData = this.getFormData();
@@ -228,11 +230,35 @@ class DownloadManager {
                 }
             }
         }
+        // Registrar estado de la canción actual
+        this.logTrackStatus(status);
+    }
+    
+    logTrackStatus(status) {
+        // Verificar si la última canción registrada cambió a completed o error
+        if (this.lastLoggedTrack && this.lastLoggedTrackState) {
+            const lastTrackNumber = this.findTrackNumberByName(this.lastLoggedTrack);
+            if (lastTrackNumber) {
+                const currentLastTrackState = this.trackStates.get(lastTrackNumber);
+                if (currentLastTrackState !== this.lastLoggedTrackState && 
+                    (currentLastTrackState === 'completed' || currentLastTrackState === 'error')) {
+                    const statusMessage = currentLastTrackState === 'completed' ? 'Completed' : 'Failed';
+                    this.uiManager.addLogEntry(`${statusMessage}: ${this.lastLoggedTrack}`, 
+                        currentLastTrackState === 'completed' ? 'success' : 'error');
+                    this.lastLoggedTrackState = currentLastTrackState;
+                }
+            }
+        }
         
-        // Solo registrar la canción si es diferente a la última registrada
+        // Solo registrar la nueva canción si es diferente a la última registrada
         if (status.current_track && status.current_track !== this.lastLoggedTrack) {
             this.uiManager.addLogEntry(`Downloading: ${status.current_track}`, 'info');
             this.lastLoggedTrack = status.current_track;
+            // Actualizar el estado inicial de la nueva canción registrada
+            const currentTrackNumber = this.findTrackNumberByName(status.current_track);
+            if (currentTrackNumber) {
+                this.lastLoggedTrackState = this.trackStates.get(currentTrackNumber) || 'downloading';
+            }
         }
     }
 
@@ -292,11 +318,11 @@ class DownloadManager {
                 // Simular mensajes de progreso, evitando repetir el último mensaje
                 if (Math.random() > 0.8) { // Reducir frecuencia de mensajes
                     const messages = [
-                        'Buscando canciones...',
-                        'Descargando pista...',
-                        'Aplicando metadatos...',
-                        'Generando miniatura...',
-                        'Guardando archivo...'
+                        'Searching for tracks...',
+                        'Downloading track...',
+                        'Setting metadata...',
+                        'Generating thumbnail...',
+                        'Saving file...',
                     ];
                     
                     let messageIndex;
@@ -334,11 +360,7 @@ class DownloadManager {
     }
 
     updateTrackState(trackNumber, state) {
-        console.log(`🎆 BEFORE: Track ${trackNumber} state was:`, this.trackStates.get(trackNumber));
-        this.trackStates.set(trackNumber, state);
-        console.log(`🎆 AFTER: Track ${trackNumber} state is now:`, this.trackStates.get(trackNumber));
-        console.log(`🎆 All states:`, Array.from(this.trackStates.entries()));
-        
+        this.trackStates.set(trackNumber, state);        
         // Actualizar UI
         this.uiManager.updateSingleTrackIcon(trackNumber, state);
     }
@@ -347,6 +369,7 @@ class DownloadManager {
         this.trackStates.clear();
         this.currentTrackData = null;
         this.lastLoggedTrack = null;
+        this.lastLoggedTrackState = null;
     }
 
     // Getters for state access
