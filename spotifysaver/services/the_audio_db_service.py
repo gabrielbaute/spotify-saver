@@ -2,16 +2,8 @@ import requests
 from typing import Optional, Dict, Any, List
 
 from spotifysaver.spotlog import get_logger
-from spotifysaver.services.schemas import (
-    TrackADBResponse,
-    AlbumADBResponse,
-    MediaAlbumURLs,
-    AlbumDescription,
-    MediaArtistURLs,
-    ArtistBiography,
-    ArtistFanart,
-    ArtistADBResponse
-    )
+from spotifysaver.services.audiodb_parser import AudioDBParser
+from spotifysaver.services.schemas import TrackADBResponse, AlbumADBResponse, ArtistADBResponse
 
 class TheAudioDBService():
     """
@@ -22,6 +14,7 @@ class TheAudioDBService():
     def __init__(self):
         self.logger = get_logger(f"{__class__.__name__}")
         self.url_base = "https://www.theaudiodb.com/api/v1/json/123/"
+        self.parser = AudioDBParser()
 
     def _search_artist_by_name(self, artist_name: str) -> Optional[Dict[str, Any]]:
         """
@@ -129,7 +122,7 @@ class TheAudioDBService():
             self, 
             track_name: str, 
             artist_name: Optional[str] = None, 
-            ) -> TrackADBResponse:
+        ) -> TrackADBResponse:
         """
         Get the metadata of a track.
 
@@ -144,22 +137,45 @@ class TheAudioDBService():
         raw_data = self._search_track_by_name(artist_name, track_name)
         if not raw_data:
             return None
+
+        return self.parser.parse_track(raw_data)
+    
+    def get_album_metadata(
+            self, 
+            artist_name: str, 
+            album_name: str, 
+        ) -> AlbumADBResponse:
+        """
+        Get the metadata of an album.
+
+        Args:
+            artist_name (str): The name of the artist
+            album_name (str): The name of the album.
         
-        data = TrackADBResponse(
-            id=int(raw_data.get("idTrack", None)),
-            name=raw_data.get("strTrack", None),
-            album_id=int(raw_data.get("idAlbum", None)),
-            album_name=raw_data.get("strAlbum", None),
-            artist_id=[int(raw_data.get("idArtist", None))],
-            artist_name=[raw_data.get("strArtist", None)],
-            duration=int(raw_data.get("intDuration", None)),
-            track_number=int(raw_data.get("intTrackNumber", None)),
-            genre=raw_data.get("strGenre", None),
-            mood=raw_data.get("strMood", None),
-            style=raw_data.get("strStyle", None),
-            lyrics=raw_data.get("strLyrics", None),
-            musicbrainz_id=raw_data.get("strMusicBrainzID", None),
-            album_musicbrainz_id=raw_data.get("strMusicBrainzAlbumID", None),
-            artist_musicbrainz_id=raw_data.get("strMusicBrainzArtistID", None)
-        )
-        return data
+        Returns:
+            AlbumADBResponse: A dictionary containing the album metadata.
+        """
+        raw_data = self._search_album_by_name(artist_name, album_name)
+        if not raw_data:
+            return None
+
+        return self.parser.parse_album(raw_data)
+
+    def get_artist_metadata(
+            self, 
+            artist_name: str, 
+        ) -> ArtistADBResponse:
+        """
+        Get the metadata of an artist.
+
+        Args:
+            artist_name (str): The name of the artist.
+        
+        Returns:
+            ArtistADBResponse: A dictionary containing the artist metadata.
+        """
+        raw_data = self._search_artist_by_name(artist_name)
+        if not raw_data:
+            return None
+
+        return self.parser.parse_artist(raw_data)

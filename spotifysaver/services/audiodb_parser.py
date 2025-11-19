@@ -13,6 +13,16 @@ class AudioDBParser():
     def __init__(self):
         pass
 
+    def _safe_int(self, value: Optional[str]) -> Optional[int]:
+        """
+        Safe method for converting a string to an integer.
+        """
+        try:
+            return int(value) if value not in (None, "None", "") else None
+        except ValueError:
+            return None
+
+
     def parse_track(self, raw_data: dict) -> Optional[TrackADBResponse]:
         """
         Parse track data from TheAudioDB.
@@ -27,14 +37,14 @@ class AudioDBParser():
             return None
         
         track_data = TrackADBResponse(
-            id=int(raw_data.get("idTrack", None)),
+            id=self._safe_int(raw_data.get("idTrack", None)),
             name=raw_data.get("strTrack", None),
-            album_id=int(raw_data.get("idAlbum", None)),
+            album_id=self._safe_int(raw_data.get("idAlbum", None)),
             album_name=raw_data.get("strAlbum", None),
-            artist_id=[int(raw_data.get("idArtist", None))],
+            artist_id=[self._safe_int(raw_data.get("idArtist", None))],
             artist_name=[raw_data.get("strArtist", None)],
-            duration=int(raw_data.get("intDuration", None)),
-            track_number=int(raw_data.get("intTrackNumber", None)),
+            duration=self._safe_int(raw_data.get("intDuration", None)),
+            track_number=self._safe_int(raw_data.get("intTrackNumber", None)),
             genre=raw_data.get("strGenre", None),
             mood=raw_data.get("strMood", None),
             style=raw_data.get("strStyle", None),
@@ -109,9 +119,9 @@ class AudioDBParser():
             return None
         
         album_data = AlbumADBResponse(
-            id=int(raw_data.get("idAlbum", None)),
+            id=self._safe_int(raw_data.get("idAlbum", None)),
             name=raw_data.get("strAlbum", None),
-            artist_id=int(raw_data.get("idArtist", None)),
+            artist_id=self._safe_int(raw_data.get("idArtist", None)),
             artist_name=raw_data.get("strArtist", None),
             genre=raw_data.get("strGenre", None),
             style=raw_data.get("strStyle", None),
@@ -186,17 +196,17 @@ class AudioDBParser():
             return None
         
         artist_data = ArtistADBResponse(
-            id=int(raw_data.get("idArtist", None)),
+            id=self._safe_int(raw_data.get("idArtist", None)),
             name=raw_data.get("strArtist", None),
             gender=raw_data.get("strGender", None),
             country=raw_data.get("strCountry", None),
-            born_year=int(raw_data.get("intBornYear", None)),
-            die_year=int(raw_data.get("intDiedYear", None)),
+            born_year=self._safe_int(raw_data.get("intBornYear", None)),
+            die_year=self._safe_int(raw_data.get("intDiedYear", None)),
             style=raw_data.get("strStyle", None),
             genre=raw_data.get("strGenre", None),
             mood=raw_data.get("strMood", None),
             musicbrainz_id=raw_data.get("strMusicBrainzID", None),
             media_artist=self.parse_artist_urls(raw_data),
-            biography=self.parse_artist_biography(raw_data)
+            briographies=self.parse_artist_biography(raw_data)
         )
         return artist_data
