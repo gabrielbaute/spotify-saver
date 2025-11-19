@@ -126,8 +126,36 @@
 
     <!-- Footer -->
     <footer class="main-footer">
-        <p> 100% Open Source - Check our repo: <a href="https://github.com/gabrielbaute/spotify-saver">SpotifySaver</a></p>
+        <div class="footer-content">
+            <div class="footer-info">
+                <div class="app-version">
+                    <span class="version-label">🎵 SpotifySaver</span>
+                    <span class="version-number" id="app-version">v0.6.0</span>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/gabrielbaute/spotify-saver" target="_blank" rel="noopener">
+                        💾 GitHub
+                    </a>
+                    <span class="separator">•</span>
+                    <a href="https://github.com/gabrielbaute/spotify-saver/releases" target="_blank" rel="noopener">
+                        📦 Releases
+                    </a>
+                    <span class="separator">•</span>
+                    <a href="https://github.com/gabrielbaute/spotify-saver/issues" target="_blank" rel="noopener">
+                        🐛 Issues
+                    </a>
+                </div>
+            </div>
+            <div class="footer-badge">
+                <span class="open-source-badge">✨ 100% Open Source</span>
+            </div>
+        </div>
     </footer>
-    <script src="script.js"></script>
+    <!-- Load JavaScript modules in dependency order -->
+    <script src="api-client.js"></script>
+    <script src="state-manager.js"></script>
+    <script src="ui-manager.js"></script>
+    <script src="download-manager.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
