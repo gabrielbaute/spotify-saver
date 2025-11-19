@@ -14,10 +14,19 @@ class AudioDBParser():
         pass
 
     def parse_track(self, raw_data: dict) -> Optional[TrackADBResponse]:
+        """
+        Parse track data from TheAudioDB.
+
+        Args:
+            raw_data (dict): Raw track data from TheAudioDB.
+
+        Returns:
+            TrackADBResponse: Parsed track data.
+        """
         if not raw_data:
             return None
         
-        data = TrackADBResponse(
+        track_data = TrackADBResponse(
             id=int(raw_data.get("idTrack", None)),
             name=raw_data.get("strTrack", None),
             album_id=int(raw_data.get("idAlbum", None)),
@@ -34,9 +43,18 @@ class AudioDBParser():
             album_musicbrainz_id=raw_data.get("strMusicBrainzAlbumID", None),
             artist_musicbrainz_id=raw_data.get("strMusicBrainzArtistID", None)
         )
-        return data
+        return track_data
     
     def parse_album_urls(self, raw_data: dict) -> Optional[MediaAlbumURLs]:
+        """
+        Parse album URLs from TheAudioDB.
+
+        Args:
+            raw_data (dict): Raw album data from TheAudioDB.
+
+        Returns:
+            MediaAlbumURLs: Parsed album URLs.
+        """
         if not raw_data:
             return None
 
@@ -52,6 +70,15 @@ class AudioDBParser():
         return url_data
     
     def parse_album_description(self, raw_data: dict) -> Optional[List[AlbumDescription]]:
+        """
+        Parse album descriptions from TheAudioDB.
+
+        Args:
+            raw_data (dict): Raw album data from TheAudioDB.
+
+        Returns:
+            List[AlbumDescription]: Parsed album descriptions.
+        """
         if not raw_data:
             return None
 
@@ -69,10 +96,19 @@ class AudioDBParser():
         return descriptions if descriptions else None
     
     def parse_album(self, raw_data: dict) -> AlbumADBResponse:
+        """
+        Parse album data from TheAudioDB.
+
+        Args:
+            raw_data (dict): Raw album data from TheAudioDB.
+
+        Returns:
+            AlbumADBResponse: Parsed album data.
+        """
         if not raw_data:
             return None
         
-        data = AlbumADBResponse(
+        album_data = AlbumADBResponse(
             id=int(raw_data.get("idAlbum", None)),
             name=raw_data.get("strAlbum", None),
             artist_id=int(raw_data.get("idArtist", None)),
@@ -87,9 +123,18 @@ class AudioDBParser():
             description=self.parse_album_description(raw_data),
             media_album=self.parse_album_urls(raw_data)
         )
-        return data
+        return album_data
 
     def parse_artist_urls(self, raw_data: dict) -> MediaArtistURLs:
+        """
+        Parse artist URLs from TheAudioDB.
+
+        Args:
+            raw_data (dict): Raw artist data from TheAudioDB.
+
+        Returns:
+            MediaArtistURLs: Parsed artist URLs.
+        """
         if not raw_data:
             return None
 
@@ -104,6 +149,15 @@ class AudioDBParser():
         return url_data
 
     def parse_artist_biography(self, raw_data: dict) -> ArtistBiography:
+        """
+        Parse artist biography from TheAudioDB.
+
+        Args:
+            raw_data (dict): Raw artist data from TheAudioDB.
+
+        Returns:
+            ArtistBiography: Parsed artist biography.
+        """
         if not raw_data:
             return None
 
@@ -119,4 +173,30 @@ class AudioDBParser():
         return biographies if biographies else None
 
     def parse_artist(self, raw_data: dict) -> ArtistADBResponse:
-        pass
+        """
+        Parse artist data from TheAudioDB
+
+        Args:
+            raw_data (dict): Raw artist data from TheAudioDB.
+
+        Returns:
+            ArtistADBResponse: Parsed artist data.
+        """
+        if not raw_data:
+            return None
+        
+        artist_data = ArtistADBResponse(
+            id=int(raw_data.get("idArtist", None)),
+            name=raw_data.get("strArtist", None),
+            gender=raw_data.get("strGender", None),
+            country=raw_data.get("strCountry", None),
+            born_year=int(raw_data.get("intBornYear", None)),
+            die_year=int(raw_data.get("intDiedYear", None)),
+            style=raw_data.get("strStyle", None),
+            genre=raw_data.get("strGenre", None),
+            mood=raw_data.get("strMood", None),
+            musicbrainz_id=raw_data.get("strMusicBrainzID", None),
+            media_artist=self.parse_artist_urls(raw_data),
+            biography=self.parse_artist_biography(raw_data)
+        )
+        return artist_data
