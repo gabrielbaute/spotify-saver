@@ -21,9 +21,9 @@ def get_tracks_from_album(album_id: str):
     return tracks
 
 if __name__ == "__main__":
-    artist = get_artist_data("coldplay")
-    album = get_album_data("coldplay", "Parachutes")
-    track = get_track_data("Queen", "Under Pressure")
+    artist = get_artist_data("Paramore")
+    album = get_album_data("Paramore", "Paramore")
+    #track = get_track_data("Queen", "Under Pressure")
     #album_id = album.get("idAlbum")
     #tracks = get_tracks_from_album(album_id)
     #for track in tracks:
@@ -32,4 +32,5 @@ if __name__ == "__main__":
     #print("=================")
     #for item in track:
     #    print(f"Item: {item} - Tipo: {type(item)}")
-    print(artist.model_dump_json(indent=2))
+    print(f"Tipo: {type(album)}")
+    print(album.model_dump_json(indent=2))
