@@ -5,5 +5,5 @@ from spotifysaver.metadata.music_file_metadata import MusicFileMetadata
 
 __all__ = [
     "NFOGenerator",
-    "MusicFileMetadata"
+    "MusicFileMetadata",
 ]
