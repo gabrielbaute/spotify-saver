@@ -1,8 +1,15 @@
 [tool.poetry]
 name = "spotifysaver"
-version = "0.6.3"
+version = "0.7.2"
 description = "Download Spotify tracks/albums with metadata via YouTube Music (Perfect for Jellyfin libraries!)"
-authors = ["Gabriel Baute <gabrielbaute@gmail.com>"]
+authors = [
+    "Gabriel Baute <gabrielbaute@gmail.com>",
+    "Rafnix Guzman <rafnixg@gmail.com>"
+]
+maintainers = [
+    "Gabriel Baute <gabrielbaute@gmail.com>",
+    "Rafnix Guzman <rafnixg@gmail.com>"
+]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/gabrielbaute/spotify-saver"
@@ -14,28 +21,49 @@ keywords = [
     "music-downloader", 
     "jellyfin", 
     "metadata",
-    "cli-tool"
+    "cli-tool",
+    "audio-conversion",
+    "playlist-downloader"
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Multimedia :: Sound/Audio :: Conversion",
+    "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Utilities",
     "Environment :: Console",
+    "Environment :: Web Environment",
+    "Operating System :: OS Independent",
+    "Natural Language :: English",
 ]
 packages = [{include = "spotifysaver"}]
 include = [
-    { path = "spotifysaver/ui/frontend/*", format = "sdist" },
-    { path = "spotifysaver/ui/frontend/*", format = "wheel" }
+    { path = "spotifysaver/ui/*.html", format = ["sdist", "wheel"] },
+    { path = "spotifysaver/ui/*.md", format = ["sdist", "wheel"] },
+    { path = "spotifysaver/ui/static/css/*.css", format = ["sdist", "wheel"] },
+    { path = "spotifysaver/ui/static/js/*.js", format = ["sdist", "wheel"] },
+    { path = "LICENSE", format = ["sdist", "wheel"] },
+    { path = "README.md", format = ["sdist", "wheel"] },
+]
+exclude = [
+    "tests/*",
+    "testing/*",
+    "*.backup",
+    ".git/*",
+    ".github/*",
 ]
 
 [tool.poetry.dependencies]
-python = "^3.9 || ^3.10 || ^3.11 || ^3.12 || ^3.13"
+python = "^3.9"
 mutagen = "^1.47.0"
 spotipy = "^2.25.1"
 yt-dlp = "^2025.10.14"
@@ -50,12 +78,59 @@ uvicorn = {extras = ["standard"], version = "^0.34.0"}
 [tool.poetry.group.dev.dependencies]
 black = "^23.7.0"
 pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
 mypy = "^1.5.1"
+ruff = "^0.1.0"
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = {version = "^1.5.0", optional = true}
+mkdocs-material = {version = "^9.4.0", optional = true}
+
+[tool.poetry.extras]
+docs = ["mkdocs", "mkdocs-material"]
 
 [tool.poetry.scripts]
 spotifysaver = "spotifysaver.__main__:cli"
 spotifysaver-api = "spotifysaver.api.main:run_server"
-spotifysaver-ui = "spotifysaver.ui.main:run_ui_server"
+
+[tool.black]
+line-length = 100
+target-version = ['py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+select = ["E", "F", "W", "I", "N", "UP"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --cov=spotifysaver --cov-report=term-missing"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

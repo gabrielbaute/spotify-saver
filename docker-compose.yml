@@ -5,7 +5,6 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "${UI_PORT:-3000}:3000"
       - "${API_PORT:-8000}:8000"
     environment:
       # Spotify API (requerido)
@@ -21,7 +20,7 @@ services:
       - ${MUSIC_DIR:-./music}:/music
       - ${CONFIG_DIR:-./config}:/config
       - spotifysaver_logs:/logs
-    command: ["spotifysaver-ui"]
+    command: ["spotifysaver-api"]
     restart: unless-stopped
     # Configuración de seguridad
     security_opt:
