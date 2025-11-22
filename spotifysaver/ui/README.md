@@ -1,75 +1,86 @@
-# SpotifySaver UI
+# SpotifySaver UI - Modular Architecture
 
-Interfaz gráfica web para SpotifySaver que ejecuta tanto la API como el frontend.
+This directory contains the frontend for SpotifySaver, organized into modular JavaScript files for better maintainability.
 
-## Características
+## File Structure
 
-- **Interfaz web moderna y responsiva**: Fácil de usar desde cualquier navegador
-- **Configuración completa**: Todos los parámetros de descarga disponibles
-- **Monitoreo en tiempo real**: Progreso de descarga y logs de actividad
-- **Servidor integrado**: Ejecuta automáticamente la API y el frontend
+### Core Modules
 
-## Uso
+1. **`app.js`** - Main Application Controller
+   - Initializes and coordinates all other modules
+   - Handles application lifecycle and state persistence
+   - Entry point for the application
 
-### Comando básico
+2. **`api-client.js`** - API Communication Layer
+   - Handles all HTTP requests to the SpotifySaver API
+   - Includes retry mechanisms and timeout handling
+   - Methods: health checks, inspect URLs, start downloads, get status
 
-```bash
-spotifysaver-ui
+3. **`state-manager.js`** - State Persistence Manager
+   - Manages localStorage operations
+   - Handles saving/loading application state
+   - Preserves download progress across page reloads
+
+4. **`download-manager.js`** - Download Process Controller
+   - Orchestrates the download workflow
+   - Manages download progress monitoring
+   - Handles track state management and progress simulation
+
+5. **`ui-manager.js`** - UI Updates & Visualization
+   - Controls all DOM updates and visual feedback
+   - Manages logs, progress indicators, and track status icons
+   - Handles rendering of inspection data
+
+### Supporting Files
+
+- **`index.html`** - Main HTML structure
+- **`styles.css`** - CSS styling
+- **`script.js.backup`** - Original monolithic script (backup)
+
+## Dependencies
+
+The modules are loaded in dependency order:
+```html
+<script src="api-client.js"></script>
+<script src="state-manager.js"></script>
+<script src="ui-manager.js"></script>
+<script src="download-manager.js"></script>
+<script src="app.js"></script>
 ```
 
-Esto iniciará:
-- **API Server**: `http://localhost:8000`
-- **Web Interface**: `http://localhost:3000`
+## Key Features Preserved
 
-### Parámetros configurables
+- ✅ SPA routing support
+- ✅ Download progress monitoring
+- ✅ State persistence across reloads
+- ✅ Log deduplication with cooldown
+- ✅ Track status icons with real-time updates
+- ✅ Error handling and retry mechanisms
+- ✅ API connectivity checks
+- ✅ Responsive UI updates
 
-En la interfaz web puedes configurar:
+## Architecture Benefits
 
-- **URL de Spotify**: Pega cualquier URL de Spotify (playlist, álbum, canción)
-- **Directorio de salida**: Donde se guardarán las descargas
-- **Formato de audio**: M4A (recomendado) o MP3
-- **Bitrate**: Desde 96 kbps hasta 258 kbps o "Mejor calidad"
-- **Incluir letras**: Descargar letras sincronizadas cuando estén disponibles
-- **Crear archivos NFO**: Para integración con Jellyfin/Kodi
+- **Separation of Concerns**: Each module has a single responsibility
+- **Maintainability**: Easier to modify specific functionality
+- **Testability**: Individual modules can be tested in isolation
+- **Readability**: Smaller, focused files are easier to understand
+- **Scalability**: New features can be added as separate modules
 
-### Características de la interfaz
+## Module Communication
 
-1. **Validación de URLs**: Verifica que la URL sea válida de Spotify
-2. **Monitoreo de progreso**: Barra de progreso y estado en tiempo real
-3. **Registro de actividad**: Log detallado de todas las operaciones
-4. **Notificaciones visuales**: Estados de éxito, error y advertencia
-5. **Diseño responsivo**: Funciona en desktop y móvil
+- **App.js** orchestrates all modules and passes callbacks for state synchronization
+- **Download Manager** uses UI Manager for visual updates
+- **All modules** can trigger state saves through callback functions
+- **Error handling** is centralized in the main app controller
 
-### Puertos por defecto
+## Usage
 
-- **Frontend**: Puerto 3000
-- **API**: Puerto 8000
+The application auto-initializes when the page loads via:
+```javascript
+document.addEventListener('DOMContentLoaded', () => {
+    new SpotifySaverUI();
+});
+```
 
-## Arquitectura
-
-El comando `spotifysaver-ui` ejecuta:
-
-1. **Servidor API**: FastAPI backend que maneja las descargas
-2. **Servidor Web**: Sirve la interfaz HTML/CSS/JavaScript
-3. **Apertura automática**: Abre el navegador automáticamente
-
-## Detener el servidor
-
-Usa `Ctrl+C` para detener ambos servidores de manera segura.
-
-## Dependencias
-
-El comando utiliza las mismas dependencias que el resto de SpotifySaver:
-- FastAPI para la API
-- Servidor HTTP integrado de Python para el frontend
-- Todas las dependencias de descarga y procesamiento
-
-## Desarrollo
-
-Los archivos del frontend están en:
-- `spotifysaver/ui/frontend/index.html`
-- `spotifysaver/ui/frontend/styles.css`
-- `spotifysaver/ui/frontend/script.js`
-
-El servidor está en:
-- `spotifysaver/ui/server.py`
+No manual initialization required.
