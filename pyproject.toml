@@ -55,7 +55,6 @@ mypy = "^1.5.1"
 [tool.poetry.scripts]
 spotifysaver = "spotifysaver.__main__:cli"
 spotifysaver-api = "spotifysaver.api.main:run_server"
-spotifysaver-ui = "spotifysaver.ui.main:run_ui_server"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
