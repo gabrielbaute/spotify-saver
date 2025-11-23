@@ -198,7 +198,7 @@ class YouTubeDownloader:
 
         dir_path.mkdir(parents=True, exist_ok=True)
         track_name = self._sanitize_filename(track.name or "Unknown Track")
-        return dir_path / f"{track_name}.{output_format.value}"
+        return dir_path / f"{track.number} - {artist_name} - {track_name}.{output_format.value}"
 
     def _download_cover(self, track: Track) -> Optional[bytes]:
         """Download cover art from Spotify.

@@ -45,11 +45,15 @@ class MusicFileMetadata:
         """
         self.logger.debug(f"Getting genre for track: {track.number} - {track.name} from TheAudioDB")
         track_data = self.audiodb.get_track_metadata(track.name, track.artists[0])
-        self.logger.debug(f"Getting genre for album: {track.album_name} from TheAudioDB")
         album_data = self.audiodb.get_album_metadata(track.album_artist[0], track.album_name)
 
-        track_genre = self.safe_attr(track_data, "genre")
-        album_genre = self.safe_attr(album_data, "genre")
+        if track_data:
+            self.logger.debug(f"Track data type: {type(track_data)} - {track_data}")
+        if album_data:
+            self.logger.debug(f"Album data type: {type(album_data)} - {album_data}")
+
+        track_genre = getattr(track_data, "genre", None) if track_data else None
+        album_genre = getattr(album_data, "genre", None) if album_data else None
 
         if track_genre:
             self.logger.info(f"Genre found in track: {track_genre}")
