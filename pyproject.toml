@@ -47,12 +47,10 @@ classifiers = [
 ]
 packages = [{include = "spotifysaver"}]
 include = [
-    { path = "spotifysaver/ui/*.html", format = ["sdist", "wheel"] },
-    { path = "spotifysaver/ui/*.md", format = ["sdist", "wheel"] },
-    { path = "spotifysaver/ui/static/css/*.css", format = ["sdist", "wheel"] },
-    { path = "spotifysaver/ui/static/js/*.js", format = ["sdist", "wheel"] },
-    { path = "LICENSE", format = ["sdist", "wheel"] },
-    { path = "README.md", format = ["sdist", "wheel"] },
+    "spotifysaver/ui/**/*.html",
+    "spotifysaver/ui/**/*.css",
+    "spotifysaver/ui/**/*.js",
+    "spotifysaver/ui/**/*.md",
 ]
 exclude = [
     "tests/*",

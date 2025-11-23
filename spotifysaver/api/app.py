@@ -1,5 +1,6 @@
 """FastAPI Application Factory"""
 
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -8,6 +9,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routers import download
 from .config import APIConfig
 from .. import __version__
+
+# Get the absolute path to the UI directory
+UI_DIR = Path(__file__).parent.parent / "ui" / "frontend"
+STATIC_DIR = UI_DIR.parent / "static"
+INDEX_HTML = UI_DIR / "index.html"
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application.
@@ -23,8 +29,9 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
     )
 
-    # Mount static files
-    app.mount("/static", StaticFiles(directory="spotifysaver/ui/static"), name="static")
+    # Mount static files (only if directory exists)
+    if STATIC_DIR.exists():
+        app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
     # Configure CORS
     app.add_middleware(
@@ -42,7 +49,9 @@ def create_app() -> FastAPI:
     @app.get("/", tags=["UI"])
     async def read_index():
         """Serve the main index.html file for the UI."""
-        return FileResponse('spotifysaver/ui/index.html')
+        if INDEX_HTML.exists():
+            return FileResponse(str(INDEX_HTML))
+        return {"message": "UI not available", "docs": "/docs"}
 
     @app.get("/api/v1/", tags=["Info"])
     async def root():
