@@ -11,7 +11,7 @@ from .config import APIConfig
 from .. import __version__
 
 # Get the absolute path to the UI directory
-UI_DIR = Path(__file__).parent.parent / "ui" / "frontend"
+UI_DIR = Path(__file__).parent.parent / "ui"
 STATIC_DIR = UI_DIR.parent / "static"
 INDEX_HTML = UI_DIR / "index.html"
 

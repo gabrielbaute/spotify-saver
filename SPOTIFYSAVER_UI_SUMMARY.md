@@ -1,15 +1,16 @@
-# SpotifySaver UI - Resumen de Implementación
+# SpotifySaver Web UI - Resumen de Implementación
 
 ## ✅ Implementación Completada
 
-He creado exitosamente el comando `spotifysaver-ui` que proporciona una interfaz web moderna para SpotifySaver. Aquí está lo que se implementó:
+La interfaz web de SpotifySaver ahora está **integrada directamente en el comando `spotifysaver-api`**, proporcionando una solución unificada para la API y la interfaz web. 
 
 ### 🎯 Características Principales
 
-1. **Comando `spotifysaver-ui`**
-   - Ejecuta automáticamente tanto la API como el frontend
-   - Abre el navegador automáticamente
-   - Configuración flexible mediante argumentos de línea de comandos
+1. **Servidor Unificado `spotifysaver-api`**
+   - Sirve tanto la API como la interfaz web en un solo puerto (8000)
+   - La interfaz web está disponible en `http://localhost:8000`
+   - La documentación de la API en `http://localhost:8000/docs`
+   - Configuración simplificada con un solo servidor
 
 2. **Interfaz Web Moderna**
    - Diseño responsive y atractivo
@@ -23,50 +24,65 @@ He creado exitosamente el comando `spotifysaver-ui` que proporciona una interfaz
    - Bitrate configurable (128-320 kbps)
    - Directorio de salida personalizable
    - Opciones para letras y archivos NFO
-   - Puertos configurables
+   - Puerto configurable (default: 8000)
 
 ### 🔧 Arquitectura Técnica
 
 #### Backend
-- **Servidor API**: FastAPI ejecutándose en puerto 8000
-- **Servidor UI**: HTTP server nativo de Python en puerto 3000
-- **Gestión de procesos**: Manejo seguro de múltiples servidores
+- **Servidor Unificado**: FastAPI sirviendo tanto API como UI en puerto 8000
+- **Archivos Estáticos**: Servidos desde `spotifysaver/ui/`
+- **Rutas Absolutas**: Usa Path para resolver rutas independientemente del sistema operativo
 - **Configuración**: Variables de entorno y argumentos CLI
 
 #### Frontend
+- **Arquitectura Modular**: Código JavaScript organizado en 5 módulos especializados
+  - `api-client.js` - Comunicación con API
+  - `state-manager.js` - Persistencia de estado
+  - `ui-manager.js` - Actualizaciones de interfaz
+  - `download-manager.js` - Gestión de descargas
+  - `app.js` - Controlador principal
 - **HTML5**: Estructura semántica moderna
 - **CSS3**: Diseño gradient, animaciones, responsive
-- **JavaScript**: Vanilla JS sin dependencias externas
-- **Comunicación**: Fetch API para comunicación con backend
 - **UX**: Validación, feedback visual, logging en tiempo real
 
 ### 📁 Estructura de Archivos
 
 ```
 spotifysaver/
+├── api/
+│   ├── app.py                # Aplicación FastAPI integrada con UI
+│   └── ...
 ├── ui/
-│   ├── __init__.py           # Exporta run_ui_server
-│   ├── server.py             # Servidor principal
-│   ├── config.py             # Configuración del UI
-│   ├── README.md             # Documentación del UI
-│   └── frontend/
-│       ├── index.html        # Interfaz principal
-│       ├── styles.css        # Estilos modernos
-│       └── script.js         # Lógica del frontend
+│   ├── index.html            # Página principal
+│   ├── static/
+│   │   ├── css/
+│   │   │   └── styles.css    # Estilos
+│   │   └── js/
+│   │       ├── api-client.js     # Cliente API
+│   │       ├── state-manager.js  # Gestión de estado
+│   │       ├── ui-manager.js     # Gestión UI
+│   │       ├── download-manager.js # Gestión descargas
+│   │       └── app.js            # Aplicación principal
+│   └── README.md             # Documentación del UI
 ```
 
 ### 🚀 Uso del Comando
 
 ```bash
-# Uso básico
-spotifysaver-ui
+# Uso básico - Inicia API + UI en puerto 8000
+spotifysaver-api
 
-# Con configuración personalizada
-spotifysaver-ui --ui-port 3001 --api-port 8001 --no-browser
+# Con puerto personalizado
+spotifysaver-api --port 8080
 
-# Con hosts específicos
-spotifysaver-ui --ui-host 0.0.0.0 --api-host 127.0.0.1
+# Con host específico
+spotifysaver-api --host 0.0.0.0
 ```
+
+**Acceso:**
+- **Interfaz Web**: http://localhost:8000
+- **Documentación API**: http://localhost:8000/docs
+- **Redoc API**: http://localhost:8000/redoc
 
 ### 🌐 Funcionalidades Web
 
@@ -90,33 +106,27 @@ spotifysaver-ui --ui-host 0.0.0.0 --api-host 127.0.0.1
 ### 🔧 Configuración Avanzada
 
 #### Variables de Entorno
-- `SPOTIFYSAVER_UI_PORT`: Puerto del servidor UI (default: 3000)
-- `SPOTIFYSAVER_API_PORT`: Puerto del servidor API (default: 8000)
-- `SPOTIFYSAVER_UI_HOST`: Host del servidor UI (default: localhost)
-- `SPOTIFYSAVER_API_HOST`: Host del servidor API (default: 0.0.0.0)
-- `SPOTIFYSAVER_AUTO_OPEN_BROWSER`: Abrir navegador automáticamente (default: true)
+- `SPOTIFYSAVER_API_PORT`: Puerto del servidor (default: 8000)
+- `SPOTIFYSAVER_API_HOST`: Host del servidor (default: 0.0.0.0)
 
 #### Argumentos CLI
-- `--ui-port`: Puerto del servidor UI
-- `--api-port`: Puerto del servidor API
-- `--ui-host`: Host del servidor UI
-- `--api-host`: Host del servidor API
-- `--no-browser`: No abrir navegador automáticamente
+- `--port`: Puerto del servidor
+- `--host`: Host del servidor
 
 ### 💡 Características Técnicas
 
-1. **Gestión de Procesos**:
-   - API ejecutándose en proceso separado
-   - UI en thread separado
+1. **Arquitectura Integrada**:
+   - FastAPI sirve tanto la API REST como la interfaz web
+   - Servidor único en puerto 8000
    - Manejo limpio de shutdown (Ctrl+C)
 
 2. **Comunicación**:
    - CORS configurado para desarrollo
    - Validación de formularios en frontend
-   - Mapeo correcto de parámetros API
+   - API REST documentada con Swagger/ReDoc
 
 3. **Compatibilidad**:
-   - Fallback para monitoreo de progreso
+   - Rutas estáticas para CSS/JS
    - Manejo de errores robusto
    - Logging detallado
 
@@ -130,18 +140,20 @@ spotifysaver-ui --ui-host 0.0.0.0 --api-host 127.0.0.1
 
 ### 🔄 Actualización del Proyecto
 
-1. **pyproject.toml**: Añadido script `spotifysaver-ui`
-2. **README.md**: Documentación completa del nuevo comando
-3. **Instalación**: Compatible con instalación via pip/poetry existente
+1. **spotifysaver/api/app.py**: Integrada interfaz web en FastAPI
+2. **pyproject.toml**: Configuración de archivos UI en package
+3. **README.md**: Documentación del servidor unificado
+4. **Instalación**: Compatible con instalación via pip/poetry existente
 
 ### ✅ Pruebas Realizadas
 
-- ✅ Instalación del comando via pip
-- ✅ Inicio de servidores API y UI
-- ✅ Apertura automática del navegador
+- ✅ Instalación del paquete via pip/poetry
+- ✅ Inicio del servidor con `spotifysaver-api`
+- ✅ Acceso a interfaz web en http://localhost:8000
 - ✅ Interfaz web responsive
 - ✅ Comunicación frontend-backend
 - ✅ Validación de formularios
 - ✅ Manejo de errores
+- ✅ Compatibilidad cross-platform (Windows/Linux/macOS)
 
-El comando `spotifysaver-ui` está completamente implementado y listo para uso. Proporciona una interfaz web moderna y fácil de usar que hace que SpotifySaver sea accesible para usuarios que prefieren interfaces gráficas sobre la línea de comandos.
+La interfaz web está completamente integrada en `spotifysaver-api` y lista para uso. Proporciona una interfaz moderna y fácil de usar que hace que SpotifySaver sea accesible para usuarios que prefieren interfaces gráficas sobre la línea de comandos.

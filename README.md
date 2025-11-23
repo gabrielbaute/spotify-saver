@@ -68,6 +68,7 @@ This will create a local `.env` file with the environment variables that will be
 | `YTDLP_COOKIES_PATH`      | Cookie file path (optional)                | -                                 |
 | `API_PORT`                | API server port (optional)                 | `8000`                            |
 | `API_HOST`                | Host for the API (optional)                | `0.0.0.0`                         |
+| `UI_ENABLED`              | Enable/disable web interface (optional)    | `true`                            |
 
 The variable `YTDLP_COOKIES_PATH` will indicate the location of the file with the Youtube Music cookies, in case we have problems with restrictions to yt-dlp, specifically it is for cases in which youtube blocks the app for "behaving like a bot" (~~which is not entirely false lol~~)
 
@@ -142,11 +143,11 @@ The server will run at `http://localhost:8000` by default. You can find the [API
 SpotifySaver now includes a modern web interface that makes it easy to download music without using the command line:
 
 ```bash
-# Start the web interface (includes API server)
-spotifysaver-ui
+# Start the API server with web interface
+spotifysaver-api
 ```
 
-This will start both the API server and a web interface that you can access at `http://localhost:3000`. The web interface provides:
+This will start the API server with an integrated web interface that you can access at `http://localhost:8000`. The web interface provides:
 
 - **Easy URL input**: Simply paste any Spotify URL (track, album, or playlist)
 - **Full configuration**: All download options available through an intuitive interface
@@ -163,9 +164,9 @@ This will start both the API server and a web interface that you can access at `
 - ✅ Activity log with timestamps
 - ✅ Error handling and user feedback
 
-**Default Ports:**
-- Web Interface: `http://localhost:3000`
-- API Endpoint: `http://localhost:8000`
+**Default Access:**
+- Web Interface & API: `http://localhost:8000`
+- API Documentation: `http://localhost:8000/docs`
 
 ## 🐳 Docker Support
 
@@ -196,8 +197,8 @@ docker compose up --build
 ```
 
 3. **Access the web interface:**
-   - 🌐 **Web UI**: http://localhost:3000
-   - 🔧 **API**: http://localhost:8000
+   - 🌐 **Web UI & API**: http://localhost:8000
+   - 📚 **API Docs**: http://localhost:8000/docs
 
 ### 📦 Using GitHub Container Registry
 
@@ -209,7 +210,6 @@ docker pull ghcr.io/gabrielbaute/spotify-saver:latest
 # Run container
 docker run -d \
   --name spotifysaver \
-  -p 3000:3000 \
   -p 8000:8000 \
   -v ./music:/music \
   -v ./config:/config \
@@ -226,17 +226,14 @@ docker run -d \
 ### 🔧 Environment Variables
 
 | Variable | Description | Default |
-|----------|-------------|---------|
+|----------|-------------|---------|  
 | `SPOTIFY_CLIENT_ID` | Spotify API Client ID | **Required** |
 | `SPOTIFY_CLIENT_SECRET` | Spotify API Client Secret | **Required** |
 | `SPOTIFY_REDIRECT_URI` | Callback URL | `http://localhost:8000/callback` |
-| `UI_PORT` | Web interface port | `3000` |
-| `API_PORT` | API server port | `8000` |
+| `API_PORT` | API server port (includes web UI) | `8000` |
 | `MUSIC_DIR` | Host music directory | `./music` |
 | `CONFIG_DIR` | Host config directory | `./config` |
-| `LOG_LEVEL` | Logging level | `INFO` |
-
-### 🛠️ Custom Docker Compose Configuration
+| `LOG_LEVEL` | Logging level | `INFO` |### 🛠️ Custom Docker Compose Configuration
 
 ```yaml
 services:
@@ -244,7 +241,6 @@ services:
     container_name: spotifysaver
     image: ghcr.io/gabrielbaute/spotify-saver:latest
     ports:
-      - "${UI_PORT:-3000}:3000"
       - "${API_PORT:-8000}:8000"
     environment:
       - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
@@ -281,7 +277,6 @@ docker build -t spotify-saver .
 # Run container
 docker run -d \
   --name spotifysaver \
-  -p 3000:3000 \
   -p 8000:8000 \
   -v ./music:/music \
   -v ./config:/config \
