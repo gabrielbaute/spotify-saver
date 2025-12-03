@@ -53,6 +53,9 @@ class Config:
     # YouTube cookies file for bypassing age restrictions
     YTDLP_COOKIES_PATH = os.getenv("YTDLP_COOKIES_PATH", None)
 
+    # Default output directory
+    OUTPUT_DIR = os.getenv("SPOTIFYSAVER_OUTPUT_DIR", "Music")
+
     # Downloader configuration
     DOWNLOAD_TIMEOUT = os.getenv("DOWNLOAD_TIMEOUT", 10)
 
