@@ -169,7 +169,6 @@ class SpotifyAPI:
             results = self.sp.playlist_tracks(playlist_id)
             tracks = results['items']
             while results['next']:
-                print(f"Fetching more tracks for playlist: {playlist_id}")
                 results = self.sp.next(results)
                 tracks.extend(results['items'])
             return tracks
