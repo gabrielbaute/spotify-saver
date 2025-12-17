@@ -158,10 +158,20 @@ class SpotifyAPI:
             playlist_id = self._extract_spotify_id(playlist_url)
             if not playlist_id:
                 raise ValueError("Invalid playlist URL")
-            return self.sp.playlist(playlist_id)
+            playlist = self.sp.playlist(playlist_id)
+            playlist["tracks"]['items'] = self._get_playlist_tracks(playlist_id)
+            return playlist
         except spotipy.exceptions.SpotifyException as e:
             self.logger.error(f"Error fetching playlist data: {e}")
             raise ValueError("Playlist not found or invalid URL") from e
+
+    def _get_playlist_tracks(self, playlist_id) ->list:
+            results = self.sp.playlist_tracks(playlist_id)
+            tracks = results['items']
+            while results['next']:
+                results = self.sp.next(results)
+                tracks.extend(results['items'])
+            return tracks
 
     @lru_cache(maxsize=32)
     def fetch_artist_albums(self, artist_url: str) -> dict:
