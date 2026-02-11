@@ -1,8 +1,8 @@
 class ApiClient {
     constructor() {
-        this.apiUrl = `${window.location.protocol}//${window.location.hostname}:8000/api/v1`;
-        this.apiUrlHealth = `${window.location.protocol}//${window.location.hostname}:8000/health`;
-        this.apiUrlVersion = `${window.location.protocol}//${window.location.hostname}:8000/version`;
+        this.apiUrl = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/api/v1`;
+        this.apiUrlHealth = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/health`;
+        this.apiUrlVersion = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/version`;
         this.maxRetries = 3;
     }
 
