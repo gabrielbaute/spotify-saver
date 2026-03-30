@@ -1,8 +1,9 @@
 class ApiClient {
     constructor() {
-        this.apiUrl = `${window.location.protocol}//${window.location.hostname}:8000/api/v1`;
-        this.apiUrlHealth = `${window.location.protocol}//${window.location.hostname}:8000/health`;
-        this.apiUrlVersion = `${window.location.protocol}//${window.location.hostname}:8000/version`;
+        // Use same-origin URLs so reverse proxies (Traefik/Nginx/Caddy) work without exposing :8000.
+        this.apiUrl = `${window.location.origin}/api/v1`;
+        this.apiUrlHealth = `${window.location.origin}/health`;
+        this.apiUrlVersion = `${window.location.origin}/version`;
         this.maxRetries = 3;
     }
 
