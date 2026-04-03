@@ -24,6 +24,7 @@ class DownloadService:
         generate_nfo: bool = False,
         output_format: str = "m4a",
         bit_rate: int = 128,
+        user_token: Optional[str] = None,
     ):
         """Initialize the download service.
 
@@ -43,7 +44,7 @@ class DownloadService:
         self.bit_rate = YouTubeDownloader.int_to_bitrate(bit_rate)
 
         # Initialize services
-        self.spotify = SpotifyAPI()
+        self.spotify = SpotifyAPI(user_token=user_token)
         self.searcher = YoutubeMusicSearcher()
         self.downloader = YouTubeDownloaderForCLI(base_dir=self.output_dir)
 

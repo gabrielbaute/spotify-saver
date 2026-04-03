@@ -21,6 +21,7 @@ from ..services import DownloadService
 from ...services import SpotifyAPI
 from ...spotlog import get_logger
 from ..config import APIConfig
+from .auth import get_user_token
 
 
 logger = get_logger("API")
@@ -142,7 +143,20 @@ async def list_downloads():
 async def inspect_spotify_url(spotify_url: str):
     """Inspect a Spotify URL to get metadata without downloading."""
     try:
-        spotify = SpotifyAPI()
+        if "playlist" in spotify_url:
+            token = get_user_token()
+            if not token:
+                raise HTTPException(
+                    status_code=401,
+                    detail=(
+                        "Spotify authentication required for playlists. "
+                        "Visit /api/v1/auth/login to authenticate."
+                    ),
+                )
+            spotify = SpotifyAPI(user_token=token)
+        else:
+            spotify = SpotifyAPI()
+
         if "track" in spotify_url:
             track = spotify.get_track(spotify_url)
             return TrackInfo(
@@ -212,6 +226,9 @@ async def download_task(task_id: str, request: DownloadRequest):
         task = tasks[task_id]
         task.status = "processing"
 
+        spotify_url = str(request.spotify_url)
+        user_token = get_user_token() if "playlist" in spotify_url else None
+
         # Initialize the download service
         download_service = DownloadService(
             output_dir=request.output_dir,
@@ -220,6 +237,7 @@ async def download_task(task_id: str, request: DownloadRequest):
             generate_nfo=request.generate_nfo,
             output_format=request.output_format,
             bit_rate=request.bit_rate,
+            user_token=user_token,
         )
 
         # Progress callback

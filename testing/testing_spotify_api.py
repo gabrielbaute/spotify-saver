@@ -29,8 +29,6 @@ def download_artist(artist_url: str):
     print(f"Artist Name: {artist.name}")
     print(f"Artist URI: {artist.uri}")
     print(f"Genres: {', '.join(artist.genres)}")
-    print(f"Popularity: {artist.popularity}")
-    print(f"Followers: {artist.followers}")
     print(f"Image URL: {artist.image_url}")
 
 if __name__ == "__main__":

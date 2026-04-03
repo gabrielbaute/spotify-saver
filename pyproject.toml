@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "spotifysaver"
-version = "0.7.5"
+version = "0.8.0"
 description = "Download Spotify tracks/albums with metadata via YouTube Music (Perfect for Jellyfin libraries!)"
 authors = [
     "Gabriel Baute <gabrielbaute@gmail.com>",
@@ -63,7 +63,7 @@ exclude = [
 [tool.poetry.dependencies]
 python = "^3.9"
 mutagen = "^1.47.0"
-spotipy = "^2.25.1"
+spotipy = "^2.26.0"
 yt-dlp = "^2025.10.14"
 ytmusicapi = "^1.10.3"
 requests = "^2.32.5"

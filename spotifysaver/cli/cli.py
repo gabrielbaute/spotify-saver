@@ -14,6 +14,7 @@ from spotifysaver.cli.commands import (
     inspect,
     show_log,
     init as init_command,
+    auth as auth_command,
 )
 
 
@@ -34,3 +35,4 @@ cli.add_command(inspect)
 cli.add_command(version)
 cli.add_command(show_log)
 cli.add_command(init_command)
+cli.add_command(auth_command)

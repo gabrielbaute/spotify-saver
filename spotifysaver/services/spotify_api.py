@@ -6,7 +6,8 @@ from typing import Dict, List, Optional
 import re
 import spotipy
 from urllib.parse import urlparse
-from spotipy.oauth2 import SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyClientCredentials, SpotifyPKCE, SpotifyOAuth
+from spotipy.cache_handler import MemoryCacheHandler, CacheFileHandler
 
 from spotifysaver.config import Config
 from spotifysaver.models import Album, Track, Artist, Playlist
@@ -15,31 +16,56 @@ from spotifysaver.spotlog import get_logger
 
 class SpotifyAPI:
     """Encapsulated class for interacting with the Spotify API.
-    
-    This class provides a simplified interface to the Spotify Web API,
-    handling authentication and providing methods to retrieve tracks,
-    albums, artists, and playlists with proper caching.
-    
+
+    Uses Client Credentials for tracks/albums/artists (no user context needed)
+    and a user-authenticated client for playlist operations.
+
     Attributes:
-        sp: Authenticated Spotipy client instance
+        sp: Client Credentials spotipy instance (tracks, albums, artists)
     """
 
-    def __init__(self):
-        """Initialize the Spotify API client with authentication.
-        
-        Validates credentials and sets up the authenticated Spotipy client.
-        
+    def __init__(self, user_token: Optional[str] = None):
+        """Initialize the Spotify API client.
+
+        Args:
+            user_token: Optional OAuth access token. When provided (FastAPI server
+                        use-case), creates the user client from this token directly
+                        instead of triggering an interactive browser flow.
+
         Raises:
             ValueError: If Spotify credentials are missing or invalid
         """
-        Config.validate()  # Valida las credenciales
+        Config.validate()
         self.sp = spotipy.Spotify(
             auth_manager=SpotifyClientCredentials(
                 client_id=Config.SPOTIFY_CLIENT_ID,
                 client_secret=Config.SPOTIFY_CLIENT_SECRET,
+                cache_handler=MemoryCacheHandler(),
             )
         )
+        self._sp_user: Optional[spotipy.Spotify] = (
+            spotipy.Spotify(auth=user_token) if user_token else None
+        )
         self.logger = get_logger(f"{self.__class__.__name__}")
+
+    @property
+    def sp_user(self) -> spotipy.Spotify:
+        """User-authenticated spotipy client, lazily initialized via PKCE flow.
+
+        On first access (CLI context), opens the browser for OAuth consent and
+        caches the token at SPOTIFY_TOKEN_CACHE_PATH for future calls.
+        """
+        if self._sp_user is None:
+            auth_manager = SpotifyPKCE(
+                client_id=Config.SPOTIFY_CLIENT_ID,
+                redirect_uri=Config.SPOTIFY_REDIRECT_URI,
+                scope=Config.SPOTIFY_SCOPES,
+                cache_handler=CacheFileHandler(
+                    cache_path=Config.SPOTIFY_TOKEN_CACHE_PATH
+                ),
+            )
+            self._sp_user = spotipy.Spotify(auth_manager=auth_manager)
+        return self._sp_user
 
     def _extract_spotify_id(self, url: str) -> Optional[str]:
         """
@@ -143,13 +169,13 @@ class SpotifyAPI:
     @lru_cache(maxsize=32)
     def _fetch_playlist_data(self, playlist_url: str) -> dict:
         """Fetch raw playlist data from the API.
-        
+
         Args:
             playlist_url: Spotify URL or URI for the playlist
-            
+
         Returns:
             dict: Raw playlist data from Spotify API
-            
+
         Raises:
             ValueError: If playlist is not found or URL is invalid
         """
@@ -158,20 +184,24 @@ class SpotifyAPI:
             playlist_id = self._extract_spotify_id(playlist_url)
             if not playlist_id:
                 raise ValueError("Invalid playlist URL")
-            playlist = self.sp.playlist(playlist_id)
-            playlist["tracks"]['items'] = self._get_playlist_tracks(playlist_id)
+            playlist = self.sp_user.playlist(playlist_id, market="US")
+            if not playlist or "items" not in playlist:
+                self.logger.error(f"Unexpected playlist response: {playlist}")
+                raise ValueError(
+                    f"Cannot access tracks for playlist "
+                    f"'{playlist.get('name', 'unknown') if playlist else 'unknown'}'. "
+                    "You can only download playlists you own or collaborate on."
+                )
+            items_page = playlist["items"]
+            all_items = list(items_page["items"])
+            while items_page.get("next"):
+                items_page = self.sp_user.next(items_page)
+                all_items.extend(items_page["items"])
+            playlist["items"]["items"] = all_items
             return playlist
         except spotipy.exceptions.SpotifyException as e:
             self.logger.error(f"Error fetching playlist data: {e}")
             raise ValueError("Playlist not found or invalid URL") from e
-
-    def _get_playlist_tracks(self, playlist_id) ->list:
-            results = self.sp.playlist_tracks(playlist_id)
-            tracks = results['items']
-            while results['next']:
-                results = self.sp.next(results)
-                tracks.extend(results['items'])
-            return tracks
 
     @lru_cache(maxsize=32)
     def fetch_artist_albums(self, artist_url: str) -> dict:
@@ -295,8 +325,6 @@ class SpotifyAPI:
             uri=raw_data["uri"],
             cover=raw_data.get("images", ["url"]),
             genres=raw_data.get("genres", []),
-            popularity=raw_data["popularity"],
-            followers=raw_data["followers"]["total"],
             image_url=raw_data["images"][0]["url"] if raw_data["images"] else None,
         )
 
@@ -316,28 +344,28 @@ class SpotifyAPI:
                 source_type="playlist",
                 playlist_name=raw_data["name"],
                 number=idx + 1,
-                total_tracks=raw_data["tracks"]["total"],
-                name=track["track"]["name"],
-                duration=track["track"]["duration_ms"] // 1000,
-                uri=track["track"]["uri"],
-                artists=[a["name"] for a in track["track"]["artists"]],
-                album_artist=[a["name"] for a in track["track"]["album"]["artists"]],
+                total_tracks=raw_data["items"]["total"],
+                name=item["item"]["name"],
+                duration=item["item"]["duration_ms"] // 1000,
+                uri=item["item"]["uri"],
+                artists=[a["name"] for a in item["item"]["artists"]],
+                album_artist=[a["name"] for a in item["item"]["album"]["artists"]],
                 album_name=(
-                    track["track"]["album"]["name"] if track["track"]["album"] else None
+                    item["item"]["album"]["name"] if item["item"]["album"] else None
                 ),
                 release_date=(
-                    track["track"]["album"]["release_date"]
-                    if track["track"]["album"]
+                    item["item"]["album"]["release_date"]
+                    if item["item"]["album"]
                     else "NA"
                 ),
                 cover_url=(
-                    track["track"]["album"]["images"][0]["url"]
-                    if track["track"]["album"]["images"]
+                    item["item"]["album"]["images"][0]["url"]
+                    if item["item"]["album"]["images"]
                     else None
                 ),
             )
-            for idx, track in enumerate(raw_data["tracks"]["items"])
-            if track["track"]
+            for idx, item in enumerate(raw_data["items"]["items"])
+            if item["item"]
         ]
 
         return Playlist(
