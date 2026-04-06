@@ -6,7 +6,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import download
+from .routers import download, auth
+from .routers.auth import handle_auth_callback
 from .config import APIConfig
 from .. import __version__
 
@@ -44,6 +45,11 @@ def create_app() -> FastAPI:
 
     # Include routers
     app.include_router(download.router, prefix="/api/v1", tags=["download"])
+    app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
+
+    # Spotify OAuth callback — must match the redirect URI registered in the
+    # Spotify Developer Dashboard: http://127.0.0.1:8000/callback
+    app.get("/callback", tags=["auth"])(handle_auth_callback)
 
     # Serve the main HTML file
     @app.get("/", tags=["UI"])

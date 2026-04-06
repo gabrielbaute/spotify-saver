@@ -26,7 +26,7 @@ def init():
     )
     spotify_redirect_uri = click.prompt(
         "Enter your Spotify Redirect URI",
-        default="http://localhost:8888/callback",
+        default="http://127.0.0.1:8000/callback",
         type=str,
     )
 
@@ -74,3 +74,4 @@ API_HOST={api_host}
     click.echo(f"\n✅ Configuration saved to: {env_file}")
     click.echo("You can now run the SpotifySaver commands with your configured settings.")
     click.echo("You can run init again to update settings or create a new configuration.")
+    click.echo("\nTo download playlists, run: spotifysaver auth")

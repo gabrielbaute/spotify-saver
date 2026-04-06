@@ -1,8 +1,12 @@
 from spotifysaver.services.spotify_api import SpotifyAPI
 
+# NOTE: Playlist access requires Spotify user authentication as of the February 2026
+# API changes. Run `spotifysaver auth` before executing this test script, or pass a
+# user_token directly: SpotifyAPI(user_token="<token>")
+
 def get_playlist_tracks(playlist_url: str):
     """Obtiene los tracks de una playlist y los imprime."""
-    api = SpotifyAPI()
+    api = SpotifyAPI()  # sp_user PKCE flow triggered on first playlist call
     playlist = api.get_playlist(playlist_url)
     
     print(f"Playlist: {playlist.name} ({playlist.uri})")

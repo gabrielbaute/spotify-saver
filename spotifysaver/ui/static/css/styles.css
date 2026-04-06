@@ -376,6 +376,88 @@ select:focus {
     vertical-align: middle;
 }
 
+/* Auth status section — matches existing card style, spans full dashboard width */
+.auth-section {
+    background: white;
+    padding: 20px 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.auth-status-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.auth-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: #a0aec0;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-checking .auth-status-dot {
+    animation: pulse 1.2s ease-in-out infinite alternate;
+}
+
+.auth-connected .auth-status-dot {
+    background: #38a169;
+    box-shadow: 0 0 0 4px rgba(56, 161, 105, 0.15);
+}
+
+.auth-disconnected .auth-status-dot {
+    background: #d69e2e;
+    box-shadow: 0 0 0 4px rgba(214, 158, 46, 0.15);
+}
+
+.auth-status-text {
+    font-size: 15px;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+.auth-status-text strong {
+    color: #2d3748;
+}
+
+.connect-spotify-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+}
+
+.connect-spotify-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.connect-spotify-btn:active {
+    transform: translateY(0);
+}
+
+.connect-spotify-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
 /* Footer Styles */
 .main-footer {
     margin-top: 40px;

@@ -15,28 +15,67 @@ class SpotifySaverUI {
         try {
             this.initializeEventListeners();
             this.loadPersistedState();
-            
+
             // Check API status with retry mechanism
             const apiAvailable = await this.apiClient.checkApiStatusWithRetry();
-            
+
             if (apiAvailable) {
                 this.uiManager.updateStatus('API connected and ready', 'success');
                 await this.setDefaultOutputDir();
                 await this.loadAppVersion();
+                await this.checkAuthStatus();
             } else {
                 this.uiManager.updateStatus('API not available. Make sure it is running.', 'error');
             }
-            
+
             this.isInitialized = true;
-            
+
             // If there was a download in progress, try to reconnect
             if (this.downloadManager.isDownloadInProgress && this.downloadManager.taskId) {
                 this.downloadManager.startProgressMonitoring(this.downloadManager.taskId);
             }
-            
+
         } catch (error) {
             console.error('Failed to initialize UI:', error);
             this.uiManager.updateStatus('Failed to initialize. Please refresh the page.', 'error');
+        }
+    }
+
+    async checkAuthStatus() {
+        const card = document.getElementById('auth-status-card');
+        const text = document.getElementById('auth-status-text');
+        const btn = document.getElementById('connect-spotify-btn');
+
+        const status = await this.apiClient.getAuthStatus();
+
+        card.classList.remove('auth-checking', 'auth-connected', 'auth-disconnected');
+
+        if (status.authenticated) {
+            card.classList.add('auth-connected');
+            text.innerHTML = `Spotify connected as <strong>${status.user || status.user_id}</strong>`;
+            btn.classList.add('hidden');
+            this.uiManager.addLogEntry(`Spotify account connected as ${status.user || status.user_id}`, 'success');
+        } else {
+            card.classList.add('auth-disconnected');
+            text.textContent = 'Spotify not connected — playlists require authentication';
+            btn.classList.remove('hidden');
+            this.uiManager.addLogEntry('Spotify account not connected. Playlists will not work until you connect.', 'warning');
+        }
+    }
+
+    async handleConnectSpotify() {
+        const btn = document.getElementById('connect-spotify-btn');
+        btn.disabled = true;
+        btn.textContent = 'Connecting...';
+        this.uiManager.addLogEntry('Opening Spotify authorization page...', 'info');
+
+        try {
+            const authUrl = await this.apiClient.getAuthLoginUrl();
+            window.location.href = authUrl;
+        } catch (error) {
+            this.uiManager.addLogEntry(`Failed to get auth URL: ${error.message}`, 'error');
+            btn.disabled = false;
+            btn.textContent = 'Connect Spotify';
         }
     }
 
@@ -44,15 +83,18 @@ class SpotifySaverUI {
         const downloadBtn = document.getElementById('download-btn');
         const spotifyUrl = document.getElementById('spotify-url');
         const clearLogsBtn = document.getElementById('clear-logs-btn');
-        
+        const connectBtn = document.getElementById('connect-spotify-btn');
+
         downloadBtn.addEventListener('click', () => this.downloadManager.startDownload());
-        
+
         // Permitir iniciar descarga con Enter
         spotifyUrl.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !this.downloadManager.isDownloadInProgress) {
                 this.downloadManager.startDownload();
             }
         });
+
+        connectBtn.addEventListener('click', () => this.handleConnectSpotify());
 
         // Botón para limpiar logs y estado
         clearLogsBtn.addEventListener('click', () => {

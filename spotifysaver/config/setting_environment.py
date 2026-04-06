@@ -44,7 +44,7 @@ class Config:
     SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
     SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
     SPOTIFY_REDIRECT_URI = os.getenv(
-        "SPOTIFY_REDIRECT_URI", "http://localhost:8888/callback"
+        "SPOTIFY_REDIRECT_URI", "http://127.0.0.1:8000/callback"
     )
 
     # Logger configuration
@@ -55,6 +55,10 @@ class Config:
 
     # Default output directory
     OUTPUT_DIR = os.getenv("SPOTIFYSAVER_OUTPUT_DIR", "Music")
+
+    # OAuth scopes for user-authenticated operations (playlists)
+    SPOTIFY_SCOPES = "playlist-read-private playlist-read-collaborative"
+    SPOTIFY_TOKEN_CACHE_PATH = str(Path.home() / ".spotify-saver" / ".spotify_token_cache.json")
 
     # Downloader configuration
     DOWNLOAD_TIMEOUT = os.getenv("DOWNLOAD_TIMEOUT", 10)

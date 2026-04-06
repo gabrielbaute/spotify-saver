@@ -157,4 +157,38 @@ class ApiClient {
             return null;
         }
     }
+
+    async getAuthStatus() {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+            const response = await fetch(`${this.apiUrl}/auth/status`, {
+                method: 'GET',
+                mode: 'cors',
+                cache: 'no-cache',
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (response.ok) {
+                return await response.json();
+            }
+            return { authenticated: false };
+        } catch (error) {
+            console.warn('Could not check Spotify auth status:', error);
+            return { authenticated: false };
+        }
+    }
+
+    async getAuthLoginUrl() {
+        const response = await fetch(`${this.apiUrl}/auth/login`, {
+            method: 'GET',
+            mode: 'cors',
+            cache: 'no-cache'
+        });
+        if (!response.ok) {
+            throw new Error('Could not retrieve Spotify auth URL');
+        }
+        const data = await response.json();
+        return data.auth_url;
+    }
 }

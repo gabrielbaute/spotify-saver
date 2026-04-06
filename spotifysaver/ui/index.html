@@ -16,6 +16,15 @@
     <!-- Main content -->
     <div class="container">
         <main class="dashboard">
+            <!-- Spotify auth status — spans full width -->
+            <div id="auth-status-card" class="auth-section auth-checking">
+                <div class="auth-status-info">
+                    <div class="auth-status-dot"></div>
+                    <span id="auth-status-text" class="auth-status-text">Checking Spotify connection...</span>
+                </div>
+                <button id="connect-spotify-btn" class="connect-spotify-btn hidden">Connect Spotify</button>
+            </div>
+
             <!-- Left column -->
             <div class="left-column">
                 <!-- Download progress section -->
